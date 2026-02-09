@@ -1,0 +1,573 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}Home – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="relative">
+  <div class="relative h-[520px] md:h-[640px] bg-center bg-cover"
+       style="background-image:url('{% static 'images/hero_pizza.jpg' %}');">
+    <div class="absolute inset-0 bg-black/35"></div>
+
+    <div class="relative h-full flex items-start justify-center">
+      <div class="pt-16 md:pt-20 text-center px-6">
+        <div class="brand-script text-white text-5xl md:text-7xl leading-none drop-shadow-[0_10px_30px_rgba(0,0,0,.55)]">
+          {{ settings.RESTAURANT_NAME }}
+        </div>
+
+        <div class="mt-2 flex items-center justify-center gap-4 text-white/90">
+          <div class="hairline w-16 bg-white/60"></div>
+          <div class="uppercase tracking-[0.35em] text-xs md:text-sm">
+            {% trans "Taste of Joensuu" %}
+          </div>
+          <div class="hairline w-16 bg-white/60"></div>
+        </div>
+
+        <div class="mt-7 flex items-center justify-center gap-3">
+         <a href="{% url 'restaurant:reservation' %}"
+          class="btn-gold text-dark px-7 py-3 rounded-sm font-semibold">
+          {% trans "Book for Dine In" %}
+        </a>
+         
+          <a href="{% url 'restaurant:menu' %}"
+             class="btn-wood text-white px-7 py-3 rounded-sm font-semibold">
+            {% trans "View Menu" %}
+          </a>
+          <a href="{% url 'restaurant:delivery_location' %}"
+            class="btn-gold text-dark px-7 py-3 rounded-sm font-semibold">
+            {% trans "Order Online" %}
+          </a>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO STRIP -->
+  <div class="paper-bg border-t border-lightbrown/30">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 py-6 text-center">
+
+        <div class="flex items-center justify-center gap-3">
+          <svg class="w-8 h-8 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M20 4c-7 0-12 5-12 12 0 2.5 1 4.5 2.5 6 1.5-1.5 3.5-2.5 6-2.5 7 0 12-5 12-12 0-1-0.2-2-0.5-3.5C26.5 4.2 24 4 20 4Z" />
+            <path d="M8 16c2-2 5-3 9-3" />
+          </svg>
+          <div class="text-left">
+            <div class="brand-serif text-lg font-semibold">{% trans "Fresh Ingredients" %}</div>
+            <div class="text-sm text-dark/70">{% trans "Locally sourced produce" %}</div>
+          </div>
+        </div>
+
+        <div class="hidden md:flex items-center justify-center">
+          <div class="h-10 w-px bg-lightbrown/35"></div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3">
+          <svg class="w-8 h-8 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M7 10h10M7 14h10" />
+            <path d="M3 9v6M21 9v6" />
+          </svg>
+          <div class="text-left">
+            <div class="brand-serif text-lg font-semibold">{% trans "Handcrafted Dough" %}</div>
+            <div class="text-sm text-dark/70">{% trans "Pizza dough made in-house" %}</div>
+          </div>
+        </div>
+
+        <div class="hidden md:flex items-center justify-center">
+          <div class="h-10 w-px bg-lightbrown/35"></div>
+        </div>
+
+        <div class="flex items-center justify-center gap-3">
+          <svg class="w-8 h-8 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v6l4 2" />
+          </svg>
+          <div class="text-left">
+            <div class="brand-serif text-lg font-semibold">{% blocktrans with hours=settings.RESTAURANT_OPENING_HOURS %}Open Daily {{ hours }}{% endblocktrans %}</div>
+            <div class="text-sm text-dark/70">{% trans "Welcome every day." %}</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAVORITES -->
+<section class="paper-bg">
+  <div class="max-w-6xl mx-auto px-6 py-14">
+
+    <!-- Section Header -->
+    <div class="text-center">
+      <div class="flex items-center justify-center gap-4">
+        <div class="hairline w-28"></div>
+        <h2 class="brand-script text-4xl md:text-5xl text-dark">{% trans "Customer Favorites" %}</h2>
+        <div class="hairline w-28"></div>
+      </div>
+      <div class="mt-2 text-xs uppercase tracking-[0.35em] text-dark/60">
+        {% trans "Most Loved Dishes" %}
+      </div>
+    </div>
+
+<!-- REAL ITEMS ONLY + CLICKABLE (PREMIUM CARDS) -->
+<div class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+  {% for item in popular_items|slice:":4" %}
+    <div
+      role="button"
+      tabindex="0"
+      data-item-url="{% url 'restaurant:menu_item_detail' item.id %}"
+      class="group cursor-pointer select-none outline-none"
+    >
+      <div class="relative h-full">
+        <div class="absolute -inset-2 bg-gold/10 blur-xl opacity-0 group-hover:opacity-100 transition"></div>
+
+        <!-- CARD -->
+        <div class="relative h-full flex flex-col overflow-hidden border border-[#d6c6b0] bg-white/40">
+
+          <!-- IMAGE (fixed height) -->
+          <div class="relative h-48">
+            {% if item.image %}
+              <img
+                src="{{ item.image.url }}"
+                alt="{{ item.name }}"
+                class="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.03] transition"
+              />
+            {% else %}
+              <div class="absolute inset-0 bg-lightbrown/25 flex items-center justify-center text-dark/60 text-sm">
+                No image
+              </div>
+            {% endif %}
+
+            <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent"></div>
+
+            <!-- Favorite tag -->
+            <div class="absolute left-3 top-3 px-3 py-1 text-[10px] uppercase tracking-[0.25em]
+                        bg-black/40 text-white/90 border border-white/20 backdrop-blur">
+              Favorite
+            </div>
+
+            <!-- Price -->
+            <div class="absolute right-3 top-3 px-3 py-1 rounded-sm text-xs font-semibold
+                        bg-white/80 border border-dark/10 text-dark">
+              € {{ item.price|floatformat:2 }}
+            </div>
+          </div>
+
+          <!-- CONTENT -->
+          <div class="flex flex-col flex-1 p-4">
+            <div>
+              <div class="brand-serif text-lg font-semibold text-dark leading-tight truncate">
+                {{ item.name }}
+              </div>
+
+              <div class="mt-1 text-[11px] uppercase tracking-[0.25em] text-dark/55 min-h-[14px]">
+                {% if item.category %}{{ item.category.name }}{% endif %}
+              </div>
+
+              <p class="mt-3 text-sm text-dark/70 leading-relaxed line-clamp-2 min-h-[40px]">
+                {{ item.description|default:"" }}
+              </p>
+            </div>
+
+            <!-- ACTIONS pinned bottom -->
+            <div class="mt-auto pt-4 border-t border-dark/10 flex items-center justify-between gap-3">
+
+              <!-- PREVIEW: open modal -->
+              <button
+                type="button"
+                class="text-xs font-semibold underline underline-offset-4 text-dark/70 hover:text-dark"
+                data-preview="1"
+              >
+                Preview
+              </button>
+
+              <!-- ORDER NOW: add item to delivery cart + go to delivery -->
+              <button
+                type="button"
+                data-order-now="{{ item.id }}"
+                class="btn-gold px-4 py-2 rounded-sm text-sm font-semibold text-dark"
+              >
+                Order Now →
+              </button>
+
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="text-center text-sm text-dark/60 col-span-full">
+    {% blocktrans %}No customer favorites yet. Add tag <b>popular</b> to menu items in the admin panel.{% endblocktrans %} 
+    </div>
+  {% endfor %}
+</div>
+
+
+    <!-- EXPLORE MENU -->
+    <div class="mt-14 text-center">
+      <h3 class="brand-script text-4xl text-dark">{% trans "Explore Our Menu" %}</h3>
+      <div class="mt-6 flex flex-wrap justify-center gap-3">
+        {% for category in categories|slice:":5" %}
+          <a
+            href="{{ category.get_absolute_url }}"
+            class="px-6 py-2 rounded-full border border-lightbrown/45 bg-white/60 hover:bg-[#3b231d] hover:text-beige transition"
+          >
+            {{ category.name }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- MAP (Premium Block) -->
+    <div class="mt-14 relative">
+      <!-- Backshades / premium glow layers -->
+      <div class="absolute -inset-4 bg-dark/10 blur-2xl rounded-2xl"></div>
+      <div class="absolute -inset-2 bg-gold/10 blur-xl rounded-2xl"></div>
+
+      <div class="relative frame overflow-hidden bg-white/30">
+        <div class="grid grid-cols-1 lg:grid-cols-3">
+
+<!-- MAP AREA (FULL HEIGHT + PREMIUM) -->
+<div class="lg:col-span-2 relative bg-white/20">
+  <!-- Make a fixed premium height for the whole map panel -->
+  <div class="relative h-[420px] md:h-[520px] lg:h-full lg:min-h-[520px]">
+    
+    <!-- Subtle vignette overlay -->
+    <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/25 via-transparent to-transparent z-10"></div>
+
+    <!-- Tiny premium label -->
+    <div class="absolute left-5 top-5 z-20 bg-white/75 backdrop-blur px-4 py-2 rounded-sm border border-dark/10">
+      <div class="text-xs uppercase tracking-[0.25em] text-dark/70">{% trans "Find Us" %}</div>
+      <div class="brand-serif text-sm font-semibold text-dark">{{ settings.RESTAURANT_NAME }}</div>
+    </div>
+
+    <!-- Make iframe fill the whole container -->
+    <iframe
+      title="{{ settings.RESTAURANT_NAME }} Location"
+      class="absolute inset-0 w-full h-full"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      allowfullscreen
+      src="https://www.google.com/maps?q=Kauppakatu%2028,%2080100%20Joensuu&z=17&output=embed">
+    </iframe>
+
+  </div>
+</div>
+
+
+          <!-- INFO PANEL -->
+          <div class="p-8 md:p-10 flex flex-col justify-center bg-paper">
+            <div class="brand-serif text-2xl font-semibold mb-2">
+              {% trans "Visit Ravintola Sinet" %}
+            </div>
+
+            <div class="text-sm text-dark/70 leading-relaxed mb-6">
+              <div class="font-semibold text-dark/80 mb-1">{% trans "Address" %}</div>
+              <div>{{ settings.RESTAURANT_ADDRESS }}</div>
+
+              <div class="mt-5 font-semibold text-dark/80 mb-2">{% trans "Opening times" %}</div>
+              <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+                <div class="text-dark/70">{% trans "Monday" %}</div><div class="text-dark">10:00–22:00</div>
+                <div class="text-dark/70">{% trans "Tuesday" %}</div><div class="text-dark">10:00–22:00</div>
+                <div class="text-dark/70">{% trans "Wednesday" %}</div><div class="text-dark">10:00–22:00</div>
+                <div class="text-dark/70">{% trans "Thursday" %}</div><div class="text-dark">10:00–22:00</div>
+                <div class="text-dark/70">{% trans "Friday" %}</div><div class="text-dark">10:00–22:00</div>
+                <div class="text-dark/70">{% trans "Saturday" %}</div><div class="text-dark">10:00–22:00</div>
+                <div class="text-dark/70">{% trans "Sunday" %}</div><div class="text-dark">10:00–22:00</div>
+              </div>
+
+              <div class="mt-6 font-semibold text-dark/80 mb-1">{% trans "Phone" %}</div>
+              <a href="tel:+358504557367" class="text-dark hover:text-gold underline underline-offset-4">
+                +358504557367
+              </a>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <a
+                href="https://maps.app.goo.gl/GFEB3mypqX71faYQA"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-gold px-6 py-3 rounded-sm font-semibold w-fit"
+              >
+                {% trans "Get Directions →" %}
+              </a>
+
+<a
+  href="{% url 'restaurant:reservation' %}"
+  class="btn-wood text-white px-6 py-3 rounded-sm font-semibold w-fit"
+>
+  {% trans "Book for Dine In" %}
+</a>
+
+<a
+  href="{% url 'restaurant:delivery_location' %}"
+  class="btn-wood text-white px-6 py-3 rounded-sm font-semibold w-fit"
+>
+  {% trans "Order Online" %}
+</a>
+
+            </div>
+
+            <div class="mt-6 text-xs text-dark/55 leading-relaxed">
+            {% trans "Tip: Tap the map to zoom, or use “Get Directions” for the fastest route." %}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Toast -->
+<div id="toastAdded"
+     class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[60]
+            px-4 py-3 rounded-sm shadow-lg border border-dark/10
+            bg-white/90 text-dark text-sm font-semibold">
+  Added to table.
+</div>
+
+<!-- MODAL (same behavior as menu page) -->
+<div id="itemModal" class="hidden fixed inset-0 z-50">
+  <div id="itemModalBackdrop" class="absolute inset-0 bg-black/60"></div>
+
+  <div class="relative max-w-3xl mx-auto mt-10 bg-beige rounded-sm overflow-hidden shadow-lg">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-dark/10">
+      <div class="font-semibold">Item Details</div>
+      <button id="itemModalClose" class="text-dark/70 hover:text-dark text-2xl leading-none">&times;</button>
+    </div>
+
+    <div id="itemModalBody">
+      <div class="p-6 text-sm text-dark/70">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const modal = document.getElementById("itemModal");
+  const body = document.getElementById("itemModalBody");
+  const closeBtn = document.getElementById("itemModalClose");
+  const backdrop = document.getElementById("itemModalBackdrop");
+
+  function openModal() {
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    modal.classList.add("hidden");
+    body.innerHTML = '<div class="p-6 text-sm text-dark/70">Loading...</div>';
+    document.body.style.overflow = "";
+  }
+
+  async function loadItem(url) {
+    openModal();
+    try {
+      const res = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
+      if (!res.ok) throw new Error("Failed");
+      body.innerHTML = await res.text();
+    } catch (err) {
+      body.innerHTML = '<div class="p-6 text-sm text-dark/70">Could not load item.</div>';
+    }
+  }
+
+  closeBtn.addEventListener("click", closeModal);
+  backdrop.addEventListener("click", closeModal);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+
+  function storePreorderItem(id, name, price) {
+    const key = "reservation_preorder";
+    const raw = localStorage.getItem(key);
+    const cart = raw ? JSON.parse(raw) : {};
+
+    id = String(id);
+    if (!cart[id]) cart[id] = { name, price: String(price), qty: 0 };
+    cart[id].qty = (parseInt(cart[id].qty || 0, 10) || 0) + 1;
+
+    localStorage.setItem(key, JSON.stringify(cart));
+  }
+
+  function showToast(text) {
+    const toast = document.getElementById("toastAdded");
+    if (!toast) return;
+
+    toast.textContent = text || "Added to table.";
+    toast.classList.remove("hidden");
+
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => {
+      toast.classList.add("hidden");
+    }, 2000);
+  }
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return "";
+  }
+
+  function findCartBadgeEl() {
+    return (
+      document.querySelector("#cartBadge") ||
+      document.querySelector("[data-cart-badge]") ||
+      document.querySelector("#cartCount") ||
+      document.querySelector(".cart-badge")
+    );
+  }
+
+  function setCartBadge(count) {
+    const el = findCartBadgeEl();
+    if (!el) return;
+
+    const n = parseInt(count || 0, 10) || 0;
+    el.textContent = String(n);
+
+    // show/hide like premium badge behavior
+    if (n > 0) el.classList.remove("hidden");
+    else el.classList.add("hidden");
+  }
+
+  async function refreshCartBadge() {
+    try {
+      const res = await fetch("{% url 'restaurant:delivery_cart_summary' %}", {
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && data.ok && data.cart) setCartBadge(data.cart.count);
+    } catch {
+      // ignore
+    }
+  }
+
+  async function addToDeliveryCart(itemId, qty = 1) {
+    const csrf = getCookie("csrftoken");
+    const form = new URLSearchParams();
+    form.append("item_id", String(itemId));
+    form.append("qty", String(qty));
+
+    const res = await fetch("{% url 'restaurant:delivery_cart_add' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+        "X-CSRFToken": csrf,
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      body: form.toString(),
+    });
+
+    if (!res.ok) throw new Error("Failed to add to cart");
+
+    const data = await res.json();
+
+    // ✅ instant badge update from response
+    if (data && data.ok && data.cart) setCartBadge(data.cart.count);
+
+    return data;
+  }
+
+  // Click handler:
+  document.addEventListener("click", async (e) => {
+        // ✅ ORDER NOW from favorites: add to delivery cart + redirect
+    const orderNow = e.target.closest("[data-order-now]");
+    if (orderNow) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const id = orderNow.getAttribute("data-order-now");
+      if (!id) return;
+
+      try {
+        orderNow.disabled = true;
+        await addToDeliveryCart(id, 1);
+
+        // badge already updates inside addToDeliveryCart()
+        // go to delivery flow
+        window.location.href = "{% url 'restaurant:delivery_location' %}";
+      } catch {
+        showToast("Could not add to cart.");
+        orderNow.disabled = false;
+      }
+      return;
+    }
+
+    // ✅ NEW: Add for Dine-in (reservation preorder)
+    const dineBtn = e.target.closest("[data-add-dinein]");
+    if (dineBtn) {
+      const id = dineBtn.getAttribute("data-add-dinein");
+      const name = dineBtn.getAttribute("data-name") || "Item";
+      const price = dineBtn.getAttribute("data-price") || "0";
+
+      storePreorderItem(id, name, price);
+      showToast(`Added: ${name}`);
+      closeModal();
+      return;
+    }
+
+    // ✅ NEW: Add for Delivery (updates session cart via AJAX)
+    const delBtn = e.target.closest("[data-add-delivery]");
+    if (delBtn) {
+      try {
+        delBtn.disabled = true;
+
+        const id = delBtn.getAttribute("data-add-delivery");
+        await addToDeliveryCart(id, 1);
+
+        showToast("Added to delivery cart ✅");
+        closeModal();
+      } catch {
+        showToast("Could not add to cart.");
+      } finally {
+        delBtn.disabled = false;
+      }
+      return;
+    }
+
+    // ✅ Backward support: old modal button (if any template still has it)
+    const addBtnOld = e.target.closest('[data-action="add-to-preorder"]');
+    if (addBtnOld) {
+      storePreorderItem(
+        addBtnOld.dataset.itemId,
+        addBtnOld.dataset.itemName,
+        addBtnOld.dataset.itemPrice
+      );
+      showToast(`Added: ${addBtnOld.dataset.itemName || "Item"}`);
+      closeModal();
+      return;
+    }
+
+    // ✅ Open modal when clicking a favorite card
+    const card = e.target.closest("[data-item-url]");
+    if (!card) return;
+
+    const url = card.getAttribute("data-item-url");
+    if (!url) return;
+
+    loadItem(url);
+  });
+
+  // Keyboard open (Enter/Space on focused card)
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const card = document.activeElement && document.activeElement.closest
+      ? document.activeElement.closest("[data-item-url]")
+      : null;
+    if (!card) return;
+    e.preventDefault();
+    const url = card.getAttribute("data-item-url");
+    if (!url) return;
+    loadItem(url);
+  });
+  refreshCartBadge();
+})();
+</script>
+
+{% endblock %}

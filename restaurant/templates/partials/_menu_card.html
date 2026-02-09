@@ -1,0 +1,48 @@
+{% load static %}
+
+<button type="button"
+        data-menu-item="{{ item.id }}"
+        class="text-left group">
+
+  <div class="relative overflow-hidden border border-[#d6c6b0] bg-white/35 shadow-sm">
+    {% if item.image %}
+      <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-40 object-cover group-hover:scale-[1.02] transition">
+    {% else %}
+      <img src="{% static 'images/pizza.jpg' %}" alt="{{ item.name }}" class="w-full h-40 object-cover">
+    {% endif %}
+
+    {% if item.status == 'sold_out' %}
+      <div class="absolute top-3 left-3 bg-[#2a1a12] text-[#f3e7d3] text-xs px-3 py-1 border border-[#d7b874] shadow">
+        Sold out
+      </div>
+      <div class="absolute inset-0 bg-black/10"></div>
+    {% endif %}
+  </div>
+
+  <div class="pt-3">
+    <div class="flex items-end justify-between gap-3">
+      <div class="font-[Playfair_Display] text-xl text-[#3a2418] leading-tight">
+        {{ item.name }}
+      </div>
+      <div class="text-[#3a2418] font-semibold whitespace-nowrap">
+        € {{ item.price }}
+      </div>
+    </div>
+
+    {% if item.description %}
+      <p class="mt-2 text-sm text-[#3a2418]/75 line-clamp-2">
+        {{ item.description }}
+      </p>
+    {% endif %}
+
+    <!-- small icons row (mockup style) -->
+    <div class="mt-3 flex items-center gap-3 text-lg">
+      {% if item.tags_list %}
+        {% if 'spicy' in item.tags_list %}<span title="Spicy">🌶️</span>{% endif %}
+        {% if 'vegan' in item.tags_list %}<span title="Vegan">🥬</span>{% endif %}
+        {% if 'vegetarian' in item.tags_list %}<span title="Vegetarian">🌿</span>{% endif %}
+        {% if 'gluten-free' in item.tags_list %}<span title="Gluten-free">🌾</span>{% endif %}
+      {% endif %}
+    </div>
+  </div>
+</button>

@@ -1,0 +1,176 @@
+{% extends "admin/base.html" %}
+{% block title %}{% if mode == "add" %}Add Coupon{% else %}Edit Coupon{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-6 py-10">
+  <div class="flex items-end justify-between mb-6">
+    <div>
+      <div class="brand-serif text-2xl font-semibold">
+        {% if mode == "add" %}Add Coupon{% else %}Edit Coupon{% endif %}
+      </div>
+      <div class="text-sm text-dark/60">Configure coupon rules, validity window, and usage limits.</div>
+    </div>
+    <a href="{% url 'restaurant:delivery_coupons_list' %}"
+       class="text-sm font-semibold underline text-dark/70 hover:text-dark">
+      ← Back
+    </a>
+  </div>
+
+  <div class="frame bg-white/35 p-6">
+    <!-- Tip bar -->
+    <div class="mb-5 p-4 rounded border border-lightbrown bg-white/70">
+      <div class="text-xs uppercase tracking-wider text-dark/60">
+        Tip: use simple codes like <span class="font-semibold text-dark">SINET10</span> or <span class="font-semibold text-dark">WELCOME5</span>
+      </div>
+    </div>
+
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="p-3 rounded border border-red-200 bg-red-50 text-red-800 text-sm">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <!-- Section: Coupon basics -->
+      <div class="p-5 rounded border border-lightbrown bg-white/70">
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-sm font-semibold text-dark uppercase tracking-wide">Coupon basics</div>
+          <div class="text-[11px] text-dark/55">Recommended: uppercase letters + numbers, no spaces.</div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div class="sm:col-span-2">
+            <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Coupon code</label>
+            {{ form.code }}
+            {% if form.code.errors %}
+              <div class="mt-1 text-xs text-red-700">{{ form.code.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Status</label>
+            <div class="p-4 rounded border border-dark/15 bg-white/85 flex items-start gap-3">
+              <div class="pt-0.5">
+                {{ form.is_active }}
+              </div>
+              <div class="min-w-0">
+                <div class="text-sm font-semibold text-dark/80">Active</div>
+                <div class="text-[11px] text-dark/55">Customers can use it</div>
+                {% if form.is_active.errors %}
+                  <div class="mt-1 text-xs text-red-700">{{ form.is_active.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Discount settings -->
+      <div class="p-5 rounded border border-lightbrown bg-white/70">
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-sm font-semibold text-dark uppercase tracking-wide">Discount settings</div>
+          <div class="text-[11px] text-dark/55">Discount applies to subtotal (items only).</div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Discount type</label>
+            {{ form.discount_type }}
+            {% if form.discount_type.errors %}
+              <div class="mt-1 text-xs text-red-700">{{ form.discount_type.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Discount value</label>
+            {{ form.discount_value }}
+            <div class="mt-1 text-[11px] text-dark/55">Percent: 10 = 10%. Fixed: 5 = €5 off.</div>
+            {% if form.discount_value.errors %}
+              <div class="mt-1 text-xs text-red-700">{{ form.discount_value.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Min subtotal (€)</label>
+            {{ form.min_subtotal }}
+            <div class="mt-1 text-[11px] text-dark/55">Minimum cart subtotal required to apply this coupon.</div>
+            {% if form.min_subtotal.errors %}
+              <div class="mt-1 text-xs text-red-700">{{ form.min_subtotal.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Validity window -->
+      <div class="p-5 rounded border border-lightbrown bg-white/70">
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-sm font-semibold text-dark uppercase tracking-wide">Validity window</div>
+          <div class="text-[11px] text-dark/55">Coupon works only between start and end time.</div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Start</label>
+            {{ form.start_at }}
+            {% if form.start_at.errors %}
+              <div class="mt-1 text-xs text-red-700">{{ form.start_at.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">End</label>
+            {{ form.end_at }}
+            {% if form.end_at.errors %}
+              <div class="mt-1 text-xs text-red-700">{{ form.end_at.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Usage limits -->
+      <div class="p-5 rounded border border-lightbrown bg-white/70">
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-sm font-semibold text-dark uppercase tracking-wide">Usage limits</div>
+          <div class="text-[11px] text-dark/55">Leave empty or set very high if you don’t want a limit.</div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Max uses</label>
+            {{ form.max_uses }}
+            {% if form.max_uses.errors %}
+              <div class="mt-1 text-xs text-red-700">{{ form.max_uses.errors }}</div>
+            {% endif %}
+          </div>
+
+          {% if obj %}
+            <div class="p-4 rounded border border-dark/15 bg-white/85">
+              <div class="text-xs uppercase tracking-wider text-dark/60">Used count</div>
+              <div class="mt-1 text-2xl font-semibold text-dark">{{ obj.used_count }}</div>
+              <div class="mt-1 text-[11px] text-dark/55">Automatically increments when an order is placed.</div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="pt-5 mt-4 border-t border-lightbrown flex flex-col sm:flex-row gap-3 sm:items-center">
+        <button class="btn-gold px-6 py-3 rounded-sm font-semibold text-dark">
+          Save Coupon
+        </button>
+
+        <a href="{% url 'restaurant:delivery_coupons_list' %}"
+           class="px-6 py-3 rounded-sm font-semibold border border-dark/20 hover:bg-white/50 text-center">
+          Cancel
+        </a>
+
+        <div class="sm:ml-auto text-[11px] text-dark/55">
+          All changes are saved immediately.
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

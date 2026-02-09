@@ -1,0 +1,331 @@
+{% load static i18n %}
+<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{{ settings.RESTAURANT_NAME }}{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              beige: "#f5f0e6",
+              dark: "#3e2723",
+              lightbrown: "#8d6e63",
+              gold: "#bfa76f",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;600;700&family=Open+Sans:wght@300;400;600&display=swap");
+
+      body { font-family: "Open Sans", sans-serif; }
+      h1,h2,h3,h4 { font-family: "Playfair Display", serif; }
+      .brand-script { font-family: "Great Vibes", cursive; }
+      .brand-serif { font-family: "Playfair Display", serif; }
+
+      .paper-bg{
+        background:
+          radial-gradient(1200px 600px at 50% 0%, rgba(255,255,255,.70), rgba(245,240,230,.92)),
+          linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,0));
+      }
+
+      .btn-wood{
+        background: linear-gradient(#5a3a2f, #3f271f);
+        border: 1px solid rgba(255,255,255,.14);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 10px 22px rgba(0,0,0,.28);
+      }
+      .btn-gold{
+        background: linear-gradient(#cdb57b, #a8844a);
+        border: 1px solid rgba(50,30,10,.25);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.26), 0 10px 22px rgba(0,0,0,.22);
+      }
+
+      .frame{
+        border: 1px solid rgba(141,110,99,.45);
+        background: rgba(255,255,255,.55);
+        box-shadow: 0 18px 40px rgba(0,0,0,.10);
+      }
+      .hairline{ height: 1px; background: rgba(141,110,99,.35); }
+
+      /* Simple premium footer */
+      .footer-bg{
+        background:
+          radial-gradient(900px 320px at 20% -20%, rgba(191,167,111,.14), transparent 60%),
+          radial-gradient(900px 320px at 85% -35%, rgba(245,240,230,.08), transparent 60%),
+          linear-gradient(#2c1813, #1f120e);
+      }
+      .footer-card{
+        background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.08);
+        box-shadow: 0 18px 55px rgba(0,0,0,.22);
+      }
+      .footer-link{
+        display:inline-flex; align-items:center; gap:10px;
+        padding:10px 14px; border-radius:6px;
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.10);
+        transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      }
+      .footer-link:hover{
+        transform: translateY(-1px);
+        background: rgba(255,255,255,.10);
+        border-color: rgba(191,167,111,.55);
+      }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+  </head>
+
+  <body class="bg-beige text-dark">
+    <!-- NAV -->
+    <header class="bg-[#3b231d] text-beige border-b border-white/10">
+      <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+        <a href="{% url 'restaurant:home' %}" class="flex items-center gap-3">
+          <img
+            src="{% static 'images/logo/logo.jpg' %}"
+            alt="{{ settings.RESTAURANT_NAME }} Logo"
+            class="h-10 md:h-12 w-auto object-contain rounded-sm"
+          />
+          <span class="sr-only">{{ settings.RESTAURANT_NAME }}</span>
+        </a>
+
+        <!-- DESKTOP NAV (UNCHANGED) -->
+        <nav class="hidden md:flex items-center gap-7 text-sm">
+          <a href="{% url 'restaurant:home' %}"
+            class="hover:text-gold {% if request.path == '/' or request.path == '/en/' or request.path == '/fi/' %}text-gold font-semibold{% endif %}">
+            {% trans "Home" %}
+          </a>
+
+          <a href="{% url 'restaurant:menu' %}"
+            class="hover:text-gold {% if '/menu' in request.path and not '/delivery' in request.path %}text-gold font-semibold{% endif %}">
+            {% trans "Menu" %}
+          </a>
+
+          <a href="{% url 'restaurant:about' %}"
+            class="hover:text-gold {% if '/about' in request.path %}text-gold font-semibold{% endif %}">
+            {% trans "About" %}
+          </a>
+
+          <!-- Dine-in -->
+          <a href="{% url 'restaurant:reservation' %}"
+            class="hover:text-gold {% if '/book' in request.path %}text-gold font-semibold{% endif %}">
+            {% trans "Book for Dine In" %}
+          </a>
+
+          <!-- Premium CTA: Delivery -->
+          <a href="{% url 'restaurant:delivery_location' %}"
+            class="btn-gold px-5 py-2 rounded-sm font-semibold text-dark shadow-md hover:shadow-lg transition
+                    {% if '/delivery' in request.path %}ring-2 ring-gold/70{% endif %}">
+            {% trans "Order Online" %}
+          </a>
+
+          <form action="{% url 'set_language' %}" method="post" class="ml-4">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <select name="language"
+                    onchange="this.form.submit()"
+                    class="bg-transparent border border-white/30 text-beige text-xs px-2 py-1">
+              {% get_current_language as CURRENT_LANGUAGE %}
+              {% get_available_languages as LANGUAGES %}
+              {% for lang_code, lang_name in LANGUAGES %}
+                <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
+                  {{ lang_name }}
+                </option>
+              {% endfor %}
+            </select>
+          </form>
+        </nav>
+
+        <!-- MOBILE MENU BUTTON (NEW) -->
+        <button type="button"
+                id="mobileMenuBtn"
+                class="md:hidden inline-flex items-center justify-center p-2 rounded-sm border border-white/20 text-beige hover:text-gold hover:border-gold/60"
+                aria-controls="mobileMenu"
+                aria-expanded="false">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- MOBILE NAV (NEW) -->
+      <div id="mobileMenu" class="md:hidden hidden border-t border-white/10">
+        <div class="max-w-6xl mx-auto px-6 py-4 space-y-2 text-sm">
+          <a href="{% url 'restaurant:home' %}"
+            class="block px-3 py-2 rounded-sm hover:bg-white/5 hover:text-gold
+                   {% if request.path == '/' or request.path == '/en/' or request.path == '/fi/' %}text-gold font-semibold{% endif %}">
+            {% trans "Home" %}
+          </a>
+
+          <a href="{% url 'restaurant:menu' %}"
+            class="block px-3 py-2 rounded-sm hover:bg-white/5 hover:text-gold
+                   {% if '/menu' in request.path and not '/delivery' in request.path %}text-gold font-semibold{% endif %}">
+            {% trans "Menu" %}
+          </a>
+
+          <a href="{% url 'restaurant:about' %}"
+            class="block px-3 py-2 rounded-sm hover:bg-white/5 hover:text-gold
+                   {% if '/about' in request.path %}text-gold font-semibold{% endif %}">
+            {% trans "About" %}
+          </a>
+
+          <a href="{% url 'restaurant:reservation' %}"
+            class="block px-3 py-2 rounded-sm hover:bg-white/5 hover:text-gold
+                   {% if '/book' in request.path %}text-gold font-semibold{% endif %}">
+            {% trans "Book for Dine In" %}
+          </a>
+
+          <a href="{% url 'restaurant:delivery_location' %}"
+            class="btn-gold block text-center px-5 py-2 rounded-sm font-semibold text-dark shadow-md
+                   {% if '/delivery' in request.path %}ring-2 ring-gold/70{% endif %}">
+            {% trans "Order Online" %}
+          </a>
+
+          <!-- Language switcher (mobile) -->
+          <form action="{% url 'set_language' %}" method="post" class="pt-2">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <select name="language"
+                    onchange="this.form.submit()"
+                    class="w-full bg-transparent border border-white/30 text-beige text-xs px-2 py-2 rounded-sm">
+              {% get_current_language as CURRENT_LANGUAGE %}
+              {% get_available_languages as LANGUAGES %}
+              {% for lang_code, lang_name in LANGUAGES %}
+                <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
+                  {{ lang_name }}
+                </option>
+              {% endfor %}
+            </select>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    {% if messages %}
+      <div class="max-w-6xl mx-auto px-6 mt-4">
+        {% for message in messages %}
+          <div class="mb-2 p-3 rounded bg-gold text-dark">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- SIMPLE PREMIUM FOOTER (no repeats, no staff login) -->
+    <footer class="footer-bg text-beige mt-12">
+      <div class="max-w-6xl mx-auto px-6 py-10">
+        <div class="footer-card rounded-lg p-7 md:p-9">
+          <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
+
+            <!-- Left -->
+            <div class="min-w-[240px]">
+              <div class="brand-script text-3xl text-white mb-1">{{ settings.RESTAURANT_NAME }}</div>
+              <div class="text-sm text-beige/85 leading-relaxed">
+                {{ settings.RESTAURANT_ADDRESS }}
+              </div>
+
+              <div class="mt-4 flex flex-wrap gap-3">
+                <a href="https://wolt.com/en/fin/joensuu/restaurant/ravintola-sinet"
+                   target="_blank" rel="noopener noreferrer"
+                   class="footer-link text-sm font-semibold">
+                  <svg class="w-4 h-4 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M12 3a9 9 0 1 0 9 9"></path>
+                    <path d="M12 3v9l6 3"></path>
+                  </svg>
+                  {% trans "Order on Wolt" %}
+                </a>
+
+                <a href="https://www.facebook.com/ravintolasinet"
+                   target="_blank" rel="noopener noreferrer"
+                   class="footer-link text-sm font-semibold">
+                  <svg class="w-4 h-4 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M14 8h3V5h-3c-2.2 0-4 1.8-4 4v3H7v3h3v7h3v-7h3l1-3h-4V9c0-.6.4-1 1-1Z"></path>
+                  </svg>
+                  {% trans "Facebook" %}
+                </a>
+              </div>
+            </div>
+
+            <!-- Middle -->
+            <div class="flex-1">
+              <div class="brand-serif text-lg font-semibold mb-2">{% trans "Opening Times" %}</div>
+              <div class="text-sm text-beige/85 grid grid-cols-2 gap-x-10 gap-y-1 max-w-md">
+                <div class="flex justify-between gap-6"><span>{% trans "Mon" %}</span><span class="text-beige/70">10:00–22:00</span></div>
+                <div class="flex justify-between gap-6"><span>{% trans "Tue" %}</span><span class="text-beige/70">10:00–22:00</span></div>
+                <div class="flex justify-between gap-6"><span>{% trans "Wed" %}</span><span class="text-beige/70">10:00–22:00</span></div>
+                <div class="flex justify-between gap-6"><span>{% trans "Thu" %}</span><span class="text-beige/70">10:00–22:00</span></div>
+                <div class="flex justify-between gap-6"><span>{% trans "Fri" %}</span><span class="text-beige/70">10:00–22:00</span></div>
+                <div class="flex justify-between gap-6"><span>{% trans "Sat" %}</span><span class="text-beige/70">10:00–22:00</span></div>
+                <div class="flex justify-between gap-6"><span>{% trans "Sun" %}</span><span class="text-beige/70">10:00–22:00</span></div>
+              </div>
+            </div>
+
+            <!-- Right -->
+            <div class="min-w-[220px]">
+              <div class="brand-serif text-lg font-semibold mb-2">{% trans "Contact" %}</div>
+
+              <div class="text-sm text-beige/85 space-y-2">
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6A2 2 0 0 1 22 16.9Z"></path>
+                  </svg>
+                  <a href="tel:+358504557367" class="underline underline-offset-4 hover:text-gold">
+                    +358504557367
+                  </a>
+                </div>
+
+                <div class="pt-2 flex flex-col gap-3">
+                  <a href="{% url 'restaurant:reservation' %}"
+                     class="btn-wood px-5 py-2 rounded-sm font-semibold text-white text-center">
+                    {% trans "Book for Dine In" %}
+                  </a>
+
+                  <a href="{% url 'restaurant:delivery_location' %}"
+                     class="btn-gold px-5 py-2 rounded-sm font-semibold text-dark text-center">
+                    {% trans "Order Online" %}
+                  </a>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          <div class="mt-8 hairline"></div>
+
+          <div class="mt-4 text-center text-xs text-beige/60">
+            &copy; {% now 'Y' %} {{ settings.RESTAURANT_NAME }}. {% trans "All rights reserved." %}
+          </div>
+        </div>
+      </div>
+
+      {% block extra_body %}{% endblock %}
+    </footer>
+
+    <!-- MOBILE MENU TOGGLE (NEW, DOES NOT AFFECT DESKTOP) -->
+    <script>
+      (function () {
+        const btn = document.getElementById("mobileMenuBtn");
+        const menu = document.getElementById("mobileMenu");
+        if (!btn || !menu) return;
+
+        btn.addEventListener("click", function () {
+          const willOpen = menu.classList.contains("hidden");
+          menu.classList.toggle("hidden");
+          btn.setAttribute("aria-expanded", String(willOpen));
+        });
+      })();
+    </script>
+  </body>
+</html>

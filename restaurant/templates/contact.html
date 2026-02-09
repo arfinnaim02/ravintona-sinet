@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Contact – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<section class="paper-bg">
+  <div class="max-w-3xl mx-auto px-6 py-14">
+    <div class="frame p-8 bg-white/40">
+      <h1 class="brand-serif text-3xl font-semibold mb-2">Contact</h1>
+      <p class="text-sm text-dark/70 mb-6">
+        Send us a message and we’ll get back to you.
+      </p>
+
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-dark/60 mb-1">Name</label>
+          {{ form.name }}
+        </div>
+
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-dark/60 mb-1">Email</label>
+          {{ form.email }}
+        </div>
+
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-dark/60 mb-1">Message</label>
+          {{ form.message }}
+        </div>
+
+        <button type="submit" class="btn-gold px-6 py-3 rounded-sm font-semibold text-dark w-full md:w-auto">
+          Send Message →
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

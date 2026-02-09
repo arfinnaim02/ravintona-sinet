@@ -1,0 +1,70 @@
+{% extends "admin/base.html" %}
+{% block title %}Add Category – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-3xl font-semibold">Add Category</h1>
+  <a href="{% url 'restaurant:categories_list' %}" class="text-gold font-semibold hover:underline">
+    ← Back to Categories
+  </a>
+</div>
+
+{# SHOW ERRORS CLEARLY #}
+{% if form.errors %}
+  <div class="mb-6 px-4 py-3 rounded bg-red-100 border border-red-200 text-red-900 text-sm">
+    <div class="font-semibold mb-2">Please fix the errors below:</div>
+    <ul class="list-disc pl-5 space-y-1">
+      {% for field in form %}
+        {% for error in field.errors %}
+          <li><b>{{ field.label }}:</b> {{ error }}</li>
+        {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+<form method="post" class="space-y-6 max-w-3xl">
+  {% csrf_token %}
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <label class="block mb-2 font-semibold">Name</label>
+      {{ form.name }}
+    </div>
+
+    <div>
+      <label class="block mb-2 font-semibold">Slug</label>
+      {{ form.slug }}
+      <p class="text-xs text-dark/60 mt-1">Leave empty to auto-generate from name.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <label class="block mb-2 font-semibold">Order</label>
+      {{ form.order }}
+      <p class="text-xs text-dark/60 mt-1">Lower number shows first.</p>
+    </div>
+
+    <div class="flex items-center gap-2 pt-8">
+      {{ form.is_active }}
+      <label for="{{ form.is_active.id_for_label }}" class="text-sm">Active</label>
+    </div>
+  </div>
+
+  <div class="flex gap-3">
+    <button type="submit"
+      class="px-6 py-3 bg-gold text-dark rounded font-semibold hover:bg-lightbrown">
+      Save Category
+    </button>
+
+    <a href="{% url 'restaurant:categories_list' %}"
+      class="px-6 py-3 bg-white border border-lightbrown rounded font-semibold hover:bg-beige">
+      Cancel
+    </a>
+  </div>
+</form>
+{% endblock %}

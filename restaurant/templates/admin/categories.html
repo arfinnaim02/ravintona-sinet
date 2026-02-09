@@ -1,0 +1,48 @@
+{% extends "admin/base.html" %}
+{% block title %}Manage Categories – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-3xl font-semibold">Manage Categories</h1>
+
+  <a href="{% url 'restaurant:add_category' %}"
+     class="px-4 py-2 bg-gold text-dark rounded font-semibold hover:bg-lightbrown">
+    + Add Category
+  </a>
+</div>
+
+<div class="overflow-x-auto">
+  <table class="min-w-full bg-white border border-lightbrown">
+    <thead class="bg-dark text-beige">
+      <tr>
+        <th class="px-4 py-2 text-left">Name</th>
+        <th class="px-4 py-2 text-left">Slug</th>
+        <th class="px-4 py-2 text-left">Order</th>
+        <th class="px-4 py-2 text-left">Active</th>
+        <th class="px-4 py-2 text-left">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for c in categories %}
+        <tr class="border-b border-lightbrown">
+          <td class="px-4 py-2 font-semibold">{{ c.name }}</td>
+          <td class="px-4 py-2">{{ c.slug }}</td>
+          <td class="px-4 py-2">{{ c.order }}</td>
+          <td class="px-4 py-2">{% if c.is_active %}Yes{% else %}No{% endif %}</td>
+          <td class="px-4 py-2">
+            <div class="flex gap-3">
+              <a href="{% url 'restaurant:edit_category' c.id %}" class="text-gold font-semibold hover:underline">Edit</a>
+              <a href="{% url 'restaurant:delete_category' c.id %}" class="text-red-700 font-semibold hover:underline">Delete</a>
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5" class="px-4 py-4 text-dark/70">No categories yet.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

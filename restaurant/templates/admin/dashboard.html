@@ -1,0 +1,252 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-3xl font-semibold">Dashboard</h1>
+    <div class="mt-1 text-sm text-dark/60">
+      Manage reservations, menu items, and online delivery orders.
+    </div>
+  </div>
+
+</div>
+
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+  <div class="p-6 rounded bg-white border border-lightbrown shadow-sm">
+    <div class="text-xs uppercase tracking-wider text-dark/60 mb-2">Pending Online Orders</div>
+    <div class="text-3xl font-bold text-dark">{{ pending_delivery_orders }}</div>
+    <div class="mt-2 text-xs text-dark/55">
+      Needs attention / confirmation
+    </div>
+  </div>
+
+  <div class="p-6 rounded bg-white border border-lightbrown shadow-sm">
+    <div class="text-xs uppercase tracking-wider text-dark/60 mb-2">Pending Reservations</div>
+    <div class="text-3xl font-bold text-dark">{{ pending_reservations }}</div>
+    <div class="mt-2 text-xs text-dark/55">
+      Review and confirm dine-in bookings
+    </div>
+  </div>
+
+  <div class="p-6 rounded bg-white border border-lightbrown shadow-sm">
+    <div class="text-xs uppercase tracking-wider text-dark/60 mb-2">Total Active Items</div>
+    <div class="text-3xl font-bold text-dark">{{ active_items_count }}</div>
+    <div class="mt-2 text-xs text-dark/55">
+      Visible and available on the menu
+    </div>
+  </div>
+
+  <div class="p-6 rounded bg-white border border-lightbrown shadow-sm">
+    <div class="text-xs uppercase tracking-wider text-dark/60 mb-2">Completed Online Delivery</div>
+    <div class="text-3xl font-bold text-dark">{{ completed_delivery_orders }}</div>
+    <div class="mt-2 text-xs text-dark/55">
+      Orders marked as delivered
+    </div>
+  </div>
+
+</div>
+
+<!-- Section: Delivery Orders -->
+<div class="mb-10">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-2xl font-semibold">Recent Delivery Orders</h2>
+    <a href="{% url 'restaurant:delivery_orders_list' %}"
+       class="text-gold font-semibold hover:underline">
+      View all →
+    </a>
+  </div>
+
+  <div class="bg-white border border-lightbrown rounded shadow-sm overflow-hidden">
+    <div class="max-h-[360px] overflow-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-dark text-beige sticky top-0">
+          <tr>
+            <th class="px-4 py-3 text-left">Order</th>
+            <th class="px-4 py-3 text-left">Customer</th>
+            <th class="px-4 py-3 text-left">Phone</th>
+            <th class="px-4 py-3 text-left">Total</th>
+            <th class="px-4 py-3 text-left">Status</th>
+            <th class="px-4 py-3 text-left">Created</th>
+            <th class="px-4 py-3 text-left">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in recent_delivery_orders|slice:":8" %}
+            <tr class="border-b border-lightbrown hover:bg-beige/40">
+              <td class="px-4 py-3 font-semibold">#{{ o.id }}</td>
+              <td class="px-4 py-3 font-semibold">{{ o.customer_name }}</td>
+              <td class="px-4 py-3">{{ o.customer_phone }}</td>
+              <td class="px-4 py-3 font-semibold">€{{ o.total|floatformat:2 }}</td>
+              <td class="px-4 py-3">
+                {% if o.status == 'pending' %}
+                  <span class="inline-block px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-800 border border-yellow-200">Pending</span>
+                {% elif o.status == 'delivered' %}
+                  <span class="inline-block px-2 py-1 text-xs rounded bg-green-100 text-green-800 border border-green-200">Delivered</span>
+                {% elif o.status == 'cancelled' %}
+                  <span class="inline-block px-2 py-1 text-xs rounded bg-red-100 text-red-800 border border-red-200">Cancelled</span>
+                {% else %}
+                  <span class="inline-block px-2 py-1 text-xs rounded bg-gray-100 text-gray-700 border border-gray-200">{{ o.status|title }}</span>
+                {% endif %}
+              </td>
+              <td class="px-4 py-3">{{ o.created_at|date:'Y-m-d H:i' }}</td>
+              <td class="px-4 py-3">
+                <a href="{% url 'restaurant:delivery_order_detail_admin' o.id %}"
+                   class="text-gold font-semibold hover:underline">View</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="px-4 py-4 text-dark/70">No delivery orders yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if recent_delivery_orders|length > 8 %}
+      <div class="px-4 py-3 text-xs text-dark/60 bg-beige/40 border-t border-lightbrown">
+        Showing 8 latest orders. Scroll inside the table to view more.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Section: Reservations -->
+<div class="mb-10">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-2xl font-semibold">Recent Reservations</h2>
+    <a href="{% url 'restaurant:reservations_list' %}"
+       class="text-gold font-semibold hover:underline">
+      View all →
+    </a>
+  </div>
+
+  <div class="bg-white border border-lightbrown rounded shadow-sm overflow-hidden">
+    <div class="max-h-[360px] overflow-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-dark text-beige sticky top-0">
+          <tr>
+            <th class="px-4 py-3 text-left">When</th>
+            <th class="px-4 py-3 text-left">Name</th>
+            <th class="px-4 py-3 text-left">Phone</th>
+            <th class="px-4 py-3 text-left">Guests</th>
+            <th class="px-4 py-3 text-left">Status</th>
+            <th class="px-4 py-3 text-left">Created</th>
+            <th class="px-4 py-3 text-left">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for r in recent_reservations|slice:":8" %}
+            <tr class="border-b border-lightbrown hover:bg-beige/40">
+              <td class="px-4 py-3">{{ r.start_datetime|date:'Y-m-d H:i' }}</td>
+              <td class="px-4 py-3 font-semibold">{{ r.name }}</td>
+              <td class="px-4 py-3">{{ r.phone }}</td>
+              <td class="px-4 py-3">{{ r.party_size }}{% if r.baby_seats %} (+{{ r.baby_seats }}){% endif %}</td>
+
+              <td class="px-4 py-3">
+                {% if r.status == 'pending' %}
+                  <span class="inline-block px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-800 border border-yellow-200">Pending</span>
+                {% elif r.status == 'confirmed' %}
+                  <span class="inline-block px-2 py-1 text-xs rounded bg-green-100 text-green-800 border border-green-200">Confirmed</span>
+                {% elif r.status == 'cancelled' %}
+                  <span class="inline-block px-2 py-1 text-xs rounded bg-red-100 text-red-800 border border-red-200">Cancelled</span>
+                {% else %}
+                  <span class="inline-block px-2 py-1 text-xs rounded bg-gray-100 text-gray-700 border border-gray-200">{{ r.status|title }}</span>
+                {% endif %}
+              </td>
+
+              <td class="px-4 py-3">{{ r.created_at|date:'Y-m-d H:i' }}</td>
+
+              <td class="px-4 py-3">
+                <a href="{% url 'restaurant:reservation_detail_admin' r.id %}"
+                   class="text-gold font-semibold hover:underline">View</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="px-4 py-4 text-dark/70">No reservations yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if recent_reservations|length > 8 %}
+      <div class="px-4 py-3 text-xs text-dark/60 bg-beige/40 border-t border-lightbrown">
+        Showing 8 latest reservations. Scroll inside the table to view more.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Section: Menu Items -->
+<div>
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-2xl font-semibold">Recent Menu Items</h2>
+    <a href="{% url 'restaurant:menu_items_list' %}"
+       class="text-gold font-semibold hover:underline">
+      View all →
+    </a>
+  </div>
+
+  <div class="bg-white border border-lightbrown rounded shadow-sm overflow-hidden">
+    <div class="max-h-[360px] overflow-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-dark text-beige sticky top-0">
+          <tr>
+            <th class="px-4 py-3 text-left">Name</th>
+            <th class="px-4 py-3 text-left">Category</th>
+            <th class="px-4 py-3 text-left">Price</th>
+            <th class="px-4 py-3 text-left">Status</th>
+            <th class="px-4 py-3 text-left">Created</th>
+            <th class="px-4 py-3 text-left">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for item in recent_items|slice:":8" %}
+            <tr class="border-b border-lightbrown hover:bg-beige/40">
+              <td class="px-4 py-3 font-semibold">{{ item.name }}</td>
+              <td class="px-4 py-3">{{ item.category.name }}</td>
+              <td class="px-4 py-3">€{{ item.price }}</td>
+
+              <td class="px-4 py-3">
+                {% if item.status == 'active' %}
+                  <span class="inline-block px-2 py-1 text-xs rounded bg-green-100 text-green-800 border border-green-200">Active</span>
+                {% elif item.status == 'sold_out' %}
+                  <span class="inline-block px-2 py-1 text-xs rounded bg-red-100 text-red-800 border border-red-200">Sold out</span>
+                {% else %}
+                  <span class="inline-block px-2 py-1 text-xs rounded bg-gray-100 text-gray-700 border border-gray-200">Hidden</span>
+                {% endif %}
+              </td>
+
+              <td class="px-4 py-3">{{ item.created_at|date:'Y-m-d H:i' }}</td>
+
+              <td class="px-4 py-3">
+                <a href="{% url 'restaurant:edit_menu_item' item.id %}"
+                   class="text-gold font-semibold hover:underline">Edit</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="px-4 py-4 text-dark/70">No items yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if recent_items|length > 8 %}
+      <div class="px-4 py-3 text-xs text-dark/60 bg-beige/40 border-t border-lightbrown">
+        Showing 8 latest items. Scroll inside the table to view more.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

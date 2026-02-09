@@ -1,0 +1,169 @@
+{% load static %}
+
+{# ctx values we will use: "menu" | "reservation" | "delivery" #}
+{% with ctx=ctx|default:"menu" %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-7">
+
+  <!-- Image -->
+  <div class="relative">
+    <!-- premium glow -->
+    <div class="absolute -inset-3 bg-gold/10 blur-2xl rounded-[18px]"></div>
+
+    <div class="relative frame p-2 bg-white/40 overflow-hidden border border-dark/10">
+      <div class="relative">
+        {% if item.image %}
+          <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-72 object-cover">
+        {% else %}
+          <div class="w-full h-72 bg-lightbrown/25 flex items-center justify-center text-dark/60 text-sm">
+            No image
+          </div>
+        {% endif %}
+
+        <!-- premium vignette -->
+        <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-black/10 to-transparent"></div>
+
+        <!-- top label + subtle edge -->
+        <div class="pointer-events-none absolute inset-0 ring-1 ring-white/10"></div>
+
+        {% if item.status == "sold_out" %}
+          <div class="absolute left-3 top-3 px-3 py-1 rounded-sm text-[11px] font-semibold uppercase tracking-[0.22em]
+                      bg-red-500/15 text-red-800 border border-red-500/25 backdrop-blur">
+            Sold out
+          </div>
+        {% else %}
+          <div class="absolute left-3 top-3 px-3 py-1 rounded-sm text-[11px] font-semibold uppercase tracking-[0.22em]
+                      bg-black/35 text-white/90 border border-white/15 backdrop-blur">
+            Available
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+<!-- Details -->
+<div class="flex flex-col pr-6 md:pr-10">
+
+  <!-- Title row -->
+  <div class="grid grid-cols-[1fr_auto] items-start gap-8">
+    <div class="min-w-0">
+      <div class="brand-serif text-3xl md:text-[34px] font-semibold leading-tight text-dark">
+        {{ item.name }}
+      </div>
+
+      {% if item.category %}
+        <div class="mt-2 flex items-center gap-3">
+          <div class="h-px w-10 bg-gold/60"></div>
+          <div class="text-[11px] uppercase tracking-[0.28em] text-dark/60">
+            {{ item.category.name }}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Price column with breathing space -->
+    <div class="text-right pl-6 border-l border-dark/10">
+      <div class="text-[11px] uppercase tracking-[0.25em] text-dark/50 mb-1">
+        Price
+      </div>
+      <div class="brand-serif text-2xl font-semibold whitespace-nowrap text-dark">
+        € {{ item.price }}
+      </div>
+    </div>
+  </div>
+
+    {% if item.description %}
+      <div class="mt-5 text-sm text-dark/75 leading-relaxed">
+        {{ item.description }}
+      </div>
+    {% endif %}
+
+    <!-- premium divider -->
+    <div class="mt-6">
+      <div class="h-px bg-dark/10"></div>
+      <div class="h-px bg-white/40"></div>
+    </div>
+
+    <!-- Buttons (CTX based) -->
+    <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {# Reservation preview: ONLY dine-in #}
+      {% if ctx == "reservation" %}
+        <button
+          type="button"
+          class="btn-wood text-white px-6 py-3 rounded-sm font-semibold shadow-sm border border-white/10
+                 hover:brightness-[1.03] active:brightness-95 transition
+                 {% if item.status == 'sold_out' %}opacity-40 cursor-not-allowed hover:brightness-100 active:brightness-100{% endif %}"
+          data-add-dinein="{{ item.id }}"
+          data-name="{{ item.name|escapejs }}"
+          data-price="{{ item.price }}"
+          {% if item.status == "sold_out" %}disabled{% endif %}
+        >
+          Add to Reservation
+        </button>
+
+        <a href="{% url 'restaurant:reservation' %}"
+           class="btn-gold text-dark px-6 py-3 rounded-sm font-semibold text-center shadow-sm border border-dark/10
+                  hover:brightness-[1.03] active:brightness-95 transition">
+          View Reservation →
+        </a>
+
+      {# Delivery flow preview: ONLY delivery #}
+      {% elif ctx == "delivery" %}
+        <button
+          type="button"
+          class="btn-gold text-dark px-6 py-3 rounded-sm font-semibold shadow-sm border border-dark/10
+                 hover:brightness-[1.03] active:brightness-95 transition
+                 {% if item.status == 'sold_out' %}opacity-40 cursor-not-allowed hover:brightness-100 active:brightness-100{% endif %}"
+          data-add-delivery="{{ item.id }}"
+          {% if item.status == "sold_out" %}disabled{% endif %}
+        >
+          Add for Delivery
+        </button>
+
+        <a href="{% url 'restaurant:delivery_order' %}"
+           class="btn-wood text-white px-6 py-3 rounded-sm font-semibold text-center shadow-sm border border-white/10
+                  hover:brightness-[1.03] active:brightness-95 transition">
+          View Cart →
+        </a>
+
+      {# Menu page preview: BOTH buttons #}
+      {% else %}
+        <button
+          type="button"
+          class="btn-wood text-white px-6 py-3 rounded-sm font-semibold shadow-sm border border-white/10
+                 hover:brightness-[1.03] active:brightness-95 transition
+                 {% if item.status == 'sold_out' %}opacity-40 cursor-not-allowed hover:brightness-100 active:brightness-100{% endif %}"
+          data-add-dinein="{{ item.id }}"
+          data-name="{{ item.name|escapejs }}"
+          data-price="{{ item.price }}"
+          {% if item.status == "sold_out" %}disabled{% endif %}
+        >
+          Add for Dine In
+        </button>
+
+        <button
+          type="button"
+          class="btn-gold text-dark px-6 py-3 rounded-sm font-semibold shadow-sm border border-dark/10
+                 hover:brightness-[1.03] active:brightness-95 transition
+                 {% if item.status == 'sold_out' %}opacity-40 cursor-not-allowed hover:brightness-100 active:brightness-100{% endif %}"
+          data-add-delivery="{{ item.id }}"
+          {% if item.status == "sold_out" %}disabled{% endif %}
+        >
+          Add for Delivery
+        </button>
+      {% endif %}
+    </div>
+
+    <!-- Tip -->
+    <div class="mt-4 text-[11px] text-dark/55 leading-relaxed">
+      {% if ctx == "reservation" %}
+        Tip: This item will be added to your reservation pre-order.
+      {% elif ctx == "delivery" %}
+        Tip: This item will be added to your delivery cart.
+      {% else %}
+        Tip: Dine-in items are saved for booking. Delivery items go to your online cart.
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endwith %}

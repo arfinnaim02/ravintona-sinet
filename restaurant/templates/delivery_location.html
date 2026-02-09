@@ -1,0 +1,450 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% block title %}{% trans "Delivery Location" %} – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="paper-bg">
+  <div class="max-w-6xl mx-auto px-6 py-12">
+
+    <div class="text-center mb-10">
+      <div class="brand-script text-5xl md:text-6xl text-dark">{% trans "Delivery Location" %}</div>
+      <div class="mt-2 text-xs uppercase tracking-[0.35em] text-dark/60">
+        {% trans "Search your address • Pin your entrance • We calculate delivery automatically" %}
+      </div>
+    </div>
+
+    <div class="relative">
+      <div class="absolute -inset-4 bg-dark/10 blur-2xl rounded-[22px]"></div>
+      <div class="absolute -inset-2 bg-gold/10 blur-xl rounded-[22px]"></div>
+
+      <div class="relative frame bg-white/35 overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12">
+
+          <!-- LEFT -->
+          <div class="lg:col-span-7 p-7 md:p-10">
+
+            <div class="flex items-start justify-between gap-4 mb-6">
+              <div>
+                <div class="brand-serif text-2xl font-semibold">{% trans "Set your delivery point" %}</div>
+                <div class="text-sm text-dark/65 mt-1">
+                  {% blocktrans %}Best accuracy on desktop: <b>search your address</b>, then fine-tune by dragging the pin.{% endblocktrans %}
+                </div>
+              </div>
+
+              <div class="flex flex-col items-end gap-2">
+                <button id="useMyLocation"
+                        type="button"
+                        class="btn-wood text-white px-4 py-2 rounded-sm font-semibold text-sm">
+                  {% trans "Use my location →" %}
+                </button>
+                <div class="text-[11px] text-dark/60">
+                  {% trans "Status:" %} <span id="gpsStatus" class="font-semibold">{% trans "Idle" %}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Search -->
+            <div class="frame p-4 bg-white/25 mb-4">
+              <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">{% trans "Search address" %}</label>
+
+              <div class="relative">
+                <input id="addrSearch"
+                       type="text"
+                       autocomplete="off"
+                       placeholder="{% trans "Start typing… e.g., Kauppakatu 10, Joensuu" %}"
+                       class="w-full px-4 py-3 rounded-sm border border-dark/15 bg-white/85 outline-none focus:border-gold/60">
+
+                <div id="searchSpinner"
+                     class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-dark/50">
+                  {% trans "Searching…" %}
+                </div>
+
+                <div id="searchResults"
+                     class="hidden absolute z-[2000] left-0 right-0 mt-2 rounded-sm border border-dark/10 bg-white shadow-lg overflow-hidden">
+                </div>
+              </div>
+
+              <div class="mt-2 text-[11px] text-dark/55">
+                {% blocktrans %}Tip: choose a suggestion for the best placement. Add <b>Joensuu</b> if needed.{% endblocktrans %}
+              </div>
+            </div>
+
+            <!-- Map -->
+            <div class="frame p-3 bg-white/25">
+              <div class="relative">
+                <div id="map" class="w-full h-[460px] rounded-sm"></div>
+
+                <div class="absolute top-3 left-3 z-[1000]">
+                  <div class="px-3 py-2 rounded-sm bg-white/90 border border-dark/10 text-xs text-dark shadow-sm">
+                    <div class="font-semibold">{% trans "Drag pin to entrance" %}</div>
+                    <div class="mt-0.5 text-dark/60">
+                      {% trans "Accuracy:" %} <span id="accText" class="font-semibold">—</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Selected address -->
+              <div class="mt-3 p-3 rounded-sm bg-white/60 border border-dark/10">
+                <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Selected address" %}</div>
+                <div id="addrLabel" class="mt-1 text-sm font-semibold text-dark">—</div>
+                <div class="mt-1 text-[11px] text-dark/55">
+                  {% trans "If this is slightly off, drag the pin a few meters and we’ll update it." %}
+                </div>
+              </div>
+
+              <div class="mt-2 text-[11px] text-dark/55">
+                {% blocktrans %}Delivery radius: <b>{{ max_radius }} km</b>.{% endblocktrans %}
+              </div>
+            </div>
+
+            <!-- Continue -->
+            <div class="mt-6 frame p-5 bg-white/25">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+
+                <form method="post" action="{% url 'restaurant:delivery_set_location' %}" class="w-full sm:w-auto">
+                  {% csrf_token %}
+                  <input type="hidden" name="lat" id="latPost">
+                  <input type="hidden" name="lng" id="lngPost">
+                  <input type="hidden" name="address_label" id="addressLabelPost">
+
+                  <button id="continueBtn"
+                          type="submit"
+                          class="btn-gold px-7 py-3 rounded-sm font-semibold text-dark w-full sm:w-auto">
+                    {% trans "Continue to Menu →" %}
+                  </button>
+
+                  <div id="continueHint" class="text-[11px] text-dark/55 mt-2">
+                    {% trans "Select an address or set the pin, then continue." %}
+                  </div>
+                </form>
+
+                <a href="{% url 'restaurant:menu' %}"
+                   class="text-sm font-semibold text-dark/70 hover:text-dark underline underline-offset-4 text-center sm:text-right">
+                  {% trans "View menu →" %}
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT -->
+          <div class="lg:col-span-5 bg-[#3b231d] text-beige p-7 md:p-10 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-[0.08] pointer-events-none"
+                 style="background-image:url('{% static "images/admin/wood-bg.jpg" %}'); background-size:cover; background-position:center;"></div>
+
+            <div class="relative">
+              <div class="brand-serif text-2xl font-semibold text-white mb-3">{% trans "Delivery Estimate" %}</div>
+
+              <div class="p-5 rounded-sm bg-black/20 border border-white/10">
+                <div class="space-y-3 text-sm">
+
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="text-beige/75">{% trans "Distance" %}</div>
+                    <div class="font-semibold text-white text-right" id="distanceText">—</div>
+                  </div>
+
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="text-beige/75">{% trans "Delivery fee" %}</div>
+                    <div class="font-semibold text-white text-right" id="feeText">—</div>
+                  </div>
+
+                  <div class="h-px bg-white/10 my-3"></div>
+
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="text-beige/75">{% trans "Estimated total" %}</div>
+                    <div class="font-semibold text-white text-right" id="totalText">—</div>
+                  </div>
+
+                  <div id="rangeWarn"
+                       class="hidden mt-3 p-3 rounded-sm bg-red-500/15 border border-red-400/20 text-[12px] text-beige/90">
+                    {% trans "Outside delivery range. Please move the pin closer." %}
+                  </div>
+
+                  <div class="mt-3 text-[11px] text-beige/70">
+                    {% trans "Note: Wi-Fi desktop GPS can be inaccurate. Address search is most reliable." %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-8 p-5 rounded-sm bg-black/25 border border-white/10 text-xs text-beige/80 leading-relaxed">
+                {% trans "Place the pin at your entrance for the best delivery handoff in Finland." %}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+(function () {
+const REST_LAT = parseFloat("{{ rest_lat|floatformat:6 }}".replace(",", "."));
+const REST_LNG = parseFloat("{{ rest_lng|floatformat:6 }}".replace(",", "."));
+
+  let subtotal = 0; // later: load cart subtotal
+
+const latPost = document.getElementById("latPost");
+const lngPost = document.getElementById("lngPost");
+const addressLabelPost = document.getElementById("addressLabelPost");
+
+  const addrSearch = document.getElementById("addrSearch");
+  const searchResults = document.getElementById("searchResults");
+  const searchSpinner = document.getElementById("searchSpinner");
+  const addrLabel = document.getElementById("addrLabel");
+
+  const distanceText = document.getElementById("distanceText");
+  const feeText = document.getElementById("feeText");
+  const totalText = document.getElementById("totalText");
+  const rangeWarn = document.getElementById("rangeWarn");
+
+  const continueBtn = document.getElementById("continueBtn");
+  const continueHint = document.getElementById("continueHint");
+
+  const gpsStatus = document.getElementById("gpsStatus");
+  const accText = document.getElementById("accText");
+
+  let searchTimer = null;
+  let watchId = null;
+
+  function csrfToken() {
+    const m = document.cookie.match(/csrftoken=([^;]+)/);
+    return m ? m[1] : "";
+  }
+
+  function setContinueEnabled(enabled, msg) {
+    continueBtn.disabled = !enabled;
+    continueBtn.classList.toggle("opacity-50", !enabled);
+    continueBtn.classList.toggle("cursor-not-allowed", !enabled);
+    if (msg) continueHint.textContent = msg;
+  }
+
+  function setStatus(text, tone) {
+    gpsStatus.textContent = text;
+    gpsStatus.className = "font-semibold " + (tone || "");
+  }
+
+function updateHidden(lat, lng) {
+  latPost.value = lat.toFixed(6);
+  lngPost.value = lng.toFixed(6);
+}
+
+function syncAddressLabelHidden() {
+  if (!addressLabelPost) return;
+  addressLabelPost.value = (addrLabel && addrLabel.textContent ? addrLabel.textContent : "").trim();
+}
+
+
+  async function calc(lat, lng) {
+    const fd = new FormData();
+    fd.append("lat", lat);
+    fd.append("lng", lng);
+
+    const res = await fetch("{% url 'restaurant:delivery_calc' %}", {
+      method: "POST",
+      headers: { "X-CSRFToken": csrfToken() },
+      body: fd
+    });
+
+    const data = await res.json();
+    if (!data.ok) return;
+
+    distanceText.textContent = data.distance_km.toFixed(2) + " km";
+    feeText.textContent = "€ " + data.delivery_fee.toFixed(2);
+    totalText.textContent = "€ " + (subtotal + data.delivery_fee).toFixed(2);
+
+    if (data.in_range) {
+      rangeWarn.classList.add("hidden");
+      setContinueEnabled(true, "{% trans "Location set. Continue to menu." %}");
+    } else {
+      rangeWarn.classList.remove("hidden");
+      setContinueEnabled(false, "{% trans "Outside delivery range. Move the pin closer." %}");
+    }
+  }
+
+async function reverseGeocode(lat, lng) {
+  try {
+    const url =
+      "{% url 'restaurant:nominatim_reverse' %}" +
+      "?lat=" + encodeURIComponent(lat) +
+      "&lon=" + encodeURIComponent(lng);
+
+    const res = await fetch(url, { headers: { "Accept": "application/json" } });
+    const data = await res.json();
+
+    if (data && data.ok && data.label) {
+      addrLabel.textContent = data.label;
+      syncAddressLabelHidden();
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
+  function hideResults() {
+    searchResults.classList.add("hidden");
+    searchResults.innerHTML = "";
+  }
+
+  function showResults(items) {
+    searchResults.innerHTML = "";
+
+    if (!items.length) {
+      searchResults.innerHTML = `<div class="px-4 py-3 text-sm text-dark/60">{% trans "No results." %}</div>`;
+      searchResults.classList.remove("hidden");
+      return;
+    }
+
+    items.forEach(it => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "w-full text-left px-4 py-3 text-sm hover:bg-beige/60 border-b border-dark/10 last:border-b-0";
+      btn.textContent = it.display_name;
+
+btn.addEventListener("click", () => {
+  hideResults();
+  addrSearch.value = it.display_name;
+
+  // set label immediately for posting
+  addrLabel.textContent = it.display_name;
+  syncAddressLabelHidden();
+
+  const lat = parseFloat(it.lat);
+  const lng = parseFloat(it.lon);
+  if (!isNaN(lat) && !isNaN(lng)) {
+    setStatus("{% trans "Address set" %}", "text-gold");
+    setPoint(lat, lng, null);
+  }
+});
+
+      searchResults.appendChild(btn);
+    });
+
+    searchResults.classList.remove("hidden");
+  }
+
+  async function runSearch(q) {
+    searchSpinner.classList.remove("hidden");
+    try {
+      const url = "{% url 'restaurant:nominatim_search' %}" + "?q=" + encodeURIComponent(q);
+      const res = await fetch(url, { headers: { "Accept": "application/json" } });
+      const data = await res.json();
+      showResults((data && data.ok && data.results) ? data.results : []);
+    } catch {
+      showResults([]);
+    } finally {
+      searchSpinner.classList.add("hidden");
+    }
+  }
+
+// Map init (guard if Leaflet failed to load)
+if (typeof L === "undefined") {
+  console.error("{% trans "Leaflet (L) not loaded. Check extra_head placement." %}");
+  return;
+}
+
+const map = L.map("map").setView([REST_LAT, REST_LNG], 12);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap"
+  }).addTo(map);
+
+  const marker = L.marker([REST_LAT, REST_LNG], { draggable: true }).addTo(map);
+
+  function setPoint(lat, lng, accMeters) {
+    marker.setLatLng([lat, lng]);
+    map.setView([lat, lng], Math.max(map.getZoom(), 15));
+
+    updateHidden(lat, lng);
+    calc(lat, lng);
+    reverseGeocode(lat, lng);
+    syncAddressLabelHidden();
+
+    accText.textContent = (typeof accMeters === "number") ? ("±" + Math.round(accMeters) + " m") : "—";
+  }
+
+  marker.on("dragstart", () => setStatus("{% trans "Pin adjust" %}", "text-gold"));
+  marker.on("dragend", () => {
+    const p = marker.getLatLng();
+    setStatus("{% trans "Pin set" %}", "text-gold");
+    setPoint(p.lat, p.lng, null);
+
+    // stop live GPS updates when user manually sets pin
+    if (watchId !== null && navigator.geolocation) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+    }
+  });
+
+  // Address search debounce
+  addrSearch.addEventListener("input", () => {
+    const q = (addrSearch.value || "").trim();
+    if (searchTimer) clearTimeout(searchTimer);
+
+    if (q.length < 3) {
+      hideResults();
+      return;
+    }
+
+    searchTimer = setTimeout(() => runSearch(q), 300);
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!searchResults.contains(e.target) && e.target !== addrSearch) hideResults();
+  });
+
+  // GPS button (best-effort; desktop wifi may be off)
+  document.getElementById("useMyLocation").addEventListener("click", () => {
+    if (!navigator.geolocation) {
+      alert("{% trans "Geolocation not supported." %}");
+      return;
+    }
+
+    setStatus("{% trans "Locating…" %}", "text-gold");
+
+    // watchPosition gives better results over a few seconds than getCurrentPosition
+    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+
+    watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const acc = pos.coords.accuracy;
+
+        setStatus(acc && acc <= 30 ? "{% trans "Accurate lock" %}" : "{% trans "Improving…" %}", acc && acc <= 30 ? "text-green-600" : "text-gold");
+        setPoint(lat, lng, acc);
+
+        // stop watching once we get decent accuracy
+        if (acc && acc <= 30) {
+          navigator.geolocation.clearWatch(watchId);
+          watchId = null;
+        }
+      },
+      () => {
+        setStatus("{% trans "Permission denied" %}", "text-red-600");
+        alert("{% trans "Location permission denied. Please search your address instead." %}");
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  });
+
+  // Init
+  setContinueEnabled(false, "{% trans "Select an address or set the pin, then continue." %}");
+  setStatus("{% trans "Idle" %}", "text-dark/70");
+updateHidden(REST_LAT, REST_LNG);
+setPoint(REST_LAT, REST_LNG, null);
+syncAddressLabelHidden();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,240 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Admin – {{ settings.RESTAURANT_NAME }}{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              beige: "#f5f0e6",
+              dark: "#3e2723",
+              lightbrown: "#8d6e63",
+              gold: "#bfa76f",
+              paper: "#efe7db",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Open+Sans:wght@300;400;600&display=swap");
+      body { font-family: "Open Sans", sans-serif; }
+      h1,h2,h3,h4 { font-family: "Playfair Display", serif; }
+
+      /* Background */
+      .bg-wood{
+        background-image:
+          radial-gradient(1200px 700px at 30% -10%, rgba(191,167,111,.18), transparent 60%),
+          linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.18)),
+          url("{% static 'images/admin/wood-bg.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+      .bg-paper{
+        background-image:
+          radial-gradient(900px 420px at 20% -10%, rgba(191,167,111,.18), transparent 62%),
+          radial-gradient(900px 420px at 90% 0%, rgba(62,39,35,.08), transparent 55%),
+          url("{% static 'images/admin/paper-bg.jpg' %}");
+        background-size: cover;
+        background-position: center;
+      }
+
+      /* Premium surfaces */
+      .panel{
+        border: 1px solid rgba(62,39,35,.20);
+        box-shadow: 0 18px 55px rgba(0,0,0,.22);
+      }
+      .glass{
+        background: rgba(62,39,35,.72);
+        border: 1px solid rgba(255,255,255,.10);
+        box-shadow: 0 18px 55px rgba(0,0,0,.30);
+      }
+
+      /* Sidebar links */
+      .side-link{
+        display:block;
+        padding: 12px 14px;
+        border-radius: 10px;
+        color: rgba(245,240,230,.86);
+        transition: background .12s ease, transform .12s ease, color .12s ease, border-color .12s ease;
+        border: 1px solid transparent;
+      }
+      .side-link:hover{
+        background: rgba(245,240,230,.06);
+        border-color: rgba(191,167,111,.22);
+        transform: translateY(-1px);
+        color: rgba(245,240,230,1);
+      }
+      .side-link-active{
+        background: rgba(191,167,111,.14);
+        border-color: rgba(191,167,111,.35);
+        color: rgba(245,240,230,1);
+      }
+
+      /* Small divider */
+      .hairline{ height: 1px; background: rgba(255,255,255,.10); }
+
+      /* Checkbox lists */
+      .chk ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; }
+      .chk li { list-style: none; margin: 0; }
+      .chk label { display:flex; align-items:center; gap:10px; font-size: 14px; color:#3e2723; }
+      .chk input[type="checkbox"] { width: 16px; height: 16px; accent-color: #bfa76f; }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+  </head>
+
+  <body class="bg-wood min-h-screen">
+
+    <!-- TOP BAR -->
+    <div class="bg-dark/85 text-beige border-b border-white/10">
+      <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <a href="{% url 'restaurant:dashboard' %}" class="text-lg md:text-xl font-semibold tracking-wide text-white">
+            {{ settings.RESTAURANT_NAME }}
+          </a>
+          <span class="text-[11px] px-2 py-1 rounded-full bg-white/10 border border-white/10 text-beige/80">
+            Admin
+          </span>
+        </div>
+
+        <div class="flex items-center gap-4 text-sm">
+          <span class="hidden sm:inline text-beige/80">
+            Welcome, <span class="font-semibold text-white">{{ request.user.username }}</span>
+          </span>
+
+          <a href="{% url 'restaurant:home' %}"
+             class="text-beige/80 hover:text-gold underline underline-offset-4">
+            Open Website
+          </a>
+
+          <a href="{% url 'restaurant:admin_logout' %}"
+             class="text-beige/80 hover:text-gold underline underline-offset-4">
+            Logout
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="max-w-7xl mx-auto px-6 py-10">
+      <div class="grid grid-cols-12 gap-8">
+
+        <!-- SIDEBAR -->
+        <aside class="col-span-12 md:col-span-3">
+          <div class="glass text-beige rounded-2xl panel overflow-hidden">
+            <div class="px-6 py-5 border-b border-white/10">
+              <div class="text-lg font-semibold text-white">Admin Panel</div>
+              <div class="mt-1 text-xs text-beige/70">
+                Manage menu • reservations • delivery orders
+              </div>
+            </div>
+
+            <nav class="p-3 text-sm">
+
+              <a href="{% url 'restaurant:dashboard' %}"
+                 class="side-link {% if request.path|slice:':16' == '/admin/dashboard' %}side-link-active{% endif %}">
+                Dashboard
+              </a>
+
+              <div class="mt-4 mb-2 px-3 text-[11px] uppercase tracking-wider text-beige/60">
+                Operations
+              </div>
+              <a href="{% url 'restaurant:delivery_coupons_list' %}"
+                class="side-link {% if '/admin/delivery-coupons' in request.path %}side-link-active{% endif %}">
+                Manage Coupons
+              </a>
+
+              <a href="{% url 'restaurant:delivery_coupon_add' %}"
+                class="side-link {% if '/admin/delivery-coupons/add' in request.path %}side-link-active{% endif %}">
+                Add Coupon
+              </a>
+
+              <a href="{% url 'restaurant:reservations_list' %}"
+                 class="side-link {% if request.path|slice:':20' == '/admin/reservations' %}side-link-active{% endif %}">
+                Manage Reservations
+              </a>
+
+              {# ✅ Add this URL name in urls.py if not already: delivery_orders_list #}
+              <a href="{% url 'restaurant:delivery_orders_list' %}"
+                 class="side-link {% if '/admin/delivery-orders' in request.path %}side-link-active{% endif %}">
+                Manage Online Orders
+              </a>
+
+              <div class="mt-4 mb-2 px-3 text-[11px] uppercase tracking-wider text-beige/60">
+                Menu
+              </div>
+
+              <a href="{% url 'restaurant:menu_items_list' %}"
+                 class="side-link {% if request.path|slice:':11' == '/admin/menu' %}side-link-active{% endif %}">
+                Manage Items
+              </a>
+
+              <a href="{% url 'restaurant:add_menu_item' %}"
+                 class="side-link {% if request.path|slice:':16' == '/admin/menu/add' %}side-link-active{% endif %}">
+                Add Menu Item
+              </a>
+
+              <a href="{% url 'restaurant:categories_list' %}"
+                 class="side-link {% if request.path|slice:':17' == '/admin/categories' %}side-link-active{% endif %}">
+                Manage Categories
+              </a>
+
+              <a href="{% url 'restaurant:add_category' %}"
+                 class="side-link {% if request.path|slice:':20' == '/admin/category/add' %}side-link-active{% endif %}">
+                Add Category
+              </a>
+
+              <div class="mt-5 hairline mx-3"></div>
+
+              <a href="{% url 'restaurant:admin_logout' %}" class="side-link mt-3">
+                Logout
+              </a>
+            </nav>
+
+            <div class="px-6 py-4 text-xs text-beige/70 border-t border-white/10">
+              <div class="font-semibold text-white/90">{{ settings.RESTAURANT_OPENING_HOURS }}</div>
+              <div class="mt-1">{{ settings.RESTAURANT_ADDRESS }}</div>
+            </div>
+          </div>
+
+          <div class="mt-5 text-center text-[11px] text-beige/70">
+            &copy; {% now 'Y' %} {{ settings.RESTAURANT_NAME }} — Admin Console
+          </div>
+        </aside>
+
+        <!-- CONTENT -->
+        <main class="col-span-12 md:col-span-9">
+          <div class="bg-paper panel rounded-2xl p-7 md:p-8">
+            {% if messages %}
+              <div class="mb-6 space-y-2">
+                {% for message in messages %}
+                  <div class="px-4 py-3 rounded-xl bg-gold/15 border border-gold/30 text-dark text-sm">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+          </div>
+
+          <div class="mt-6 text-center text-xs text-beige/70">
+            &copy; {% now 'Y' %} {{ settings.RESTAURANT_NAME }}. All rights reserved.
+          </div>
+        </main>
+
+      </div>
+    </div>
+
+    {% block extra_body %}{% endblock %}
+  </body>
+</html>

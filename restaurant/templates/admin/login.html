@@ -1,0 +1,109 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Admin Login – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login – {{ settings.RESTAURANT_NAME }}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              beige: "#f5f0e6",
+              dark: "#3e2723",
+              lightbrown: "#8d6e63",
+              gold: "#bfa76f",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Open+Sans:wght@300;400;600&display=swap");
+      body { font-family: "Open Sans", sans-serif; }
+      h1,h2,h3,h4 { font-family: "Playfair Display", serif; }
+    </style>
+  </head>
+
+  <body class="bg-beige min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-md">
+      <div class="bg-dark text-beige rounded shadow-lg border border-gold/20 overflow-hidden">
+        <!-- header -->
+        <div class="px-8 pt-8 pb-6 text-center border-b border-beige/10">
+          <h1 class="text-3xl font-semibold">{{ settings.RESTAURANT_NAME }}</h1>
+          <p class="text-sm text-beige/70 mt-1">Admin Login</p>
+        </div>
+
+        <!-- body -->
+        <div class="p-8">
+          {% if form.errors %}
+            <div class="mb-5 px-4 py-3 rounded bg-red-200 text-dark text-sm border border-red-300">
+              Invalid username or password.
+            </div>
+          {% endif %}
+
+          <form method="post" class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+              <label class="block mb-1 text-sm font-semibold" for="{{ form.username.id_for_label }}">
+                {{ form.username.label }}
+              </label>
+              {{ form.username }}
+              {% if form.username.errors %}
+                <div class="mt-1 text-xs text-red-200">
+                  {{ form.username.errors }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div>
+              <label class="block mb-1 text-sm font-semibold" for="{{ form.password.id_for_label }}">
+                {{ form.password.label }}
+              </label>
+              {{ form.password }}
+              {% if form.password.errors %}
+                <div class="mt-1 text-xs text-red-200">
+                  {{ form.password.errors }}
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Remember me -->
+            <div class="flex items-center gap-2 pt-1">
+              {{ form.remember_me }}
+              <label for="{{ form.remember_me.id_for_label }}" class="text-sm select-none text-beige/90">
+                Remember me
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full bg-gold text-dark px-4 py-2 rounded font-semibold hover:bg-lightbrown transition"
+            >
+              Log In
+            </button>
+          </form>
+
+          <div class="mt-6 text-center text-sm text-beige/80">
+            <a href="{% url 'restaurant:home' %}" class="underline hover:text-gold">Back to Website</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-center text-xs text-dark/60">
+        Protected staff area
+      </div>
+    </div>
+  </body>
+</html>
+{% endblock %}

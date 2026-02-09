@@ -1,0 +1,970 @@
+# Ravintola Sinet Finnish translations
+# locale/fi/LC_MESSAGES/django.po
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Ravintola Sinet\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-08 03:02+0600\n"
+"PO-Revision-Date: 2026-02-07 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\ravintola_sinet\settings.py:83
+msgid "English"
+msgstr "Englanti"
+
+#: .\ravintola_sinet\settings.py:84
+msgid "Finnish"
+msgstr "Suomi"
+
+#: .\restaurant\templates\about.html:4 .\templates\base.html:115
+#: .\templates\base.html:178
+msgid "About"
+msgstr "Tietoa meistä"
+
+# ---------- ABOUT PAGE (hero + sections) ----------
+#: .\restaurant\templates\about.html:19
+msgid "About Us"
+msgstr "Meistä"
+
+#: .\restaurant\templates\about.html:24
+msgid "Welcome to"
+msgstr "Tervetuloa"
+
+#: .\restaurant\templates\about.html:42
+msgid "A Taste of Joensuu"
+msgstr "Joensuun makuja"
+
+# blocktrans with name variable (Django will extract this exact msgid)
+#: .\restaurant\templates\about.html:45
+#, fuzzy, python-format
+msgid ""
+"\n"
+"            %(name)s is your cozy, inviting restaurant in the heart of "
+"Joensuu.\n"
+"            Since opening our doors, we’ve been dedicated to crafting "
+"delicious, high-quality dishes\n"
+"            using the freshest local ingredients. Whether you’re craving a "
+"perfectly baked pizza,\n"
+"            a juicy burger, or a hearty kebab, we have something to satisfy "
+"every taste.\n"
+"          "
+msgstr ""
+"%(name)s on viihtyisä ja kutsuva ravintola Joensuun sydämessä.\n"
+"            Avaamisestamme lähtien olemme omistautuneet valmistamaan "
+"herkullisia ja laadukkaita annoksia\n"
+"            tuoreimmista paikallisista raaka-aineista. Halusitpa "
+"täydellisesti paistetun pizzan,\n"
+"            mehukkaan hampurilaisen tai täyttävän kebabin, meiltä löydät "
+"vaihtoehdon jokaiseen makuun."
+
+#: .\restaurant\templates\about.html:62
+msgid ""
+"“Enjoy authentic flavors of Finland and the Mediterranean, made with "
+"passion.”"
+msgstr "“Nauti Suomen ja Välimeren aidoista mauista – intohimolla valmistettuna.”"
+
+#: .\restaurant\templates\about.html:71
+msgid "Signature pizza"
+msgstr "Talon pizza"
+
+#: .\restaurant\templates\about.html:82
+msgid "Fresh ingredients"
+msgstr "Tuoreet raaka-aineet"
+
+#: .\restaurant\templates\about.html:84 .\restaurant\templates\home.html:59
+msgid "Fresh Ingredients"
+msgstr "Tuoreet raaka-aineet"
+
+#: .\restaurant\templates\about.html:86
+msgid ""
+"We take pride in using locally sourced, top-quality ingredients. Our pizza "
+"dough is made in-house daily, ensuring you get the freshest taste in every "
+"bite."
+msgstr ""
+"Olemme ylpeitä paikallisista ja laadukkaista raaka-aineista. Pizzataikinamme "
+"tehdään paikan päällä päivittäin, jotta jokainen suupala maistuu "
+"mahdollisimman tuoreelta."
+
+#: .\restaurant\templates\about.html:92
+msgid "Warm ambience"
+msgstr "Lämmin tunnelma"
+
+#: .\restaurant\templates\about.html:94
+msgid "Warm Ambience"
+msgstr "Lämmin tunnelma"
+
+#: .\restaurant\templates\about.html:96
+msgid ""
+"Our restaurant offers a welcoming and relaxed atmosphere, perfect for dining "
+"with family and friends. Enjoy our cozy space filled with the inviting aroma "
+"of freshly cooked meals."
+msgstr ""
+"Ravintolassamme on lämmin ja rento tunnelma – täydellinen perheelle ja "
+"ystäville. Nauti viihtyisästä ympäristöstä ja vastavalmistetun ruoan "
+"houkuttelevista tuoksuista."
+
+#: .\restaurant\templates\about.html:102
+msgid "Friendly service"
+msgstr "Ystävällinen palvelu"
+
+#: .\restaurant\templates\about.html:104
+msgid "Friendly Service"
+msgstr "Ystävällinen palvelu"
+
+#: .\restaurant\templates\about.html:106
+msgid ""
+"Our team is passionate about hospitality. From the moment you arrive, we’re "
+"here to make sure you have a memorable dining experience."
+msgstr ""
+"Tiimimme rakastaa hyvää palvelua. Hetkestä, kun saavut, olemme täällä "
+"varmistaaksemme, että saat ikimuistoisen ruokailukokemuksen."
+
+#: .\restaurant\templates\about.html:121
+msgid "Location"
+msgstr "Sijainti"
+
+#: .\restaurant\templates\about.html:133
+msgid "Tel:"
+msgstr "Puh:"
+
+#: .\restaurant\templates\about.html:142 .\restaurant\templates\home.html:297
+msgid "Get Directions →"
+msgstr "Reittiohjeet →"
+
+#: .\restaurant\templates\about.html:151
+msgid "Contact Us"
+msgstr "Ota yhteyttä"
+
+#: .\restaurant\templates\about.html:158
+msgid "Name"
+msgstr "Nimi"
+
+#: .\restaurant\templates\about.html:162
+msgid "Email"
+msgstr "Sähköposti"
+
+#: .\restaurant\templates\about.html:168
+msgid "Message"
+msgstr "Viesti"
+
+#: .\restaurant\templates\about.html:173
+msgid ""
+"We store and process your message to respond to your inquiry. For details, "
+"please check our privacy policy."
+msgstr ""
+"Tallennamme ja käsittelemme viestisi voidaksemme vastata kyselyysi. "
+"Lisätietoja löydät tietosuojaselosteestamme."
+
+#: .\restaurant\templates\about.html:177
+msgid "Send Message →"
+msgstr "Lähetä viesti →"
+
+# -------------------- DELIVERY LOCATION PAGE --------------------
+#: .\restaurant\templates\delivery_location.html:5
+#: .\restaurant\templates\delivery_location.html:17
+msgid "Delivery Location"
+msgstr "Toimitusosoite"
+
+#: .\restaurant\templates\delivery_location.html:19
+msgid ""
+"Search your address • Pin your entrance • We calculate delivery automatically"
+msgstr ""
+"Hae osoitteesi • Merkitse sisäänkäynti • Laskemme toimituksen automaattisesti"
+
+#: .\restaurant\templates\delivery_location.html:35
+msgid "Set your delivery point"
+msgstr "Aseta toimituspiste"
+
+#: .\restaurant\templates\delivery_location.html:37
+msgid ""
+"Best accuracy on desktop: <b>search your address</b>, then fine-tune by "
+"dragging the pin."
+msgstr ""
+"Paras tarkkuus tietokoneella: <b>hae osoitteesi</b> ja hienosäädä vetämällä "
+"merkkiä."
+
+#: .\restaurant\templates\delivery_location.html:45
+msgid "Use my location →"
+msgstr "Käytä sijaintiani →"
+
+#: .\restaurant\templates\delivery_location.html:48
+msgid "Status:"
+msgstr "Tila:"
+
+#: .\restaurant\templates\delivery_location.html:48
+#: .\restaurant\templates\delivery_location.html:444
+msgid "Idle"
+msgstr "Valmiina"
+
+#: .\restaurant\templates\delivery_location.html:55
+msgid "Search address"
+msgstr "Hae osoite"
+
+#: .\restaurant\templates\delivery_location.html:61
+msgid "Start typing… e.g., Kauppakatu 10, Joensuu"
+msgstr "Aloita kirjoittaminen… esim. Kauppakatu 10, Joensuu"
+
+#: .\restaurant\templates\delivery_location.html:66
+msgid "Searching…"
+msgstr "Haetaan…"
+
+#: .\restaurant\templates\delivery_location.html:75
+msgid ""
+"Tip: choose a suggestion for the best placement. Add <b>Joensuu</b> if "
+"needed."
+msgstr ""
+"Vinkki: valitse ehdotus parhaan sijainnin saamiseksi. Lisää tarvittaessa "
+"<b>Joensuu</b>."
+
+#: .\restaurant\templates\delivery_location.html:86
+msgid "Drag pin to entrance"
+msgstr "Vedä merkki sisäänkäynnille"
+
+#: .\restaurant\templates\delivery_location.html:88
+msgid "Accuracy:"
+msgstr "Tarkkuus:"
+
+#: .\restaurant\templates\delivery_location.html:96
+msgid "Selected address"
+msgstr "Valittu osoite"
+
+#: .\restaurant\templates\delivery_location.html:99
+msgid "If this is slightly off, drag the pin a few meters and we’ll update it."
+msgstr "Jos tämä on hieman pielessä, vedä merkkiä muutama metri ja päivitämme sen."
+
+#: .\restaurant\templates\delivery_location.html:104
+#, fuzzy, python-format
+msgid "Delivery radius: <b>%(max_radius)s km</b>."
+msgstr "Toimitussäde: <b>%(max_radius)s km</b>."
+
+#: .\restaurant\templates\delivery_location.html:121
+msgid "Continue to Menu →"
+msgstr "Jatka ruokalistaan →"
+
+#: .\restaurant\templates\delivery_location.html:125
+#: .\restaurant\templates\delivery_location.html:443
+msgid "Select an address or set the pin, then continue."
+msgstr "Valitse osoite tai aseta merkki ja jatka sitten."
+
+#: .\restaurant\templates\delivery_location.html:131
+msgid "View menu →"
+msgstr "Näytä ruokalista →"
+
+#: .\restaurant\templates\delivery_location.html:144
+msgid "Delivery Estimate"
+msgstr "Toimitusarvio"
+
+#: .\restaurant\templates\delivery_location.html:150
+msgid "Distance"
+msgstr "Etäisyys"
+
+#: .\restaurant\templates\delivery_location.html:155
+#: .\restaurant\templates\delivery_order.html:219
+#: .\restaurant\templates\delivery_order.html:345
+msgid "Delivery fee"
+msgstr "Toimitusmaksu"
+
+#: .\restaurant\templates\delivery_location.html:162
+#: .\restaurant\templates\delivery_order.html:228
+#: .\restaurant\templates\delivery_order.html:354
+#: .\restaurant\templates\reservation.html:248
+msgid "Estimated total"
+msgstr "Arvioitu yhteensä"
+
+#: .\restaurant\templates\delivery_location.html:168
+msgid "Outside delivery range. Please move the pin closer."
+msgstr "Toimitusalueen ulkopuolella. Siirrä merkkiä lähemmäs."
+
+#: .\restaurant\templates\delivery_location.html:172
+msgid ""
+"Note: Wi-Fi desktop GPS can be inaccurate. Address search is most reliable."
+msgstr "Huom: Wi-Fi-pohjainen GPS voi olla epätarkka. Osoitehaku on luotettavin."
+
+#: .\restaurant\templates\delivery_location.html:178
+msgid ""
+"Place the pin at your entrance for the best delivery handoff in Finland."
+msgstr "Aseta merkki sisäänkäynnillesi parasta toimitusta varten Suomessa."
+
+#: .\restaurant\templates\delivery_location.html:268
+msgid "Location set. Continue to menu."
+msgstr "Sijainti asetettu. Jatka ruokalistaan."
+
+#: .\restaurant\templates\delivery_location.html:271
+msgid "Outside delivery range. Move the pin closer."
+msgstr "Toimitusalueen ulkopuolella. Siirrä merkkiä lähemmäs."
+
+#: .\restaurant\templates\delivery_location.html:303
+msgid "No results."
+msgstr "Ei tuloksia."
+
+#: .\restaurant\templates\delivery_location.html:325
+msgid "Address set"
+msgstr "Osoite asetettu"
+
+#: .\restaurant\templates\delivery_location.html:352
+msgid "Leaflet (L) not loaded. Check extra_head placement."
+msgstr "Leaflet (L) ei latautunut. Tarkista extra_headin sijoitus."
+
+#: .\restaurant\templates\delivery_location.html:377
+msgid "Pin adjust"
+msgstr "Merkin säätö"
+
+#: .\restaurant\templates\delivery_location.html:380
+msgid "Pin set"
+msgstr "Merkki asetettu"
+
+#: .\restaurant\templates\delivery_location.html:410
+msgid "Geolocation not supported."
+msgstr "Sijainti ei ole tuettu."
+
+#: .\restaurant\templates\delivery_location.html:414
+msgid "Locating…"
+msgstr "Paikannetaan…"
+
+#: .\restaurant\templates\delivery_location.html:425
+msgid "Accurate lock"
+msgstr "Tarkka sijainti"
+
+#: .\restaurant\templates\delivery_location.html:425
+msgid "Improving…"
+msgstr "Parannetaan…"
+
+#: .\restaurant\templates\delivery_location.html:435
+msgid "Permission denied"
+msgstr "Lupa evätty"
+
+#: .\restaurant\templates\delivery_location.html:436
+msgid "Location permission denied. Please search your address instead."
+msgstr "Sijaintilupa evätty. Hae osoitteesi sen sijaan."
+
+#: .\restaurant\templates\delivery_order.html:4
+#: .\restaurant\templates\delivery_order.html:13
+#: .\restaurant\templates\home.html:40 .\restaurant\templates\home.html:311
+#: .\templates\base.html:128 .\templates\base.html:190
+#: .\templates\base.html:296
+msgid "Order Online"
+msgstr "Tilaa verkossa"
+
+# -------------------- ORDER ONLINE PAGE --------------------
+#: .\restaurant\templates\delivery_order.html:16
+msgid "Delivery distance:"
+msgstr "Toimitusetäisyys:"
+
+#: .\restaurant\templates\delivery_order.html:18
+msgid "Delivery fee:"
+msgstr "Toimitusmaksu:"
+
+#: .\restaurant\templates\delivery_order.html:24
+msgid "Offer:"
+msgstr "Tarjous:"
+
+#: .\restaurant\templates\delivery_order.html:27
+msgid "FREE DELIVERY"
+msgstr "ILMAINEN TOIMITUS"
+
+#: .\restaurant\templates\delivery_order.html:30
+msgid "min subtotal"
+msgstr "minimi välisummaa"
+
+#: .\restaurant\templates\delivery_order.html:38
+msgid "Change location →"
+msgstr "Vaihda sijainti →"
+
+#: .\restaurant\templates\delivery_order.html:47
+#: .\restaurant\templates\reservation.html:352
+msgid "Categories"
+msgstr "Kategoriat"
+
+#: .\restaurant\templates\delivery_order.html:58
+msgid "Tip: Click an item to preview, then add to cart."
+msgstr "Vinkki: Napsauta tuotetta nähdäksesi esikatselun ja lisää sitten ostoskoriin."
+
+#: .\restaurant\templates\delivery_order.html:84
+#: .\restaurant\templates\reservation.html:401
+msgid "No image"
+msgstr "Ei kuvaa"
+
+#: .\restaurant\templates\delivery_order.html:108
+msgid "Sold out"
+msgstr "Loppuunmyyty"
+
+#: .\restaurant\templates\delivery_order.html:112
+msgid "Available"
+msgstr "Saatavilla"
+
+#: .\restaurant\templates\delivery_order.html:141
+#: .\restaurant\templates\reservation.html:443
+msgid "Add →"
+msgstr "Lisää →"
+
+#: .\restaurant\templates\delivery_order.html:157
+#: .\restaurant\templates\delivery_order.html:280
+msgid "Your Cart"
+msgstr "Ostoskorisi"
+
+#: .\restaurant\templates\delivery_order.html:165
+#: .\restaurant\templates\delivery_order.html:291
+msgid "Coupon"
+msgstr "Kuponki"
+
+#: .\restaurant\templates\delivery_order.html:172
+#: .\restaurant\templates\delivery_order.html:298
+msgid "Applied:"
+msgstr "Käytössä:"
+
+#: .\restaurant\templates\delivery_order.html:177
+#: .\restaurant\templates\delivery_order.html:303
+msgid "Remove"
+msgstr "Poista"
+
+#: .\restaurant\templates\delivery_order.html:180
+#: .\restaurant\templates\delivery_order.html:306
+msgid "Discount is included in totals."
+msgstr "Alennus on huomioitu kokonaissummassa."
+
+#: .\restaurant\templates\delivery_order.html:188
+#: .\restaurant\templates\delivery_order.html:314
+msgid "Enter code"
+msgstr "Syötä koodi"
+
+#: .\restaurant\templates\delivery_order.html:194
+#: .\restaurant\templates\delivery_order.html:320
+msgid "Apply"
+msgstr "Käytä"
+
+#: .\restaurant\templates\delivery_order.html:199
+#: .\restaurant\templates\delivery_order.html:325
+msgid "Example:"
+msgstr "Esimerkki:"
+
+#: .\restaurant\templates\delivery_order.html:207
+#: .\restaurant\templates\delivery_order.html:333
+msgid "Subtotal"
+msgstr "Välisummaa"
+
+#: .\restaurant\templates\delivery_order.html:213
+#: .\restaurant\templates\delivery_order.html:339
+msgid "Coupon discount"
+msgstr "Kuponkialennus"
+
+#: .\restaurant\templates\delivery_order.html:237
+#: .\restaurant\templates\delivery_order.html:363
+msgid "Checkout → (Next)"
+msgstr "Kassalle → (Seuraava)"
+
+#: .\restaurant\templates\delivery_order.html:241
+#: .\restaurant\templates\delivery_order.html:367
+msgid "Next: add your details (name + phone + instructions). Pay on delivery."
+msgstr "Seuraavaksi: lisää tietosi (nimi + puhelin + ohjeet). Maksa toimituksen yhteydessä."
+
+#: .\restaurant\templates\delivery_order.html:247
+#: .\restaurant\templates\delivery_order.html:373
+msgid "Clear cart"
+msgstr "Tyhjennä ostoskori"
+
+#: .\restaurant\templates\delivery_order.html:261
+msgid "Cart"
+msgstr "Ostoskori"
+
+#: .\restaurant\templates\delivery_order.html:263
+msgid "items"
+msgstr "tuotetta"
+
+#: .\restaurant\templates\delivery_order.html:268
+msgid "View cart →"
+msgstr "Näytä ostoskori →"
+
+#: .\restaurant\templates\delivery_order.html:384
+#: .\restaurant\templates\reservation.html:489
+msgid "Item Details"
+msgstr "Tuotetiedot"
+
+#: .\restaurant\templates\delivery_order.html:388
+#: .\restaurant\templates\delivery_order.html:565
+#: .\restaurant\templates\delivery_order.html:578
+#: .\restaurant\templates\reservation.html:305
+#: .\restaurant\templates\reservation.html:494
+msgid "Loading..."
+msgstr "Ladataan..."
+
+#: .\restaurant\templates\delivery_order.html:395
+msgid "Coupon error"
+msgstr "Kuponkivirhe"
+
+#: .\restaurant\templates\delivery_order.html:396
+msgid "Please enter a coupon code."
+msgstr "Syötä kuponkikoodi."
+
+#: .\restaurant\templates\delivery_order.html:397
+msgid "Invalid or expired coupon."
+msgstr "Kuponki on virheellinen tai vanhentunut."
+
+#: .\restaurant\templates\delivery_order.html:398
+msgid "Could not remove coupon."
+msgstr "Kuponkia ei voitu poistaa."
+
+#: .\restaurant\templates\delivery_order.html:399
+msgid "Your cart is empty."
+msgstr "Ostoskorisi on tyhjä."
+
+#: .\restaurant\templates\delivery_order.html:586
+#: .\restaurant\templates\reservation.html:306
+msgid "Could not load item."
+msgstr "Tuotteen lataaminen epäonnistui."
+
+# ---------- HOME PAGE (hero + sections) ----------
+#: .\restaurant\templates\home.html:23
+msgid "Taste of Joensuu"
+msgstr "Joensuun makuja"
+
+#: .\restaurant\templates\home.html:31 .\restaurant\templates\home.html:304
+#: .\templates\base.html:121 .\templates\base.html:184
+#: .\templates\base.html:291
+msgid "Book for Dine In"
+msgstr "Varaa pöytä"
+
+#: .\restaurant\templates\home.html:36
+msgid "View Menu"
+msgstr "Katso menu"
+
+#: .\restaurant\templates\home.html:60
+msgid "Locally sourced produce"
+msgstr "Paikallisia raaka-aineita"
+
+#: .\restaurant\templates\home.html:74
+msgid "Handcrafted Dough"
+msgstr "Itsetehty taikina"
+
+#: .\restaurant\templates\home.html:75
+msgid "Pizza dough made in-house"
+msgstr "Pizzataikina tehdään paikan päällä"
+
+# blocktrans with variable: hours
+#: .\restaurant\templates\home.html:89
+#, python-format
+msgid "Open Daily %(hours)s"
+msgstr "Avoinna päivittäin %(hours)s"
+
+#: .\restaurant\templates\home.html:90
+msgid "Welcome every day."
+msgstr "Tervetuloa joka päivä."
+
+#: .\restaurant\templates\home.html:107
+msgid "Customer Favorites"
+msgstr "Asiakkaiden suosikit"
+
+#: .\restaurant\templates\home.html:111
+msgid "Most Loved Dishes"
+msgstr "Suosituimmat annokset"
+
+# blocktrans with <b>popular</b>
+#: .\restaurant\templates\home.html:205
+msgid ""
+"No customer favorites yet. Add tag <b>popular</b> to menu items in the admin "
+"panel."
+msgstr "Suosikkeja ei vielä ole. Lisää tagi <b>popular</b> ruokalistatuotteisiin hallintapaneelissa."
+
+#: .\restaurant\templates\home.html:213
+msgid "Explore Our Menu"
+msgstr "Tutustu menuumme"
+
+#: .\restaurant\templates\home.html:245
+msgid "Find Us"
+msgstr "Löydä meidät"
+
+#: .\restaurant\templates\home.html:266
+msgid "Visit Ravintola Sinet"
+msgstr "Tule käymään Ravintola Sinetissä"
+
+#: .\restaurant\templates\home.html:270
+#: .\restaurant\templates\reservation.html:260
+msgid "Address"
+msgstr "Osoite"
+
+#: .\restaurant\templates\home.html:273
+msgid "Opening times"
+msgstr "Aukioloajat"
+
+#: .\restaurant\templates\home.html:275
+msgid "Monday"
+msgstr ""
+
+#: .\restaurant\templates\home.html:276
+msgid "Tuesday"
+msgstr ""
+
+#: .\restaurant\templates\home.html:277
+msgid "Wednesday"
+msgstr ""
+
+#: .\restaurant\templates\home.html:278
+msgid "Thursday"
+msgstr ""
+
+#: .\restaurant\templates\home.html:279
+msgid "Friday"
+msgstr ""
+
+#: .\restaurant\templates\home.html:280
+msgid "Saturday"
+msgstr ""
+
+#: .\restaurant\templates\home.html:281
+msgid "Sunday"
+msgstr ""
+
+#: .\restaurant\templates\home.html:284
+#: .\restaurant\templates\reservation.html:89
+#: .\restaurant\templates\reservation.html:265
+msgid "Phone"
+msgstr "Puhelin"
+
+#: .\restaurant\templates\home.html:317
+msgid ""
+"Tip: Tap the map to zoom, or use “Get Directions” for the fastest route."
+msgstr "Vinkki: Napauta karttaa zoomataksesi tai käytä “Reittiohjeet” nopeinta reittiä varten."
+
+# -------------------- RESERVATION PAGE --------------------
+#: .\restaurant\templates\reservation.html:4
+#: .\restaurant\templates\reservation.html:12
+msgid "Book a Table"
+msgstr "Varaa pöytä"
+
+#: .\restaurant\templates\reservation.html:14
+msgid "30-minute reservations • Smart availability • Optional pre-order"
+msgstr "30 minuutin varaukset • Älykäs saatavuus • Ennakkotilaus valinnainen"
+
+#: .\restaurant\templates\reservation.html:31
+msgid "Reservation Details"
+msgstr "Varaustiedot"
+
+#: .\restaurant\templates\reservation.html:33
+msgid "Choose a date & time (30-minute intervals). Pre-order food is optional."
+msgstr "Valitse päivämäärä ja aika (30 minuutin välein). Ruokien ennakkotilaus on valinnainen."
+
+#: .\restaurant\templates\reservation.html:39
+msgid "View menu"
+msgstr "Näytä ruokalista"
+
+#: .\restaurant\templates\reservation.html:58
+msgid "Date & Time"
+msgstr "Päivämäärä ja aika"
+
+#: .\restaurant\templates\reservation.html:60
+msgid "Open daily <b>10:00–22:00</b> • Last start <b>21:30</b>"
+msgstr "Auki joka päivä <b>10:00–22:00</b> • Viimeinen aloitusaika <b>21:30</b>"
+
+#: .\restaurant\templates\reservation.html:64
+msgid "Start"
+msgstr "Aloitus"
+
+#: .\restaurant\templates\reservation.html:71
+msgid "Tip: We recommend booking at least <b>30 minutes</b> ahead."
+msgstr "Vinkki: Suosittelemme varaamaan vähintään <b>30 minuuttia</b> etukäteen."
+
+#: .\restaurant\templates\reservation.html:77
+msgid "Customer Info"
+msgstr "Asiakastiedot"
+
+#: .\restaurant\templates\reservation.html:81
+msgid "Your Name"
+msgstr "Nimesi"
+
+#: .\restaurant\templates\reservation.html:98
+msgid "Email (optional)"
+msgstr "Sähköposti (valinnainen)"
+
+#: .\restaurant\templates\reservation.html:108
+msgid "Seating"
+msgstr "Istumapaikat"
+
+#: .\restaurant\templates\reservation.html:112
+msgid "Guests (chairs)"
+msgstr "Vieraat (tuolit)"
+
+#: .\restaurant\templates\reservation.html:117
+msgid "Total chairs available per slot: <b>55</b>"
+msgstr "Tuoleja saatavilla per aikaväli: <b>55</b>"
+
+#: .\restaurant\templates\reservation.html:121
+msgid "Baby Seats"
+msgstr "Lastenistuimet"
+
+#: .\restaurant\templates\reservation.html:126
+msgid "Baby seats available per slot: <b>2</b>"
+msgstr "Lastenistuimia saatavilla per aikaväli: <b>2</b>"
+
+#: .\restaurant\templates\reservation.html:133
+msgid "Preferred Table (optional)"
+msgstr "Toivottu pöytä (valinnainen)"
+
+#: .\restaurant\templates\reservation.html:134
+msgid "Total tables: <b>14</b>"
+msgstr "Pöytiä yhteensä: <b>14</b>"
+
+#: .\restaurant\templates\reservation.html:141
+msgid ""
+"Leave empty if you don’t care—staff will assign the best available table."
+msgstr "Jätä tyhjäksi, jos sillä ei ole väliä — henkilökunta valitsee parhaan saatavilla olevan pöydän."
+
+#: .\restaurant\templates\reservation.html:150
+msgid "Pre-order Food (optional)"
+msgstr "Ruokien ennakkotilaus (valinnainen)"
+
+#: .\restaurant\templates\reservation.html:151
+msgid "Open the menu picker, preview items, then add to your reservation."
+msgstr "Avaa ruokalistavalitsin, esikatsele tuotteet ja lisää ne varaukseesi."
+
+#: .\restaurant\templates\reservation.html:157
+msgid "Clear"
+msgstr "Tyhjennä"
+
+#: .\restaurant\templates\reservation.html:161
+msgid "Browse Menu →"
+msgstr "Selaa ruokalistaa →"
+
+#: .\restaurant\templates\reservation.html:173
+msgid "You can skip pre-order and order at the table."
+msgstr "Voit ohittaa ennakkotilauksen ja tilata pöydässä."
+
+#: .\restaurant\templates\reservation.html:179
+msgid "Notes (optional)"
+msgstr "Lisätiedot (valinnainen)"
+
+#: .\restaurant\templates\reservation.html:185
+msgid "Example: allergy info, wheelchair access, birthday surprise."
+msgstr "Esimerkki: allergiatiedot, pyörätuolipääsy, syntymäpäiväyllätys."
+
+#: .\restaurant\templates\reservation.html:196
+msgid "Confirm Reservation →"
+msgstr "Vahvista varaus →"
+
+#: .\restaurant\templates\reservation.html:201
+msgid ""
+"Slot capacity rules: <b>14 tables</b>, <b>55 chairs</b>, <b>2 baby seats</b> "
+"• Typical duration: <b>30 minutes</b>."
+msgstr "Aikavälin kapasiteettisäännöt: <b>14 pöytää</b>, <b>55 tuolia</b>, <b>2 lastenistuinta</b> • Tyypillinen kesto: <b>30 minuuttia</b>."
+
+#: .\restaurant\templates\reservation.html:214
+msgid "Reservation Summary"
+msgstr "Varausyhteenveto"
+
+#: .\restaurant\templates\reservation.html:220
+msgid "When"
+msgstr "Aika"
+
+#: .\restaurant\templates\reservation.html:225
+msgid "Guests"
+msgstr "Vieraat"
+
+#: .\restaurant\templates\reservation.html:230
+msgid "Baby seats"
+msgstr "Lastenistuimet"
+
+#: .\restaurant\templates\reservation.html:235
+msgid "Preferred table"
+msgstr "Toivottu pöytä"
+
+#: .\restaurant\templates\reservation.html:236
+#: .\restaurant\templates\reservation.html:303
+msgid "Any"
+msgstr "Mikä tahansa"
+
+#: .\restaurant\templates\reservation.html:242
+msgid "Pre-order"
+msgstr "Ennakkotilaus"
+
+#: .\restaurant\templates\reservation.html:244
+#: .\restaurant\templates\reservation.html:301
+#: .\restaurant\templates\reservation.html:469
+msgid "No items selected."
+msgstr "Ei tuotteita valittuna."
+
+#: .\restaurant\templates\reservation.html:252
+msgid "Total is only for pre-order items (optional)."
+msgstr "Yhteissumma koskee vain ennakkotilattuja tuotteita (valinnainen)."
+
+#: .\restaurant\templates\reservation.html:272 .\templates\base.html:262
+msgid "Opening Times"
+msgstr "Aukioloajat"
+
+#: .\restaurant\templates\reservation.html:274 .\templates\base.html:264
+msgid "Mon"
+msgstr "Ma"
+
+#: .\restaurant\templates\reservation.html:275 .\templates\base.html:265
+msgid "Tue"
+msgstr "Ti"
+
+#: .\restaurant\templates\reservation.html:276 .\templates\base.html:266
+msgid "Wed"
+msgstr "Ke"
+
+#: .\restaurant\templates\reservation.html:277 .\templates\base.html:267
+msgid "Thu"
+msgstr "To"
+
+#: .\restaurant\templates\reservation.html:278 .\templates\base.html:268
+msgid "Fri"
+msgstr "Pe"
+
+#: .\restaurant\templates\reservation.html:279 .\templates\base.html:269
+msgid "Sat"
+msgstr "La"
+
+#: .\restaurant\templates\reservation.html:280 .\templates\base.html:270
+msgid "Sun"
+msgstr "Su"
+
+#: .\restaurant\templates\reservation.html:286
+msgid ""
+"Please arrive on time. If you’re late, your table may be reassigned to keep "
+"the service smooth."
+msgstr "Saavuthan ajoissa. Jos myöhästyt, pöytäsi voidaan antaa toisille asiakkaille palvelun sujuvuuden varmistamiseksi."
+
+#: .\restaurant\templates\reservation.html:302
+msgid "each"
+msgstr "kpl"
+
+#: .\restaurant\templates\reservation.html:304
+msgid "Table"
+msgstr "Pöytä"
+
+#: .\restaurant\templates\reservation.html:307
+msgid "Item"
+msgstr "Tuote"
+
+#: .\restaurant\templates\reservation.html:325
+msgid "Choose items for pre-order"
+msgstr "Valitse ennakkotilattavat tuotteet"
+
+#: .\restaurant\templates\reservation.html:331
+#: .\restaurant\templates\reservation.html:474
+#, fuzzy
+msgid "View Cart"
+msgstr "Näytä ostoskori →"
+
+#: .\restaurant\templates\reservation.html:336
+msgid "Search menu..."
+msgstr "Hae ruokalistalta..."
+
+#: .\restaurant\templates\reservation.html:362
+msgid "No categories yet."
+msgstr "Ei kategorioita vielä."
+
+#: .\restaurant\templates\reservation.html:367
+msgid "Tip: choose a category, preview items, then add to your reservation."
+msgstr "Vinkki: valitse kategoria, esikatsele tuotteet ja lisää ne varaukseesi."
+
+#: .\restaurant\templates\reservation.html:435
+msgid "Preview"
+msgstr "Esikatsele"
+
+#: .\restaurant\templates\reservation.html:456
+msgid "No menu available."
+msgstr "Ruokalistaa ei ole saatavilla."
+
+#: .\restaurant\templates\reservation.html:499
+msgid "Tip: close this preview to continue selecting items."
+msgstr "Vinkki: sulje tämä esikatselu jatkaaksesi tuotteiden valintaa."
+
+#: .\restaurant\views.py:238
+msgid "Menu item created successfully."
+msgstr ""
+
+# -------------------- CHECKOUT PAGE --------------------
+#: .\restaurant\templates\delivery_checkout.html:1
+msgid "Checkout"
+msgstr "Kassa"
+
+#: .\restaurant\templates\delivery_checkout.html:1
+msgid "Confirm details • Pay on delivery • We’ll contact you if needed"
+msgstr "Vahvista tiedot • Maksa toimituksen yhteydessä • Otamme yhteyttä tarvittaessa"
+
+#: .\restaurant\templates\delivery_checkout.html:1
+msgid "Delivery details"
+msgstr "Toimitustiedot"
+
+#: .\restaurant\templates\delivery_checkout.html:1
+msgid "← Back to menu"
+msgstr "← Takaisin ruokalistaan"
+
+#: .\restaurant\templates\delivery_checkout.html:1
+msgid "Please enter your contact info. Payment method: Pay on delivery."
+msgstr "Syötä yhteystietosi. Maksutapa: maksu toimituksen yhteydessä."
+
+#: .\restaurant\templates\delivery_checkout.html:1
+msgid "Delivery address"
+msgstr "Toimitusosoite"
+
+#: .\restaurant\templates\delivery_checkout.html:1
+msgid "Save details →"
+msgstr "Tallenna tiedot →"
+
+#: .\restaurant\templates\delivery_checkout.html:1
+msgid "We’ll keep these details for this session."
+msgstr "Säilytämme nämä tiedot tämän istunnon ajan."
+
+#: .\restaurant\templates\delivery_checkout.html:1
+msgid "Place order → (Pay on delivery)"
+msgstr "Tee tilaus → (Maksa toimituksen yhteydessä)"
+
+#: .\restaurant\templates\delivery_checkout.html:1
+msgid "After placing the order, we’ll contact you shortly to confirm."
+msgstr "Tilauksen jälkeen otamme pian yhteyttä vahvistaaksemme."
+
+#: .\restaurant\templates\delivery_checkout.html:1
+msgid "Tip: Keep your phone reachable. Our driver may call if your entrance is unclear."
+msgstr "Vinkki: pidä puhelin saatavilla. Kuljettajamme voi soittaa, jos sisäänkäynti on epäselvä."
+
+# ---------- BASE (navbar/footer) ----------
+#: .\templates\base.html:105 .\templates\base.html:166
+msgid "Home"
+msgstr "Etusivu"
+
+#: .\templates\base.html:110 .\templates\base.html:172
+msgid "Menu"
+msgstr "Ruokalista"
+
+#: .\templates\base.html:246
+msgid "Order on Wolt"
+msgstr "Tilaa Woltista"
+
+#: .\templates\base.html:255
+msgid "Facebook"
+msgstr "Facebook"
+
+#: .\templates\base.html:276
+msgid "Contact"
+msgstr "Yhteystiedot"
+
+#: .\templates\base.html:308
+msgid "All rights reserved."
+msgstr "Kaikki oikeudet pidätetään."
+
+#: .\restaurant\templates\checkout.html:160
+msgid "Order summary"
+msgstr "Tilauksen yhteenveto"
+
+#: .\restaurant\templates\checkout.html:???
+msgid "Discount"
+msgstr "Alennus"
+
+#: .\restaurant\templates\checkout.html:???
+msgid "Please enter your contact info. Payment method: Pay on delivery."
+msgstr "Syötä yhteystietosi. Maksutapa: Maksa toimituksen yhteydessä."
+
+#: .\restaurant\templates\checkout.html:???
+msgid "Apartment / Door code / Extra directions (optional)"
+msgstr "Asunto / Ovikoodi / Lisäohjeet (valinnainen)"
+
+#: .\restaurant\templates\checkout.html:???
+msgid "Note to restaurant (optional)"
+msgstr "Viesti ravintolalle (valinnainen)"

@@ -1,0 +1,472 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+
+{% block title %}{% trans "Checkout" %} – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<section class="paper-bg">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-8 md:py-12">
+
+    <!-- Header -->
+    <div class="text-center mb-5 sm:mb-8 md:mb-10">
+      <div class="brand-script text-4xl sm:text-5xl md:text-6xl text-dark">{% trans "Checkout" %}</div>
+      <div class="mt-2 text-[10px] sm:text-xs uppercase tracking-[0.28em] sm:tracking-[0.35em] text-dark/60">
+        {% trans "Confirm details • Pay on delivery • We’ll contact you if needed" %}
+      </div>
+    </div>
+
+    <div class="relative">
+      <div class="absolute -inset-4 bg-dark/10 blur-2xl rounded-[22px]"></div>
+      <div class="absolute -inset-2 bg-gold/10 blur-xl rounded-[22px]"></div>
+
+      <div class="relative frame bg-white/35 overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12">
+
+          <!-- LEFT: Form -->
+          <div class="lg:col-span-7 p-4 sm:p-6 md:p-8 lg:p-10">
+
+
+            <div class="flex items-start justify-between gap-4 mb-6">
+              <div>
+                <div class="brand-serif text-2xl font-semibold">{% trans "Delivery details" %}</div>
+                <div class="text-sm text-dark/65 mt-1">
+                  {% blocktrans %}Please enter your contact info. Payment method: <b>{{ pay_method }}</b>.{% endblocktrans %}
+                </div>
+              </div>
+
+              <a href="{% url 'restaurant:delivery_order' %}"
+                 class="text-sm font-semibold text-dark/70 hover:text-dark underline underline-offset-4 shrink-0">
+                {% trans "← Back to menu" %}
+              </a>
+            </div>
+
+            <!-- Address summary -->
+
+              <!-- ❌ Hidden on mobile: address + distance + fee -->
+              <div class="hidden sm:block frame p-4 sm:p-5 bg-white/25 mb-4 sm:mb-5">
+
+                <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Delivery address" %}</div>
+
+                <div class="mt-2 text-sm font-semibold text-dark break-words">
+                  {{ address_label|default:"—" }}
+                </div>
+
+                <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-dark/70">
+                  <div class="p-3 rounded-sm bg-white/60 border border-dark/10">
+                    <div class="uppercase tracking-wider text-dark/55">{% trans "Distance" %}</div>
+                    <div class="mt-1 font-semibold text-dark">
+                      {{ distance_km|unlocalize|floatformat:2 }} km
+                    </div>
+                  </div>
+
+                  <div class="p-3 rounded-sm bg-white/60 border border-dark/10">
+                    <div class="uppercase tracking-wider text-dark/55">{% trans "Delivery fee" %}</div>
+                    <div class="mt-1 font-semibold text-dark">
+                      € {{ delivery_fee|unlocalize|floatformat:2 }}
+                    </div>
+                  </div>
+                </div>
+
+                {% if promo.active %}
+                  <div class="mt-4 inline-flex flex-wrap items-center gap-2 px-3 py-2 rounded-sm bg-gold/15 border border-gold/20 text-sm text-dark">
+                    <span class="font-semibold">{% trans "Offer:" %}</span>
+                    <span class="break-words">{{ promo.title }}</span>
+                    {% if promo.free_delivery %}
+                      <span class="px-2 py-1 rounded-sm bg-dark text-beige text-xs font-semibold">
+                        {% trans "FREE DELIVERY" %}
+                      </span>
+                    {% endif %}
+                    <span class="text-xs text-dark/60">
+                      ({% trans "min subtotal" %} € {{ promo.min_subtotal|unlocalize|floatformat:2 }})
+                    </span>
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- ✅ Always visible: Change location link -->
+              <div class="mb-4 sm:mb-5">
+                <a href="{% url 'restaurant:delivery_location' %}"
+                  class="inline-flex text-sm font-semibold text-dark/70 hover:text-dark underline underline-offset-4">
+                  {% trans "Change location →" %}
+                </a>
+              </div>
+
+
+            <!-- Form -->
+            <form method="post" class="space-y-4 sm:space-y-5">
+
+              {% csrf_token %}
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">{% trans "Name" %}</label>
+                  <input type="text" name="name" value="{{ name }}"
+                         placeholder="{% trans "Your full name" %}"
+                         class="w-full px-4 py-3 rounded-sm border border-dark/15 bg-white/85 outline-none focus:border-gold/60">
+                </div>
+
+                <div>
+                  <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">{% trans "Phone" %}</label>
+                  <input type="text" name="phone" value="{{ phone }}"
+                         placeholder="{% trans "+358 …" %}"
+                         class="w-full px-4 py-3 rounded-sm border border-dark/15 bg-white/85 outline-none focus:border-gold/60">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">
+                  {% trans "Apartment / Door code / Extra directions (optional)" %}
+                </label>
+                <input type="text" name="address_extra" value="{{ address_extra }}"
+                       placeholder="{% trans "E.g., A 12, door code 1234, call on arrival…" %}"
+                       class="w-full px-4 py-3 rounded-sm border border-dark/15 bg-white/85 outline-none focus:border-gold/60">
+              </div>
+
+              <div>
+                <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">
+                  {% trans "Note to restaurant (optional)" %}
+                </label>
+                  <textarea name="note" rows="3"
+                            placeholder="{% trans "Allergies, no onions, extra spicy…" %}"
+                            class="w-full px-4 py-3 rounded-sm border border-dark/15 bg-white/85 outline-none focus:border-gold/60 sm:rows-4">{{ note }}</textarea>
+
+              </div>
+
+              <div class="frame p-4 sm:p-5 bg-white/25">
+
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <button type="submit"
+                          class="btn-gold px-7 py-3 rounded-sm font-semibold text-dark w-full sm:w-auto">
+                    {% trans "Save details →" %}
+                  </button>
+
+                  <div class="text-[11px] text-dark/55">
+                    {% trans "We’ll keep these details for this session." %}
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <!-- Place order -->
+            <div class="mt-4 sm:mt-6 frame p-4 sm:p-5 bg-white/25">
+
+              <form method="post" action="{% url 'restaurant:delivery_place_order' %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="btn-wood text-white px-7 py-3 rounded-sm font-semibold waund w-full">
+                  {% trans "Place order → (Pay on delivery)" %}
+                </button>
+                <div class="mt-2 text-[11px] text-dark/55">
+                  {% trans "After placing the order, we’ll contact you shortly to confirm." %}
+                </div>
+              </form>
+            </div>
+
+          </div>
+
+          <!-- RIGHT: Cart Summary -->
+          <div class="lg:col-span-5 bg-[#3b231d] text-beige p-4 sm:p-6 md:p-8 lg:p-10 relative overflow-hidden">
+
+            <div class="absolute inset-0 opacity-[0.08] pointer-events-none"
+                 style="background-image:url('{% static "images/admin/wood-bg.jpg" %}'); background-size:cover; background-position:center;"></div>
+
+            <div class="relative">
+              <div class="brand-serif text-2xl font-semibold text-white mb-3">{% trans "Order summary" %}</div>
+
+              <div class="p-4 sm:p-5 rounded-sm bg-black/20 border border-white/10">
+
+                {% if cart.lines and cart.count %}
+
+                  <!-- ✅ Coupon block -->
+                  <div class="p-4 rounded-sm bg-black/20 border border-white/10 mb-4">
+                    <div class="text-xs uppercase tracking-wider text-beige/70 mb-2">{% trans "Coupon" %}</div>
+
+                    {% if coupon_code %}
+                      <div class="flex items-center justify-between gap-3">
+                        <div class="text-sm">
+                          {% trans "Applied:" %} <span class="font-semibold text-white">{{ coupon_code }}</span>
+                        </div>
+                        <form method="post" action="{% url 'restaurant:delivery_remove_coupon' %}">
+                          {% csrf_token %}
+                          <button type="submit"
+                                  class="text-xs font-semibold text-white/80 hover:text-white underline underline-offset-4">
+                            {% trans "Remove" %}
+                          </button>
+                        </form>
+                      </div>
+                      <div class="mt-2 text-[11px] text-beige/70">
+                        {% trans "Discount is already included in totals below." %}
+                      </div>
+                    {% else %}
+                      <form method="post" action="{% url 'restaurant:delivery_apply_coupon' %}" class="flex gap-2">
+                        {% csrf_token %}
+                        <input type="text"
+                               name="coupon_code"
+                               placeholder="{% trans "Enter code" %}"
+                               class="w-full px-3 py-2 rounded-sm bg-white/90 text-dark border border-dark/10 outline-none focus:border-gold/60">
+                        <button type="submit"
+                                class="btn-gold px-4 py-2 rounded-sm font-semibold text-dark">
+                          {% trans "Apply" %}
+                        </button>
+                      </form>
+                      <div class="mt-2 text-[11px] text-beige/70">
+                        {% trans "Enter your promo code to get discount." %}
+                      </div>
+                    {% endif %}
+                  </div>
+
+                  <div class="space-y-2">
+                    {% for line in cart.lines %}
+                      <div class="p-3 rounded-sm bg-black/20 border border-white/10">
+                        <div class="flex items-start justify-between gap-3">
+                          <div class="min-w-0">
+                            <div class="font-semibold text-white truncate">{{ line.name }}</div>
+                            <div class="text-xs text-beige/70">
+                              € {{ line.unit_price|unlocalize|floatformat:2 }} × {{ line.qty }}
+                            </div>
+                          </div>
+                          <div class="font-semibold text-white">
+                            € {{ line.line_total|unlocalize|floatformat:2 }}
+                          </div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+
+                  <div class="h-px bg-white/10 my-4"></div>
+
+                  <div class="space-y-2 text-sm">
+
+                    <div class="flex justify-between items-start gap-3">
+                      <div class="text-beige/75">
+                        {% trans "Delivery fee" %}
+                        {% if promo.active %}
+                          <div class="text-[11px] text-beige/70 mt-1">
+                            {{ promo.title }}
+                            {% if promo.free_delivery %} • {% trans "Free delivery applied" %}{% endif %}
+                          </div>
+                        {% endif %}
+                      </div>
+                      <div class="font-semibold text-white">€ {{ cart.delivery_fee|unlocalize|floatformat:2 }}</div>
+                    </div>
+
+                    {% if cart.coupon_discount and cart.coupon_discount|unlocalize|floatformat:2 != "0.00" %}
+                      <div class="flex justify-between">
+                        <div class="text-beige/75">
+                          {% trans "Discount" %}
+                          {% if coupon_code %}
+                            <span class="text-[11px] text-beige/70 ml-1">({{ coupon_code }})</span>
+                          {% endif %}
+                        </div>
+                        <div class="font-semibold text-white">− € {{ cart.coupon_discount|unlocalize|floatformat:2 }}</div>
+                      </div>
+                    {% endif %}
+
+                    <div class="flex justify-between">
+                      <div class="text-beige/75">{% trans "Subtotal" %}</div>
+                      <div class="font-semibold text-white">€ {{ cart.subtotal|unlocalize|floatformat:2 }}</div>
+                    </div>
+
+                    <div class="flex justify-between">
+                      <div class="text-beige/75">{% trans "Estimated total" %}</div>
+                      <div class="font-semibold text-white text-lg">€ {{ cart.total|unlocalize|floatformat:2 }}</div>
+                    </div>
+                  </div>
+
+                {% else %}
+                  <div class="text-sm text-beige/75">
+                    {% trans "Your cart is empty." %}
+                  </div>
+                  <div class="mt-3">
+                    <a href="{% url 'restaurant:delivery_order' %}"
+                       class="inline-flex text-sm font-semibold text-white underline underline-offset-4">
+                      {% trans "Go to menu →" %}
+                    </a>
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="mt-4 sm:mt-6 md:mt-8 p-4 sm:p-5 rounded-sm bg-black/25 border border-white/10 text-xs text-beige/80 leading-relaxed">
+
+                {% trans "Tip: Keep your phone reachable. Our driver may call if your entrance is unclear." %}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+{% if show_order_modal and order_obj %}
+  <div id="orderModal" class="fixed inset-0 z-[999] hidden">
+    <!-- overlay -->
+    <div id="orderModalOverlay" class="absolute inset-0 bg-black/60"></div>
+
+    <!-- modal wrapper -->
+    <div class="relative w-full h-full flex items-end sm:items-center justify-center p-3 sm:p-6">
+      <!-- modal panel -->
+      <div class="relative w-full sm:max-w-2xl max-h-[88vh] sm:max-h-[85vh] overflow-hidden frame bg-white/95">
+        <!-- header -->
+        <div class="p-5 sm:p-6 border-b border-dark/10 bg-white/70">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <div class="brand-serif text-xl sm:text-2xl font-semibold text-dark">
+                {% trans "Order confirmed!" %}
+              </div>
+              <div class="mt-1 text-sm text-dark/70">
+                {% trans "We received your order. We’ll contact you shortly to confirm." %}
+              </div>
+            </div>
+
+            <button type="button" id="orderModalClose"
+                    class="shrink-0 px-3 py-2 rounded-sm bg-dark text-beige text-xs font-semibold hover:bg-dark/90">
+              {% trans "Close" %}
+            </button>
+          </div>
+        </div>
+
+        <!-- body (scroll) -->
+        <div class="p-5 sm:p-6 overflow-y-auto max-h-[72vh] sm:max-h-[68vh]">
+          <!-- top cards -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                <div class="p-4 rounded-sm bg-white/60 border border-dark/10">
+                  <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Order #" %}</div>
+                  <div class="mt-1 font-semibold text-dark">#{{ order_obj.id }}</div>
+                </div>
+
+                <div class="p-4 rounded-sm bg-white/60 border border-dark/10">
+                  <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Payment" %}</div>
+                  <div class="mt-1 font-semibold text-dark">{% trans "Pay on delivery" %}</div>
+                </div>
+
+                <div class="p-4 rounded-sm bg-white/60 border border-dark/10">
+                  <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Status" %}</div>
+                  <div class="mt-1 font-semibold text-dark">{{ order_obj.get_status_display }}</div>
+                </div>
+              </div>
+
+
+          <!-- items -->
+          <div class="mt-5">
+            <div class="text-xs uppercase tracking-wider text-dark/60 mb-2">{% trans "Items" %}</div>
+            <div class="space-y-2">
+              {% for it in order_obj.items.all %}
+                <div class="p-3 rounded-sm bg-white/60 border border-dark/10 flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <div class="font-semibold text-dark truncate">{{ it.name }}</div>
+                    <div class="text-xs text-dark/70">
+                      € {{ it.unit_price|unlocalize|floatformat:2 }} × {{ it.qty }}
+                    </div>
+                  </div>
+                  <div class="font-semibold text-dark whitespace-nowrap">
+                    € {{ it.line_total|unlocalize|floatformat:2 }}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="mt-5 h-px bg-dark/10"></div>
+
+          <!-- totals -->
+          <div class="mt-4 space-y-2 text-sm">
+            {% if order_obj.coupon_code %}
+              <div class="flex justify-between gap-4">
+                <div class="text-dark/70">
+                  {% trans "Coupon" %} ({{ order_obj.coupon_code }})
+                </div>
+                <div class="font-semibold text-dark whitespace-nowrap">
+                  − € {{ order_obj.coupon_discount|unlocalize|floatformat:2 }}
+                </div>
+              </div>
+            {% endif %}
+
+            <div class="flex justify-between gap-4">
+              <div class="text-dark/70">{% trans "Subtotal" %}</div>
+              <div class="font-semibold text-dark whitespace-nowrap">
+                € {{ order_obj.subtotal|unlocalize|floatformat:2 }}
+              </div>
+            </div>
+
+            <div class="flex justify-between gap-4">
+              <div class="text-dark/70">{% trans "Delivery fee" %}</div>
+              <div class="font-semibold text-dark whitespace-nowrap">
+                € {{ order_obj.delivery_fee|unlocalize|floatformat:2 }}
+              </div>
+            </div>
+
+            <div class="flex justify-between gap-4 pt-1">
+              <div class="text-dark/70">{% trans "Total" %}</div>
+              <div class="font-semibold text-dark text-lg whitespace-nowrap">
+                € {{ order_obj.total|unlocalize|floatformat:2 }}
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-5 p-4 rounded-sm bg-gold/10 border border-gold/20 text-xs text-dark/80 leading-relaxed">
+            {% trans "Tip: Keep your phone reachable. Our driver may call if your entrance is unclear." %}
+          </div>
+        </div>
+
+        <!-- footer buttons -->
+        <div class="p-5 sm:p-6 border-t border-dark/10 bg-white/70">
+          <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+            <a href="{% url 'restaurant:delivery_order' %}"
+               class="btn-gold px-6 py-3 rounded-sm font-semibold text-dark text-center w-full sm:w-auto">
+              {% trans "Order again →" %}
+            </a>
+
+            <button type="button" id="orderModalClose2"
+                    class="btn-wood text-white px-6 py-3 rounded-sm font-semibold w-full sm:w-auto">
+              {% trans "Done" %}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const modal = document.getElementById("orderModal");
+      const overlay = document.getElementById("orderModalOverlay");
+      const closeBtn = document.getElementById("orderModalClose");
+      const closeBtn2 = document.getElementById("orderModalClose2");
+
+      function openModal() {
+        if (!modal) return;
+        modal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModal() {
+        if (!modal) return;
+        modal.classList.add("hidden");
+        document.body.style.overflow = "";
+        // optional: remove placed=1 from URL after close (prevents re-open on back)
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.delete("placed");
+          window.history.replaceState({}, "", url.toString());
+        } catch (e) {}
+      }
+
+      document.addEventListener("DOMContentLoaded", openModal);
+      if (overlay) overlay.addEventListener("click", closeModal);
+      if (closeBtn) closeBtn.addEventListener("click", closeModal);
+      if (closeBtn2) closeBtn2.addEventListener("click", closeModal);
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeModal();
+      });
+    })();
+  </script>
+{% endif %}
+
+{% endblock %}

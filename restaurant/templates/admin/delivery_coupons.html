@@ -1,0 +1,96 @@
+{% extends "admin/base.html" %}
+{% block title %}Manage Delivery Coupons – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-3xl font-semibold">Manage Delivery Coupons</h1>
+
+  <a href="{% url 'restaurant:delivery_coupon_add' %}"
+     class="px-4 py-2 bg-gold text-dark rounded font-semibold hover:bg-lightbrown">
+    + Add Coupon
+  </a>
+</div>
+
+<form method="get" class="flex flex-col sm:flex-row gap-3 mb-5">
+  <input name="q" value="{{ q }}" placeholder="Search code..."
+         class="w-full px-4 py-3 rounded-sm border border-dark/15 bg-white/85 outline-none">
+  <select name="status" class="px-4 py-3 rounded-sm border border-dark/15 bg-white/85">
+    <option value="" {% if not status %}selected{% endif %}>All</option>
+    <option value="active" {% if status == "active" %}selected{% endif %}>Active</option>
+    <option value="inactive" {% if status == "inactive" %}selected{% endif %}>Inactive</option>
+  </select>
+
+  <button type="submit"
+          class="px-4 py-2 bg-dark text-beige rounded font-semibold hover:bg-lightbrown">
+    Filter
+  </button>
+
+  {% if q or status %}
+    <a href="{% url 'restaurant:delivery_coupons_list' %}"
+       class="px-4 py-2 bg-white border border-lightbrown text-dark rounded font-semibold hover:bg-beige/40">
+      Reset
+    </a>
+  {% endif %}
+</form>
+
+<div class="overflow-x-auto">
+  <table class="min-w-full bg-white border border-lightbrown">
+    <thead class="bg-dark text-beige">
+      <tr>
+        <th class="px-4 py-2 text-left">Code</th>
+        <th class="px-4 py-2 text-left">Active</th>
+        <th class="px-4 py-2 text-left">Type</th>
+        <th class="px-4 py-2 text-left">Value</th>
+        <th class="px-4 py-2 text-left">Min Subtotal</th>
+        <th class="px-4 py-2 text-left">Start</th>
+        <th class="px-4 py-2 text-left">End</th>
+        <th class="px-4 py-2 text-left">Max Uses</th>
+        <th class="px-4 py-2 text-left">Used</th>
+        <th class="px-4 py-2 text-left">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for c in coupons %}
+        <tr class="border-b border-lightbrown hover:bg-beige/40">
+          <td class="px-4 py-2 font-semibold">{{ c.code }}</td>
+          <td class="px-4 py-2">{% if c.is_active %}Yes{% else %}No{% endif %}</td>
+          <td class="px-4 py-2">{{ c.discount_type }}</td>
+          <td class="px-4 py-2">
+            {% if c.discount_type == "percent" %}
+              {{ c.discount_value }}%
+            {% else %}
+              €{{ c.discount_value }}
+            {% endif %}
+          </td>
+          <td class="px-4 py-2">€ {{ c.min_subtotal|floatformat:2 }}</td>
+          <td class="px-4 py-2">
+            {% if c.start_at %}{{ c.start_at|date:"Y-m-d H:i" }}{% else %}—{% endif %}
+          </td>
+          <td class="px-4 py-2">
+            {% if c.end_at %}{{ c.end_at|date:"Y-m-d H:i" }}{% else %}—{% endif %}
+          </td>
+          <td class="px-4 py-2">{% if c.max_uses %}{{ c.max_uses }}{% else %}—{% endif %}</td>
+          <td class="px-4 py-2">{{ c.used_count }}</td>
+          <td class="px-4 py-2">
+            <div class="flex gap-3">
+              <a href="{% url 'restaurant:delivery_coupon_edit' c.id %}"
+                 class="text-gold font-semibold hover:underline">
+                Edit
+              </a>
+              <a href="{% url 'restaurant:delivery_coupon_delete' c.id %}"
+                 class="text-red-700 font-semibold hover:underline">
+                Delete
+              </a>
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="10" class="px-4 py-4 text-dark/70">No coupons found.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

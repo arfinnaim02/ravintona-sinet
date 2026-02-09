@@ -1,0 +1,159 @@
+{% extends "admin/base.html" %}
+{% block title %}Manage Menu Items – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<section>
+  <div class="max-w-6xl mx-auto py-2">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-3xl md:text-4xl font-semibold text-dark tracking-tight">
+          Manage Menu Items
+        </h1>
+        <div class="mt-2 text-xs uppercase tracking-[0.35em] text-dark/70">
+          Search • Filter • Edit items
+        </div>
+      </div>
+
+      <a href="{% url 'restaurant:add_menu_item' %}"
+         class="inline-flex items-center justify-center px-5 py-3 rounded-xl font-semibold text-dark"
+         style="background: linear-gradient(#cdb57b, #a8844a); border: 1px solid rgba(50,30,10,.25); box-shadow: inset 0 1px 0 rgba(255,255,255,.26), 0 10px 22px rgba(0,0,0,.12);">
+        + Add Menu Item
+      </a>
+    </div>
+
+    <!-- Filters (same style as Delivery Orders / Reservations) -->
+    <div class="rounded-2xl border border-dark/10 bg-white/70 p-4 mb-6">
+      <form method="get" class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+
+        <div class="md:col-span-6">
+          <label class="block text-xs uppercase tracking-wider text-dark/70 mb-2">Search</label>
+          <input
+            type="text"
+            name="q"
+            value="{{ q }}"
+            placeholder="Search items..."
+            class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white outline-none focus:border-gold/70"
+          />
+        </div>
+
+        <div class="md:col-span-3">
+          <label class="block text-xs uppercase tracking-wider text-dark/70 mb-2">Category</label>
+          <select
+            name="category"
+            class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white outline-none focus:border-gold/70"
+          >
+            <option value="">All Categories</option>
+            {% for c in categories %}
+              <option value="{{ c.slug }}" {% if category_slug == c.slug %}selected{% endif %}>
+                {{ c.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-xs uppercase tracking-wider text-dark/70 mb-2">Status</label>
+          <select
+            name="status"
+            class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white outline-none focus:border-gold/70"
+          >
+            <option value="">All Status</option>
+            <option value="active" {% if status == "active" %}selected{% endif %}>Active</option>
+            <option value="sold_out" {% if status == "sold_out" %}selected{% endif %}>Sold Out</option>
+            <option value="hidden" {% if status == "hidden" %}selected{% endif %}>Hidden</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-1">
+          <button
+            class="w-full px-5 py-3 rounded-xl font-semibold text-white"
+            style="background: linear-gradient(#5a3a2f, #3f271f); border: 1px solid rgba(255,255,255,.14); box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 10px 22px rgba(0,0,0,.12);"
+          >
+            Go
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Table (no horizontal scroll; truncated text where needed) -->
+    <div class="rounded-2xl border border-dark/10 bg-white/70 overflow-hidden">
+      <table class="w-full text-sm table-fixed">
+        <thead class="bg-white/80">
+          <tr class="text-left">
+            <th class="px-5 py-4 font-semibold text-dark w-[38%]">Name</th>
+            <th class="px-5 py-4 font-semibold text-dark w-[22%]">Category</th>
+            <th class="px-5 py-4 font-semibold text-dark w-[110px]">Price</th>
+            <th class="px-5 py-4 font-semibold text-dark w-[140px]">Status</th>
+            <th class="px-5 py-4 font-semibold text-dark w-[170px]">Created</th>
+            <th class="px-5 py-4 font-semibold text-dark w-[150px]">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-dark/10">
+          {% for item in items %}
+            <tr class="hover:bg-white/60">
+              <td class="px-5 py-4">
+                <div class="font-semibold text-dark truncate">{{ item.name }}</div>
+                {% if item.description %}
+                  <div class="text-[11px] text-dark/70 truncate">{{ item.description }}</div>
+                {% endif %}
+              </td>
+
+              <td class="px-5 py-4 text-dark/80 truncate">
+                {{ item.category.name }}
+              </td>
+
+              <td class="px-5 py-4 font-semibold text-dark">
+                €{{ item.price }}
+              </td>
+
+              <td class="px-5 py-4">
+                <span class="inline-flex px-2.5 py-1 rounded-lg text-[11px] font-semibold border
+                  {% if item.status == 'active' %}
+                    bg-green-500/10 text-green-700 border-green-500/20
+                  {% elif item.status == 'sold_out' %}
+                    bg-red-500/10 text-red-700 border-red-500/20
+                  {% else %}
+                    bg-dark/5 text-dark/70 border-dark/10
+                  {% endif %}">
+                  {% if item.status == 'active' %}Active{% elif item.status == 'sold_out' %}Sold out{% else %}Hidden{% endif %}
+                </span>
+              </td>
+
+              <td class="px-5 py-4 text-dark/70">
+                {{ item.created_at|date:'d M Y, H:i' }}
+              </td>
+
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <a href="{% url 'restaurant:edit_menu_item' item.id %}"
+                     class="inline-flex items-center justify-center px-4 py-2 rounded-xl font-semibold text-xs text-white"
+                     style="background: linear-gradient(#5a3a2f, #3f271f); border: 1px solid rgba(255,255,255,.14); box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 10px 22px rgba(0,0,0,.10);">
+                    Edit
+                  </a>
+
+                  <a href="{% url 'restaurant:delete_menu_item' item.id %}"
+                     class="inline-flex items-center justify-center px-4 py-2 rounded-xl font-semibold text-xs text-dark"
+                     style="background: linear-gradient(rgba(255,255,255,.85), rgba(255,255,255,.65)); border: 1px solid rgba(62,39,35,.18); box-shadow: 0 10px 22px rgba(0,0,0,.08);">
+                    Delete
+                  </a>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="px-6 py-10 text-center text-dark/70">
+                No menu items found.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

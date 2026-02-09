@@ -1,0 +1,41 @@
+{% extends "admin/base.html" %}
+{% block title %}Edit Category – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-semibold mb-6">Edit Category</h1>
+
+<form method="post" class="space-y-6 max-w-3xl">
+  {% csrf_token %}
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <label class="block mb-2 font-semibold">Name</label>
+      {{ form.name }}
+    </div>
+    <div>
+      <label class="block mb-2 font-semibold">Slug</label>
+      {{ form.slug }}
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <label class="block mb-2 font-semibold">Order</label>
+      {{ form.order }}
+    </div>
+    <div class="flex items-center gap-2 pt-8">
+      {{ form.is_active }}
+      <label for="{{ form.is_active.id_for_label }}" class="text-sm">Active</label>
+    </div>
+  </div>
+
+  <div class="flex gap-3">
+    <button class="px-6 py-3 bg-gold text-dark rounded font-semibold hover:bg-lightbrown" type="submit">
+      Update Category
+    </button>
+    <a href="{% url 'restaurant:categories_list' %}" class="px-6 py-3 bg-white/50 border border-dark/20 rounded font-semibold hover:bg-white/70">
+      Cancel
+    </a>
+  </div>
+</form>
+{% endblock %}

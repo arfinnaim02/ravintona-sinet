@@ -1,0 +1,22 @@
+{% extends "admin/base.html" %}
+{% block title %}Delete Coupon{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-6 py-12">
+  <div class="frame bg-white/35 p-6">
+    <div class="brand-serif text-2xl font-semibold mb-2">Delete coupon</div>
+    <div class="text-sm text-dark/60 mb-6">
+      Are you sure you want to delete <b>{{ obj.code }}</b>? This cannot be undone.
+    </div>
+
+    <form method="post" class="flex gap-3">
+      {% csrf_token %}
+      <button class="btn-wood text-white px-6 py-3 rounded-sm font-semibold">Yes, delete</button>
+      <a href="{% url 'restaurant:delivery_coupons_list' %}"
+         class="px-6 py-3 rounded-sm font-semibold border border-dark/20 hover:bg-white/50">
+        Cancel
+      </a>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1285 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "Book a Table" %} – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<section class="paper-bg">
+  <div class="max-w-6xl mx-auto px-6 py-12">
+
+    <!-- Header -->
+    <div class="text-center mb-10">
+     <div class="brand-script text-5xl md:text-6xl text-dark">{% trans "Book a Table" %}</div>
+      <div class="mt-2 text-xs uppercase tracking-[0.35em] text-dark/60">
+        {% trans "30-minute reservations • Smart availability • Optional pre-order" %}
+      </div>
+    </div>
+
+    <!-- Premium backshades -->
+    <div class="relative">
+      <div class="absolute -inset-4 bg-dark/10 blur-2xl rounded-[22px]"></div>
+      <div class="absolute -inset-2 bg-gold/10 blur-xl rounded-[22px]"></div>
+
+      <div class="relative frame bg-white/35 overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12">
+
+          <!-- LEFT: FORM -->
+          <div class="lg:col-span-7 p-7 md:p-10">
+
+            <div class="flex items-start justify-between gap-4 mb-6">
+              <div>
+                <div class="brand-serif text-2xl font-semibold">{% trans "Reservation Details" %}</div>
+                <div class="text-sm text-dark/65 mt-1">
+                  {% trans "Choose a date & time (30-minute intervals). Pre-order food is optional." %}
+                </div>
+              </div>
+
+              <a href="{% url 'restaurant:menu' %}"
+                 class="hidden md:inline-flex items-center gap-2 text-sm font-semibold text-dark/70 hover:text-dark underline underline-offset-4">
+                {% trans "View menu" %}
+                <span class="text-gold">→</span>
+              </a>
+            </div>
+
+            {% if form.non_field_errors %}
+              <div class="mb-5 p-4 rounded-sm bg-red-100 border border-red-200 text-sm text-red-800">
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
+
+            <form method="post" class="space-y-6" id="reservationForm">
+              <input type="hidden" id="reservationPageFlag" value="1">
+
+              {% csrf_token %}
+
+              <!-- Date / Time -->
+              <div class="frame p-5 bg-white/25">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="brand-serif text-lg font-semibold">{% trans "Date & Time" %}</div>
+                  <div class="text-[11px] text-dark/55">
+                    {% blocktrans %}Open daily <b>10:00–22:00</b> • Last start <b>21:30</b>{% endblocktrans %}
+                  </div>
+                </div>
+
+                <label class="block text-xs uppercase tracking-wider text-dark/60 mb-1">{% trans "Start" %}</label>
+                {{ form.start_datetime }}
+                {% if form.start_datetime.errors %}
+                  <div class="mt-1 text-xs text-red-700">{{ form.start_datetime.errors }}</div>
+                {% endif %}
+
+                <div class="mt-2 text-[11px] text-dark/55 leading-relaxed">
+                  {% blocktrans %}Tip: We recommend booking at least <b>30 minutes</b> ahead.{% endblocktrans %}
+                </div>
+              </div>
+
+              <!-- Contact -->
+              <div class="frame p-5 bg-white/25">
+                <div class="brand-serif text-lg font-semibold mb-3">{% trans "Customer Info" %}</div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs uppercase tracking-wider text-dark/60 mb-1">{% trans "Your Name" %}</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                      <div class="mt-1 text-xs text-red-700">{{ form.name.errors }}</div>
+                    {% endif %}
+                  </div>
+
+                  <div>
+                    <label class="block text-xs uppercase tracking-wider text-dark/60 mb-1">{% trans "Phone" %}</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                      <div class="mt-1 text-xs text-red-700">{{ form.phone.errors }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <div class="mt-4">
+                  <label class="block text-xs uppercase tracking-wider text-dark/60 mb-1">{% trans "Email (optional)" %}</label>
+                  {{ form.email }}
+                  {% if form.email.errors %}
+                    <div class="mt-1 text-xs text-red-700">{{ form.email.errors }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Party -->
+              <div class="frame p-5 bg-white/25">
+                <div class="brand-serif text-lg font-semibold mb-3">{% trans "Seating" %}</div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs uppercase tracking-wider text-dark/60 mb-1">{% trans "Guests (chairs)" %}</label>
+                    {{ form.party_size }}
+                    {% if form.party_size.errors %}
+                      <div class="mt-1 text-xs text-red-700">{{ form.party_size.errors }}</div>
+                    {% endif %}
+                    <div class="mt-1 text-[11px] text-dark/55">{% blocktrans %}Total chairs available per slot: <b>55</b>{% endblocktrans %}</div>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs uppercase tracking-wider text-dark/60 mb-1">{% trans "Baby Seats" %}</label>
+                    {{ form.baby_seats }}
+                    {% if form.baby_seats.errors %}
+                      <div class="mt-1 text-xs text-red-700">{{ form.baby_seats.errors }}</div>
+                    {% endif %}
+                    <div class="mt-1 text-[11px] text-dark/55">{% blocktrans %}Baby seats available per slot: <b>2</b>{% endblocktrans %}</div>
+                  </div>
+                </div>
+
+                <!-- Preferred table -->
+                <div class="mt-5">
+                  <div class="flex items-center justify-between">
+                    <label class="block text-xs uppercase tracking-wider text-dark/60">{% trans "Preferred Table (optional)" %}</label>
+                    <div class="text-[11px] text-dark/55">{% blocktrans %}Total tables: <b>14</b>{% endblocktrans %}</div>
+                  </div>
+
+                  <div class="mt-2 grid grid-cols-7 gap-2" id="tableGrid"></div>
+
+                  <input type="hidden" name="preferred_table" id="preferredTableInput" value="">
+                  <div class="mt-2 text-[11px] text-dark/55">
+                    {% trans "Leave empty if you don’t care—staff will assign the best available table." %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pre-order Food (Modal picker) -->
+              <div class="frame p-5 bg-white/25">
+                <div class="flex items-start justify-between gap-4 mb-2">
+                  <div>
+                    <div class="brand-serif text-lg font-semibold">{% trans "Pre-order Food (optional)" %}</div>
+                    <div class="text-sm text-dark/65">{% trans "Open the menu picker, preview items, then add to your reservation." %}</div>
+                  </div>
+
+                  <div class="flex items-center gap-4">
+                    <button type="button" id="clearFood"
+                            class="text-xs font-semibold text-dark/60 hover:text-dark underline underline-offset-4">
+                      {% trans "Clear" %}
+                    </button>
+                    <button type="button" id="openMenuPicker"
+                            class="btn-wood text-white px-4 py-2 rounded-sm font-semibold text-sm">
+                      {% trans "Browse Menu →" %}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Selected items (one per line with qty + totals) -->
+                <div id="selectedFoodList" class="mt-3 space-y-2"></div>
+
+                <!-- Hidden selection inputs (ids + qtys) -->
+                <div id="preorderHiddenInputs" class="hidden"></div>
+
+                <div class="mt-3 text-[11px] text-dark/55">
+                  {% trans "You can skip pre-order and order at the table." %}
+                </div>
+              </div>
+
+              <!-- Notes -->
+              <div class="frame p-5 bg-white/25">
+                <div class="brand-serif text-lg font-semibold mb-2">{% trans "Notes (optional)" %}</div>
+                {{ form.notes }}
+                {% if form.notes.errors %}
+                  <div class="mt-1 text-xs text-red-700">{{ form.notes.errors }}</div>
+                {% endif %}
+                <div class="mt-2 text-[11px] text-dark/55">
+                  {% trans "Example: allergy info, wheelchair access, birthday surprise." %}
+                </div>
+              </div>
+
+              <!-- Submit -->
+<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-2">
+  <div class="flex flex-col sm:flex-row gap-3">
+    <button type="submit"
+            name="submit_action"
+            value="reserve"
+            class="btn-gold px-7 py-3 rounded-sm font-semibold text-dark">
+      {% trans "Confirm Reservation →" %}
+    </button>
+  </div>
+
+  <div class="text-[11px] text-dark/55 leading-relaxed">
+    {% blocktrans %}Slot capacity rules: <b>14 tables</b>, <b>55 chairs</b>, <b>2 baby seats</b> • Typical duration: <b>30 minutes</b>.{% endblocktrans %}
+  </div>
+</div>
+
+            </form>
+          </div>
+
+          <!-- RIGHT: SUMMARY / INFO PANEL -->
+          <div class="lg:col-span-5 bg-[#3b231d] text-beige p-7 md:p-10 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-[0.08] pointer-events-none"
+                 style="background-image:url('{% static "images/admin/wood-bg.jpg" %}'); background-size:cover; background-position:center;"></div>
+
+            <div class="relative">
+              <div class="brand-serif text-2xl font-semibold text-white mb-3">{% trans "Reservation Summary" %}</div>
+
+              <div class="p-5 rounded-sm bg-black/20 border border-white/10">
+                <div class="space-y-3 text-sm">
+
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="text-beige/75">{% trans "When" %}</div>
+                    <div class="font-semibold text-white text-right" id="sumWhen">—</div>
+                  </div>
+
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="text-beige/75">{% trans "Guests" %}</div>
+                    <div class="font-semibold text-white text-right" id="sumGuests">—</div>
+                  </div>
+
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="text-beige/75">{% trans "Baby seats" %}</div>
+                    <div class="font-semibold text-white text-right" id="sumBaby">—</div>
+                  </div>
+
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="text-beige/75">{% trans "Preferred table" %}</div>
+                    <div class="font-semibold text-white text-right" id="sumTable">{% trans "Any" %}</div>
+                  </div>
+
+                  <div class="h-px bg-white/10 my-3"></div>
+
+                  <div>
+                    <div class="text-xs uppercase tracking-wider text-beige/70 mb-2">{% trans "Pre-order" %}</div>
+                    <div class="space-y-2" id="sumFood">
+                      <div class="text-beige/75 text-sm">{% trans "No items selected." %}</div>
+                    </div>
+
+                    <div class="mt-3 flex items-center justify-between">
+                      <div class="text-beige/70 text-sm">{% trans "Estimated total" %}</div>
+                      <div class="font-semibold text-white" id="sumTotal">€ 0.00</div>
+                    </div>
+                    <div class="text-[11px] text-beige/70 mt-1">
+                      {% trans "Total is only for pre-order items (optional)." %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-6 grid grid-cols-1 gap-4 text-sm text-beige/85">
+                <div>
+                  <div class="text-xs uppercase tracking-wider text-beige/70 mb-1">{% trans "Address" %}</div>
+                  <div class="font-semibold text-white">{{ settings.RESTAURANT_ADDRESS }}</div>
+                </div>
+
+                <div>
+                  <div class="text-xs uppercase tracking-wider text-beige/70 mb-1">{% trans "Phone" %}</div>
+                  <a href="tel:+358504557367" class="font-semibold text-white hover:text-gold underline underline-offset-4">
+                    +358504557367
+                  </a>
+                </div>
+
+                <div>
+                  <div class="text-xs uppercase tracking-wider text-beige/70 mb-2">{% trans "Opening Times" %}</div>
+                  <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-beige/90">
+                    <div>{% trans "Mon" %}</div><div class="text-right">10:00–22:00</div>
+                    <div>{% trans "Tue" %}</div><div class="text-right">10:00–22:00</div>
+                    <div>{% trans "Wed" %}</div><div class="text-right">10:00–22:00</div>
+                    <div>{% trans "Thu" %}</div><div class="text-right">10:00–22:00</div>
+                    <div>{% trans "Fri" %}</div><div class="text-right">10:00–22:00</div>
+                    <div>{% trans "Sat" %}</div><div class="text-right">10:00–22:00</div>
+                    <div>{% trans "Sun" %}</div><div class="text-right">10:00–22:00</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-8 p-5 rounded-sm bg-black/25 border border-white/10 text-xs text-beige/80 leading-relaxed">
+                {% trans "Please arrive on time. If you’re late, your table may be reassigned to keep the service smooth." %}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- i18n strings for JavaScript (DO NOT REMOVE) -->
+<div class="hidden"
+     id="i18n"
+     data-no-items="{% trans 'No items selected.' %}"
+     data-each="{% trans 'each' %}"
+     data-any="{% trans 'Any' %}"
+     data-table="{% trans 'Table' %}"
+     data-loading="{% trans 'Loading...' %}"
+     data-could-not-load="{% trans 'Could not load item.' %}"
+     data-item="{% trans 'Item' %}">
+</div>
+
+<!-- MENU PICKER MODAL -->
+<div id="menuPickerModal" class="hidden fixed inset-0 z-50">
+  <div id="menuPickerBackdrop" class="absolute inset-0 bg-black/60"></div>
+
+  <!-- ✅ KEY FIX:
+     - modal itself is NOT overflow-y-auto
+     - the BODY area becomes the scroll container on mobile
+     - on lg+, we keep body locked and scroll only right panel
+  -->
+  <div class="relative mx-auto my-4 sm:my-10 bg-beige rounded-sm overflow-hidden shadow-lg
+              w-[94%] sm:w-auto max-w-6xl
+              max-h-[92vh] flex flex-col">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-dark/10 bg-white/40 shrink-0">
+      <div class="font-semibold">{% trans "Choose items for pre-order" %}</div>
+
+      <div class="flex items-center gap-3">
+        <button type="button"
+                id="menuPickerViewCart"
+                class="hidden sm:inline-flex btn-gold px-4 py-2 rounded-sm font-semibold text-dark text-sm">
+          {% trans "View Cart" %}
+        </button>
+
+        <input id="menuPickerSearch"
+               type="text"
+               placeholder="{% trans 'Search menu...' %}"
+               class="px-3 py-2 rounded-sm border border-dark/15 bg-white/70 text-sm outline-none w-40 sm:w-56">
+
+        <button id="menuPickerClose" class="text-dark/70 hover:text-dark text-2xl leading-none">&times;</button>
+      </div>
+    </div>
+
+    <!-- Body (scrolls on mobile) -->
+    <div id="menuPickerBodyScroll"
+         class="flex-1 min-h-0 overflow-y-auto overscroll-contain lg:overflow-hidden">
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 min-h-0">
+
+        <!-- LEFT: Categories -->
+        <aside class="lg:col-span-3 border-r border-dark/10 bg-white/20">
+          <div class="p-4">
+            <div class="text-xs uppercase tracking-[0.25em] text-dark/60 mb-3">{% trans "Categories" %}</div>
+
+            <div class="space-y-1" id="pickerCategoryList">
+              {% for c in categories %}
+                <a href="#pick-cat-{{ c.slug }}"
+                   class="block px-3 py-2 rounded-sm text-sm font-semibold text-dark/75 hover:text-dark hover:bg-white/50"
+                   data-picker-cat-link>
+                  {{ c.name }}
+                </a>
+              {% empty %}
+                <div class="px-3 py-2 text-sm text-dark/60">{% trans "No categories yet." %}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mt-4 p-3 rounded-sm bg-white/40 border border-dark/10 text-[11px] text-dark/70">
+              {% trans "Tip: choose a category, preview items, then add to your reservation." %}
+            </div>
+          </div>
+        </aside>
+
+        <!-- RIGHT: Items -->
+        <main class="lg:col-span-9 min-h-0">
+          <!-- ✅ On desktop: this panel scrolls.
+              On mobile: it becomes normal content and the BODY scrolls.
+          -->
+          <div class="p-5 lg:h-full lg:overflow-y-auto overscroll-contain" id="menuPickerGrid">
+
+            {% for c in categories %}
+              <section id="pick-cat-{{ c.slug }}" class="mb-10" data-picker-section>
+                <div class="flex items-end justify-between gap-4 mb-3">
+                  <div class="brand-serif text-xl font-semibold">{{ c.name }}</div>
+                  <div class="text-[11px] text-dark/50">{{ settings.RESTAURANT_NAME }}</div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {% for mi in menu_items %}
+                    {% if mi.category_id == c.id %}
+                      <div class="frame p-0 bg-white/55 border border-dark/10 hover:border-gold/60 transition overflow-hidden"
+                           data-picker-card>
+
+                        <!-- Image -->
+                        <button type="button"
+                                class="block w-full text-left"
+                                data-preview-url="{% url 'restaurant:menu_item_detail' mi.id %}?ctx=reservation">
+                          <div class="relative">
+                            {% if mi.image %}
+                              <img src="{{ mi.image.url }}" alt="{{ mi.name }}" class="w-full h-36 object-cover">
+                            {% else %}
+                              <div class="w-full h-36 bg-lightbrown/20 flex items-center justify-center text-dark/60 text-sm">
+                                {% trans "No image" %}
+                              </div>
+                            {% endif %}
+
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent pointer-events-none"></div>
+
+                            <div class="absolute right-3 top-3 px-3 py-1 rounded-sm text-xs font-semibold
+                                        bg-white/70 border border-dark/10 text-dark backdrop-blur">
+                              € {{ mi.price }}
+                            </div>
+                          </div>
+                        </button>
+
+                        <!-- Body -->
+                        <div class="p-4">
+                          <button type="button"
+                                  class="block text-left w-full"
+                                  data-preview-url="{% url 'restaurant:menu_item_detail' mi.id %}?ctx=reservation">
+                            <div class="brand-serif text-base font-semibold leading-snug hover:underline underline-offset-4"
+                                 data-picker-name>
+                              {{ mi.name }}
+                            </div>
+
+                            {% if mi.description %}
+                              <div class="text-xs text-dark/65 mt-1 leading-relaxed" data-picker-desc>
+                                {{ mi.description|truncatechars:80 }}
+                              </div>
+                            {% endif %}
+                          </button>
+
+                          <div class="mt-4 flex items-center justify-between">
+                            <button type="button"
+                                    class="text-xs font-semibold underline underline-offset-4 text-dark/70 hover:text-dark"
+                                    data-preview-url="{% url 'restaurant:menu_item_detail' mi.id %}?ctx=reservation">
+                              {% trans "Preview" %}
+                            </button>
+
+                            <button type="button"
+                                    class="btn-gold px-4 py-2 rounded-sm font-semibold text-dark text-sm"
+                                    data-add-item="{{ mi.id }}"
+                                    data-add-name="{{ mi.name }}"
+                                    data-add-price="{{ mi.price }}">
+                              {% trans "Add →" %}
+                            </button>
+                          </div>
+                        </div>
+
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </section>
+            {% endfor %}
+
+            {% if not categories %}
+              <div class="text-sm text-dark/60 p-4">{% trans "No menu available." %}</div>
+            {% endif %}
+
+          </div>
+        </main>
+
+      </div>
+    </div>
+
+    <!-- Mobile sticky footer "View Cart" -->
+    <div class="sm:hidden border-t border-dark/10 bg-white/40 px-4 py-3 shrink-0">
+      <div class="flex items-center justify-between gap-3">
+        <div class="text-xs text-dark/70 min-w-0 truncate" id="pickerCartMeta">
+          {% trans "No items selected." %}
+        </div>
+        <button type="button"
+                id="pickerCartBtn"
+                class="btn-gold px-4 py-2 rounded-sm font-semibold text-dark text-sm">
+          {% trans "View Cart" %}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MENU ITEM PREVIEW MODAL -->
+<div id="itemModal" class="hidden fixed inset-0 z-50 overflow-y-auto overscroll-contain">
+  <div id="itemModalBackdrop" class="absolute inset-0 bg-black/60"></div>
+
+  <div class="relative max-w-3xl mx-auto bg-beige rounded-sm overflow-hidden shadow-lg
+              my-4 sm:my-10 w-[94%] sm:w-auto max-h-[92vh] flex flex-col">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-dark/10 shrink-0">
+      <div class="font-semibold">{% trans "Item Details" %}</div>
+      <button id="itemModalClose" class="text-dark/70 hover:text-dark text-2xl leading-none">&times;</button>
+    </div>
+
+    <div id="itemModalBody" class="overflow-y-auto">
+      <div class="p-6 text-sm text-dark/70">{% trans "Loading..." %}</div>
+    </div>
+
+    <div class="px-5 py-4 border-t border-dark/10 bg-white/40 shrink-0">
+      <div class="text-xs text-dark/60">
+        {% trans "Tip: close this preview to continue selecting items." %}
+      </div>
+    </div>
+  </div>
+</div>
+{% if show_reservation_modal and reservation_obj %}
+<div id="reservationSuccessModal" class="fixed inset-0 z-50">
+  <div class="absolute inset-0 bg-black/60" id="reservationSuccessBackdrop"></div>
+
+  <div class="relative max-w-3xl mx-auto my-6 sm:my-10 w-[94%] sm:w-auto">
+    <div class="frame bg-beige/95 rounded-[18px] overflow-hidden shadow-2xl border border-dark/10">
+      <!-- Header -->
+      <div class="px-6 py-5 border-b border-dark/10 bg-white/50">
+        <div class="brand-serif text-2xl font-semibold text-dark">{% trans "Reservation confirmed" %}</div>
+        <div class="mt-1 text-sm text-dark/65">
+          {% trans "Thank you. Your table request has been received." %}
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="px-6 py-6 space-y-5">
+
+        <!-- Premium receipt header (NO phone/address) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+          <div class="p-4 rounded-sm bg-white/60 border border-dark/10">
+            <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Reservation #" %}</div>
+            <div class="mt-1 font-semibold text-dark">#{{ reservation_obj.id }}</div>
+          </div>
+
+          <div class="p-4 rounded-sm bg-white/60 border border-dark/10">
+            <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Date & time" %}</div>
+            <div class="mt-1 font-semibold text-dark">{{ reservation_obj.start_datetime }}</div>
+          </div>
+
+          <div class="p-4 rounded-sm bg-white/60 border border-dark/10">
+            <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Guests" %}</div>
+            <div class="mt-1 font-semibold text-dark">
+              {{ reservation_obj.party_size }} {% trans "chairs" %}
+              {% if reservation_obj.baby_seats %} • {{ reservation_obj.baby_seats }} {% trans "baby seats" %}{% endif %}
+            </div>
+          </div>
+        </div>
+
+        {% if reservation_obj.preferred_table %}
+          <div class="p-4 rounded-sm bg-white/60 border border-dark/10 text-sm">
+            <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Preferred table" %}</div>
+            <div class="mt-1 font-semibold text-dark">{% trans "Table" %} {{ reservation_obj.preferred_table }}</div>
+          </div>
+        {% endif %}
+
+        {% if reservation_obj.items.exists %}
+        <div class="p-4 rounded-sm bg-white/60 border border-dark/10">
+          <div class="text-xs uppercase tracking-wider text-dark/60 mb-3">{% trans "Pre-order items" %}</div>
+
+          <div class="space-y-2 text-sm">
+            {% for it in reservation_obj.items.all %}
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="font-semibold text-dark truncate">{{ it.menu_item.name }}</div>
+                  <div class="text-xs text-dark/60">
+                    € {{ it.unit_price|floatformat:2 }} × {{ it.qty }}
+                  </div>
+                </div>
+                <div class="font-semibold text-dark">
+                  € {{ it.line_total|floatformat:2 }}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="h-px bg-dark/10 my-3"></div>
+
+          <div class="flex items-center justify-between text-sm">
+            <div class="text-dark/70">{% trans "Estimated pre-order total" %}</div>
+            <div class="font-semibold text-dark">
+              € {{ reservation_obj.preorder_total|floatformat:2 }}
+            </div>
+          </div>
+
+          <div class="mt-1 text-[11px] text-dark/55">
+            {% trans "Total is only for pre-order items (optional)." %}
+          </div>
+        </div>
+      {% endif %}
+
+        <div class="p-4 rounded-sm bg-gold/15 border border-gold/20 text-sm text-dark">
+          <span class="font-semibold">{% trans "Tip:" %}</span>
+          {% trans "Please arrive on time. If anything changes, call the restaurant." %}
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-5 border-t border-dark/10 bg-white/50 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+        <a href="{% url 'restaurant:menu' %}"
+           class="btn-gold px-6 py-3 rounded-sm font-semibold text-dark text-center">
+          {% trans "Browse menu →" %}
+        </a>
+
+        <button type="button"
+                id="reservationSuccessClose"
+                class="btn-wood px-6 py-3 rounded-sm font-semibold text-white text-center">
+          {% trans "Done" %}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+<script>
+(function () {
+  // ---------- i18n for JS ----------
+  const I18N_EL = document.getElementById("i18n");
+  const T = {
+    NO_ITEMS: I18N_EL ? I18N_EL.dataset.noItems : "No items selected.",
+    EACH: I18N_EL ? I18N_EL.dataset.each : "each",
+    ANY: I18N_EL ? I18N_EL.dataset.any : "Any",
+    TABLE: I18N_EL ? I18N_EL.dataset.table : "Table",
+    LOADING: I18N_EL ? I18N_EL.dataset.loading : "Loading...",
+    COULD_NOT_LOAD: I18N_EL ? I18N_EL.dataset.couldNotLoad : "Could not load item.",
+    ITEM: I18N_EL ? I18N_EL.dataset.item : "Item",
+  };
+
+  // ---------- Elements ----------
+  const form = document.getElementById("reservationForm");
+
+  // Table
+  const tableGrid = document.getElementById("tableGrid");
+  const preferredTableInput = document.getElementById("preferredTableInput");
+
+  // Summary
+  const sumWhen = document.getElementById("sumWhen");
+  const sumGuests = document.getElementById("sumGuests");
+  const sumBaby = document.getElementById("sumBaby");
+  const sumTable = document.getElementById("sumTable");
+  const sumFood = document.getElementById("sumFood");
+  const sumTotal = document.getElementById("sumTotal");
+
+  // Preorder list + hidden inputs
+  const selectedList = document.getElementById("selectedFoodList");
+  const hiddenInputs = document.getElementById("preorderHiddenInputs");
+  const clearBtn = document.getElementById("clearFood");
+
+  // Menu picker modal
+  const openBtn = document.getElementById("openMenuPicker");
+  const picker = document.getElementById("menuPickerModal");
+  const pickerBackdrop = document.getElementById("menuPickerBackdrop");
+  const pickerClose = document.getElementById("menuPickerClose");
+  const pickerSearch = document.getElementById("menuPickerSearch");
+  const pickerGrid = document.getElementById("menuPickerGrid");
+  const pickerBodyScroll = document.getElementById("menuPickerBodyScroll");
+
+  // View cart buttons inside picker
+  const pickerViewCart = document.getElementById("menuPickerViewCart");
+  const pickerCartBtn = document.getElementById("pickerCartBtn");
+  const pickerCartMeta = document.getElementById("pickerCartMeta");
+
+  // Preview modal
+  const previewModal = document.getElementById("itemModal");
+  const previewBackdrop = document.getElementById("itemModalBackdrop");
+  const previewClose = document.getElementById("itemModalClose");
+  const previewBody = document.getElementById("itemModalBody");
+
+  // id -> {name, price, qty}
+  const selected = new Map();
+
+  // ---------- Helpers ----------
+  function getField(name) {
+    return form ? form.querySelector(`[name="${name}"]`) : null;
+  }
+
+  function formatDatetime(value) {
+    if (!value) return "—";
+    const dt = new Date(value);
+    if (isNaN(dt.getTime())) return value;
+    return dt.toLocaleString(undefined, {
+      year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit"
+    });
+  }
+
+  function lockScroll() { document.body.style.overflow = "hidden"; }
+  function unlockScroll() { document.body.style.overflow = ""; }
+
+// ✅ Enforce: only 10:00–22:00 window + minutes 00/30 only (datetime-local OR select widgets)
+function enforceHalfHourMinutes() {
+  const f = getField("start_datetime");
+  if (!f) return;
+
+  // helpers
+  function clampToBusinessHours(dateObj) {
+    // Business rule:
+    // earliest start = 10:00
+    // latest start = 21:30 (because open until 22:00)
+    const h = dateObj.getHours();
+    const m = dateObj.getMinutes();
+
+    // If before 10:00 -> set to 10:00
+    if (h < 10) {
+      dateObj.setHours(10, 0, 0, 0);
+      return dateObj;
+    }
+
+    // If after 21:30 -> set to 21:30
+    if (h > 21 || (h === 21 && m > 30) || h >= 22) {
+      dateObj.setHours(21, 30, 0, 0);
+      return dateObj;
+    }
+
+    return dateObj;
+  }
+
+  function snapMinutesToHalfHour(dateObj) {
+    // 00-14 -> 00
+    // 15-44 -> 30
+    // 45-59 -> 00 + hour+1
+    let h = dateObj.getHours();
+    let m = dateObj.getMinutes();
+
+    if (m < 15) {
+      m = 0;
+    } else if (m < 45) {
+      m = 30;
+    } else {
+      m = 0;
+      h += 1;
+      if (h === 24) h = 0;
+    }
+
+    dateObj.setHours(h, m, 0, 0);
+    return dateObj;
+  }
+
+  function toInputValue(dt) {
+    const yyyy = dt.getFullYear();
+    const mm = String(dt.getMonth() + 1).padStart(2, "0");
+    const dd = String(dt.getDate()).padStart(2, "0");
+    const HH = String(dt.getHours()).padStart(2, "0");
+    const MM = String(dt.getMinutes()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}T${HH}:${MM}`;
+  }
+
+  // Case A: datetime-local input
+  if (f.tagName === "INPUT" && f.type === "datetime-local") {
+    // ✅ This improves what picker allows (browser-dependent)
+    f.setAttribute("step", "1800"); // 30 minutes
+    f.setAttribute("min", "10:00"); // some browsers ignore for datetime-local time portion, but harmless
+    f.setAttribute("max", "21:30");
+
+    const snap = () => {
+      const val = f.value;
+      if (!val) return;
+
+      // Parse YYYY-MM-DDTHH:MM safely
+      const [d, t] = val.split("T");
+      if (!d || !t) return;
+
+      const [Y, M, D] = d.split("-").map(n => parseInt(n, 10));
+      const [h0, m0] = t.split(":").map(n => parseInt(n, 10));
+      if ([Y, M, D, h0, m0].some(n => isNaN(n))) return;
+
+      // Build local Date (no timezone shift)
+      let dt = new Date(Y, M - 1, D, h0, m0, 0, 0);
+
+      // ✅ snap minutes first, then clamp to business hours
+      dt = snapMinutesToHalfHour(dt);
+      dt = clampToBusinessHours(dt);
+
+      // ✅ ensure after clamping we still have 00/30
+      dt = snapMinutesToHalfHour(dt);
+
+      f.value = toInputValue(dt);
+
+      // keep your summary updated (safe)
+      try { updateSummary(); } catch (e) {}
+    };
+
+    f.addEventListener("change", snap);
+    f.addEventListener("blur", snap);
+    return;
+  }
+
+  // Case A2: time input (if you ever use it)
+  if (f.tagName === "INPUT" && f.type === "time") {
+    f.setAttribute("step", "1800");
+    f.setAttribute("min", "10:00");
+    f.setAttribute("max", "21:30");
+
+    const snapTime = () => {
+      const val = f.value;
+      if (!val) return;
+      const [h0, m0] = val.split(":").map(n => parseInt(n, 10));
+      if ([h0, m0].some(n => isNaN(n))) return;
+
+      let dt = new Date(2000, 0, 1, h0, m0, 0, 0);
+      dt = snapMinutesToHalfHour(dt);
+      dt = clampToBusinessHours(dt);
+      dt = snapMinutesToHalfHour(dt);
+
+      const HH = String(dt.getHours()).padStart(2, "0");
+      const MM = String(dt.getMinutes()).padStart(2, "0");
+      f.value = `${HH}:${MM}`;
+      try { updateSummary(); } catch (e) {}
+    };
+
+    f.addEventListener("change", snapTime);
+    f.addEventListener("blur", snapTime);
+    return;
+  }
+
+  // Case B: start_datetime rendered as select widgets (minutes select only 00/30 + clamp hours)
+  const container = f.closest(".frame") || f.parentElement || document;
+  const selects = container.querySelectorAll("select");
+  if (!selects || selects.length === 0) return;
+
+  let hourSelect = null;
+  let minuteSelect = null;
+
+  selects.forEach(s => {
+    const values = [...s.options].map(o => o.value);
+    // crude detection: minutes often 0..59
+    if (values.includes("59") || values.includes("30")) minuteSelect = minuteSelect || s;
+    // crude detection: hours often 0..23
+    if (values.includes("23") || values.includes("21")) hourSelect = hourSelect || s;
+  });
+
+  // Limit minutes
+  if (minuteSelect) {
+    const allowed = new Set(["00", "0", "30"]);
+    [...minuteSelect.options].forEach(opt => {
+      if (!allowed.has(opt.value)) opt.remove();
+    });
+    if (!allowed.has(minuteSelect.value)) {
+      minuteSelect.value = minuteSelect.querySelector('option[value="00"]') ? "00" :
+        (minuteSelect.querySelector('option[value="0"]') ? "0" : "30");
+    }
+  }
+
+  // Clamp hour to 10..21 (and if 21 then minutes must be 00 or 30 only)
+  if (hourSelect) {
+    [...hourSelect.options].forEach(opt => {
+      const hv = parseInt(opt.value, 10);
+      if (!isNaN(hv) && (hv < 10 || hv > 21)) opt.remove();
+    });
+
+    const clampSelects = () => {
+      const h = parseInt(hourSelect.value, 10);
+      const m = minuteSelect ? parseInt(minuteSelect.value, 10) : 0;
+
+      // if hour becomes invalid
+      if (isNaN(h)) return;
+
+      // if 21 and minute > 30 -> force 30
+      if (h === 21 && m > 30 && minuteSelect) minuteSelect.value = "30";
+    };
+
+    hourSelect.addEventListener("change", clampSelects);
+    if (minuteSelect) minuteSelect.addEventListener("change", clampSelects);
+    clampSelects();
+  }
+}
+
+
+  function scrollToCart() {
+    const target = document.getElementById("selectedFoodList");
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function updatePickerCartMeta() {
+    if (!pickerCartMeta) return;
+
+    let totalQty = 0;
+    let totalPrice = 0;
+
+    selected.forEach(v => {
+      const qty = parseInt(v.qty || 0, 10) || 0;
+      const price = parseFloat(v.price || "0") || 0;
+      totalQty += qty;
+      totalPrice += qty * price;
+    });
+
+    if (totalQty <= 0) {
+      pickerCartMeta.textContent = T.NO_ITEMS;
+    } else {
+      pickerCartMeta.textContent = `${totalQty} item${totalQty === 1 ? "" : "s"} • € ${totalPrice.toFixed(2)}`;
+    }
+  }
+
+  // ---------- Table grid ----------
+  function renderTables() {
+    if (!tableGrid) return;
+    tableGrid.innerHTML = "";
+    for (let i = 1; i <= 14; i++) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = i;
+      btn.dataset.table = String(i);
+      btn.className =
+        "px-2 py-2 text-sm font-semibold rounded-sm border border-dark/15 bg-white/55 hover:bg-white/70 hover:border-gold/60 transition";
+
+      btn.addEventListener("click", () => {
+        const current = preferredTableInput.value;
+        preferredTableInput.value = (current === String(i)) ? "" : String(i);
+        updateTableUI();
+        updateSummary();
+      });
+
+      tableGrid.appendChild(btn);
+    }
+    updateTableUI();
+  }
+
+  function updateTableUI() {
+    if (!tableGrid) return;
+    const selectedTable = preferredTableInput.value;
+    [...tableGrid.querySelectorAll("button[data-table]")].forEach(b => {
+      const isSel = b.dataset.table === selectedTable && selectedTable !== "";
+      b.className =
+        "px-2 py-2 text-sm font-semibold rounded-sm border transition " +
+        (isSel
+          ? "border-gold bg-[#3b231d] text-beige"
+          : "border-dark/15 bg-white/55 hover:bg-white/70 hover:border-gold/60");
+    });
+  }
+
+  // ---------- Preorder: render + hidden inputs ----------
+  function renderSelected() {
+    if (!selectedList) return;
+
+    selectedList.innerHTML = "";
+    hiddenInputs.innerHTML = "";
+
+    if (selected.size === 0) {
+      selectedList.innerHTML = `<div class="text-sm text-dark/60">${T.NO_ITEMS}</div>`;
+      updatePickerCartMeta();
+      updateSummary();
+      return;
+    }
+
+    selected.forEach((v, id) => {
+      const price = parseFloat(v.price || "0") || 0;
+      const qty = parseInt(v.qty || 0, 10) || 0;
+      const lineTotal = price * qty;
+
+      const row = document.createElement("div");
+      row.className = "flex items-center justify-between gap-4 p-3 rounded-sm bg-white/60 border border-dark/10";
+      row.dataset.rowId = id;
+
+      row.innerHTML = `
+        <div class="min-w-0">
+          <div class="font-semibold brand-serif truncate">${v.name}</div>
+          <div class="text-xs text-dark/60">€ ${price.toFixed(2)} ${T.EACH}</div>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0">
+          <button type="button"
+                  class="px-3 py-2 rounded-sm border border-dark/15 bg-white/70 hover:border-gold/60 font-semibold"
+                  data-qty-minus="${id}">−</button>
+
+          <div class="w-10 text-center font-semibold" data-qty-value="${id}">${qty}</div>
+
+          <button type="button"
+                  class="px-3 py-2 rounded-sm border border-dark/15 bg-white/70 hover:border-gold/60 font-semibold"
+                  data-qty-plus="${id}">+</button>
+
+          <div class="w-24 text-right font-semibold brand-serif">€ ${lineTotal.toFixed(2)}</div>
+
+          <button type="button"
+                  class="px-3 py-2 rounded-sm border border-dark/15 bg-white/70 hover:border-red-300 hover:text-red-700 font-semibold"
+                  data-remove="${id}">×</button>
+        </div>
+      `;
+
+      selectedList.appendChild(row);
+
+      const hidId = document.createElement("input");
+      hidId.type = "hidden";
+      hidId.name = "preorder_ids";
+      hidId.value = id;
+
+      const hidQty = document.createElement("input");
+      hidQty.type = "hidden";
+      hidQty.name = "preorder_qty";
+      hidQty.value = String(qty);
+
+      hiddenInputs.appendChild(hidId);
+      hiddenInputs.appendChild(hidQty);
+    });
+
+    updatePickerCartMeta();
+    updateSummary();
+  }
+
+  function addItem(id, name, price) {
+    id = String(id);
+    if (selected.has(id)) {
+      const v = selected.get(id);
+      v.qty = (parseInt(v.qty || 0, 10) || 0) + 1;
+      selected.set(id, v);
+    } else {
+      selected.set(id, { name, price, qty: 1 });
+    }
+    renderSelected();
+  }
+
+  window.__reservationAddToCart = function(id, name, price) {
+    addItem(id, name, price);
+  };
+
+  function setQty(id, qty) {
+    id = String(id);
+    if (!selected.has(id)) return;
+
+    qty = parseInt(qty, 10) || 0;
+    if (qty <= 0) selected.delete(id);
+    else {
+      const v = selected.get(id);
+      v.qty = qty;
+      selected.set(id, v);
+    }
+    renderSelected();
+  }
+
+  function removeItem(id) {
+    selected.delete(String(id));
+    renderSelected();
+  }
+
+  // ---------- Summary ----------
+  function updateSummary() {
+    const dt = getField("start_datetime") ? getField("start_datetime").value : "";
+    const guests = getField("party_size") ? getField("party_size").value : "";
+    const baby = getField("baby_seats") ? getField("baby_seats").value : "";
+
+    if (sumWhen) sumWhen.textContent = formatDatetime(dt);
+    if (sumGuests) sumGuests.textContent = guests ? guests : "—";
+    if (sumBaby) sumBaby.textContent = baby ? baby : "—";
+    if (sumTable) sumTable.textContent =
+      preferredTableInput && preferredTableInput.value ? (T.TABLE + " " + preferredTableInput.value) : T.ANY;
+
+    let total = 0;
+    if (sumFood) {
+      sumFood.innerHTML = "";
+
+      if (selected.size === 0) {
+        const div = document.createElement("div");
+        div.className = "text-beige/75 text-sm";
+        div.textContent = T.NO_ITEMS;
+        sumFood.appendChild(div);
+      } else {
+        selected.forEach((v) => {
+          const price = parseFloat(v.price || "0") || 0;
+          const qty = parseInt(v.qty || 0, 10) || 0;
+          const line = price * qty;
+          total += line;
+
+          const row = document.createElement("div");
+          row.className = "flex items-start justify-between gap-3 text-sm";
+          row.innerHTML =
+            `<div class="text-white font-semibold">${v.name} <span class="text-beige/70 font-normal">× ${qty}</span></div>
+             <div class="text-white">€ ${line.toFixed(2)}</div>`;
+          sumFood.appendChild(row);
+        });
+      }
+    }
+
+    if (sumTotal) sumTotal.textContent = "€ " + total.toFixed(2);
+  }
+
+  // ---------- Menu Picker ----------
+  function openPicker() {
+    if (!picker) return;
+    picker.classList.remove("hidden");
+    lockScroll();
+    if (pickerSearch) pickerSearch.focus();
+  }
+
+  function closePicker() {
+    if (!picker) return;
+    picker.classList.add("hidden");
+    if (previewModal && !previewModal.classList.contains("hidden")) lockScroll();
+    else unlockScroll();
+  }
+
+  function filterPicker(term) {
+    if (!pickerGrid) return;
+    const q = (term || "").trim().toLowerCase();
+
+    pickerGrid.querySelectorAll("[data-picker-card]").forEach(card => {
+      const nameEl = card.querySelector("[data-picker-name]");
+      const descEl = card.querySelector("[data-picker-desc]");
+      const name = (nameEl ? nameEl.textContent : "").toLowerCase();
+      const desc = (descEl ? descEl.textContent : "").toLowerCase();
+      const ok = !q || name.includes(q) || desc.includes(q);
+      card.style.display = ok ? "" : "none";
+    });
+
+    pickerGrid.querySelectorAll("[data-picker-section]").forEach(section => {
+      const anyVisible = [...section.querySelectorAll("[data-picker-card]")]
+        .some(card => card.style.display !== "none");
+      section.style.display = anyVisible ? "" : "none";
+    });
+  }
+
+  // ---------- Preview modal ----------
+  function openPreview() {
+    if (!previewModal) return;
+    previewModal.classList.remove("hidden");
+    lockScroll();
+  }
+
+  function closePreview() {
+    if (!previewModal) return;
+    previewModal.classList.add("hidden");
+    if (previewBody) previewBody.innerHTML = `<div class="p-6 text-sm text-dark/70">${T.LOADING}</div>`;
+    if (picker && !picker.classList.contains("hidden")) lockScroll();
+    else unlockScroll();
+  }
+
+  async function loadPreview(url) {
+    if (!previewBody) return;
+    openPreview();
+    previewBody.innerHTML = `<div class="p-6 text-sm text-dark/70">${T.LOADING}</div>`;
+    try {
+      const res = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
+      previewBody.innerHTML = res.ok
+        ? await res.text()
+        : `<div class="p-6 text-sm text-dark/70">${T.COULD_NOT_LOAD}</div>`;
+    } catch {
+      previewBody.innerHTML = `<div class="p-6 text-sm text-dark/70">${T.COULD_NOT_LOAD}</div>`;
+    }
+  }
+
+  // ---------- Bindings ----------
+  if (openBtn) openBtn.addEventListener("click", openPicker);
+  if (pickerClose) pickerClose.addEventListener("click", closePicker);
+  if (pickerBackdrop) pickerBackdrop.addEventListener("click", closePicker);
+
+  if (pickerSearch) pickerSearch.addEventListener("input", (e) => filterPicker(e.target.value));
+
+  function pickerGoToCart() {
+    closePicker();
+    setTimeout(scrollToCart, 50);
+  }
+  if (pickerViewCart) pickerViewCart.addEventListener("click", pickerGoToCart);
+  if (pickerCartBtn) pickerCartBtn.addEventListener("click", pickerGoToCart);
+
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      selected.clear();
+      localStorage.removeItem("reservation_preorder");
+      renderSelected();
+    });
+  }
+
+  if (previewClose) previewClose.addEventListener("click", closePreview);
+  if (previewBackdrop) previewBackdrop.addEventListener("click", closePreview);
+
+  if (form) {
+    ["start_datetime", "party_size", "baby_seats"].forEach(n => {
+      const f = getField(n);
+      if (f) {
+        f.addEventListener("input", updateSummary);
+        f.addEventListener("change", updateSummary);
+      }
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    const addFromModalOld = e.target.closest('[data-action="add-to-preorder"]');
+    if (addFromModalOld) {
+      addItem(addFromModalOld.dataset.itemId, addFromModalOld.dataset.itemName, addFromModalOld.dataset.itemPrice);
+      closePreview();
+      return;
+    }
+
+    const addFromModalNew = e.target.closest('[data-add-dinein]');
+    if (addFromModalNew) {
+      const id = addFromModalNew.getAttribute("data-add-dinein");
+      const name = addFromModalNew.getAttribute("data-name") || T.ITEM;
+      const price = addFromModalNew.getAttribute("data-price") || "0";
+      addItem(id, name, price);
+      closePreview();
+      return;
+    }
+
+    const minus = e.target.closest("[data-qty-minus]");
+    if (minus) {
+      const id = minus.dataset.qtyMinus;
+      const v = selected.get(String(id));
+      const current = v ? (parseInt(v.qty || 0, 10) || 0) : 0;
+      setQty(id, current - 1);
+      return;
+    }
+
+    const plus = e.target.closest("[data-qty-plus]");
+    if (plus) {
+      const id = plus.dataset.qtyPlus;
+      const v = selected.get(String(id));
+      const current = v ? (parseInt(v.qty || 0, 10) || 0) : 0;
+      setQty(id, current + 1);
+      return;
+    }
+
+    const rem = e.target.closest("[data-remove]");
+    if (rem) {
+      removeItem(rem.dataset.remove);
+      return;
+    }
+
+    const add = e.target.closest("[data-add-item]");
+    if (add) {
+      addItem(add.dataset.addItem, add.dataset.addName, add.dataset.addPrice);
+      return;
+    }
+
+    const preview = e.target.closest("[data-preview-url]");
+    if (preview) {
+      const url = preview.getAttribute("data-preview-url");
+      if (url) loadPreview(url);
+      return;
+    }
+  });
+
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key !== "Escape") return;
+    if (previewModal && !previewModal.classList.contains("hidden")) closePreview();
+    else if (picker && !picker.classList.contains("hidden")) closePicker();
+  });
+
+  // iOS scroll acceleration inside the REAL scroll container(s)
+  if (pickerBodyScroll) pickerBodyScroll.style.webkitOverflowScrolling = "touch";
+  if (pickerGrid) pickerGrid.style.webkitOverflowScrolling = "touch";
+
+  renderTables();
+
+  (function loadPreorderFromStorage() {
+    const key = "reservation_preorder";
+    const raw = localStorage.getItem(key);
+    if (!raw) return;
+
+    try {
+      const cart = JSON.parse(raw);
+      Object.entries(cart).forEach(([id, v]) => {
+        const qty = parseInt(v.qty || 0, 10) || 0;
+        if (qty <= 0) return;
+        selected.set(String(id), { name: v.name, price: v.price, qty: qty });
+      });
+
+      localStorage.removeItem(key);
+    } catch (e) {
+      localStorage.removeItem(key);
+    }
+  })();
+
+  enforceHalfHourMinutes();
+
+  renderSelected();
+  updateSummary();
+
+// ---- Reservation success modal (close) ----
+const resModal = document.getElementById("reservationSuccessModal");
+const resBackdrop = document.getElementById("reservationSuccessBackdrop");
+const resClose = document.getElementById("reservationSuccessClose");
+
+function closeResModal() {
+  if (!resModal) return;
+  resModal.remove();
+  // remove ?placed=1 from URL (clean premium)
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("placed");
+    window.history.replaceState({}, "", url.toString());
+  } catch(e) {}
+}
+
+if (resBackdrop) resBackdrop.addEventListener("click", closeResModal);
+if (resClose) resClose.addEventListener("click", closeResModal);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeResModal();
+});
+
+})();
+</script>
+
+{% endblock %}

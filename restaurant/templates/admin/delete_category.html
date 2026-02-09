@@ -1,0 +1,29 @@
+{% extends "admin/base.html" %}
+{% block title %}Delete Category – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-semibold mb-6">Delete Category</h1>
+
+<div class="p-6 bg-white/50 border border-lightbrown rounded max-w-3xl">
+  <p class="mb-4">Are you sure you want to delete <b>{{ category.name }}</b>?</p>
+
+  {% if has_items %}
+    <div class="p-4 bg-red-100 text-red-800 border border-red-200 rounded mb-4">
+      This category has menu items. Move/delete those items first before deleting.
+    </div>
+    <a href="{% url 'restaurant:categories_list' %}" class="px-6 py-3 bg-gold text-dark rounded font-semibold hover:bg-lightbrown inline-block">
+      Back
+    </a>
+  {% else %}
+    <form method="post" class="flex gap-3">
+      {% csrf_token %}
+      <button type="submit" class="px-6 py-3 bg-red-700 text-white rounded font-semibold hover:bg-red-800">
+        Yes, Delete
+      </button>
+      <a href="{% url 'restaurant:categories_list' %}" class="px-6 py-3 bg-white border border-lightbrown rounded font-semibold hover:bg-beige">
+        Cancel
+      </a>
+    </form>
+  {% endif %}
+</div>
+{% endblock %}

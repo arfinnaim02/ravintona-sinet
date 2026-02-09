@@ -1,0 +1,76 @@
+{% extends "admin/base.html" %}
+{% block title %}Reservation – Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-6 py-10">
+
+  <div class="flex items-start justify-between gap-6 mb-6">
+    <div>
+      <div class="brand-serif text-3xl font-semibold">{{ r.name }}</div>
+      <div class="text-sm text-dark/70 mt-1">
+        {{ r.start_datetime }} • {{ r.phone }}{% if r.email %} • {{ r.email }}{% endif %}
+      </div>
+    </div>
+
+    <form method="post" action="{% url 'restaurant:reservation_update_status' r.id %}" class="flex items-center gap-3">
+      {% csrf_token %}
+      <select name="status" class="px-3 py-2 rounded-sm border border-dark/15 bg-white/70 text-sm outline-none">
+        {% for key,label in r.STATUS_CHOICES %}
+          <option value="{{ key }}" {% if r.status == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn-gold px-4 py-2 rounded-sm font-semibold text-dark">Update</button>
+    </form>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="frame p-5 bg-white/30">
+      <div class="brand-serif text-lg font-semibold mb-3">Details</div>
+      <div class="text-sm space-y-2">
+        <div><span class="text-dark/60">Guests:</span> <b>{{ r.party_size }}</b></div>
+        <div><span class="text-dark/60">Baby seats:</span> <b>{{ r.baby_seats }}</b></div>
+        <div><span class="text-dark/60">Preferred table:</span>
+          <b>{% if r.preferred_table %}Table {{ r.preferred_table }}{% else %}Any{% endif %}</b>
+        </div>
+        {% if r.notes %}
+          <div class="pt-2">
+            <div class="text-dark/60 text-xs uppercase tracking-wider mb-1">Notes</div>
+            {{ r.notes }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="frame p-5 bg-white/30">
+      <div class="brand-serif text-lg font-semibold mb-3">Pre-order</div>
+
+      {% if r.items.all %}
+        <div class="space-y-2 text-sm">
+          {% for it in r.items.all %}
+            <div class="flex items-start justify-between gap-4">
+              <div class="font-semibold">
+                {{ it.menu_item.name }}
+                <span class="text-dark/60 font-normal">× {{ it.qty }}</span>
+              </div>
+              <div class="font-semibold">€ {{ it.line_total }}</div>
+            </div>
+          {% endfor %}
+
+          <div class="h-px bg-dark/10 my-3"></div>
+          <div class="flex items-center justify-between">
+            <div class="text-dark/70">Total</div>
+            <div class="font-semibold">€ {{ r.preorder_total }}</div>
+          </div>
+        </div>
+      {% else %}
+        <div class="text-sm text-dark/60">No pre-order items.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="mt-8">
+    <a href="{% url 'restaurant:reservations_list' %}" class="underline font-semibold">← Back to reservations</a>
+  </div>
+
+</div>
+{% endblock %}

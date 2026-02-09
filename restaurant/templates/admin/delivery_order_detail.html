@@ -1,0 +1,338 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Delivery Order #{{ o.id }} – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Keep receipt in DOM but off-screen (so it can be cloned for print) */
+  #posReceiptSource {
+    position: absolute;
+    left: -99999px;
+    top: 0;
+    width: 58mm; /* change to 80mm if your printer is 80mm */
+    background: #fff;
+    color: #000;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 12px;
+    line-height: 1.25;
+  }
+  .pos-row { display:flex; justify-content:space-between; gap:10px; }
+  .pos-line { border-top: 1px dashed #000; margin: 8px 0; }
+  .pos-center { text-align:center; }
+  .pos-bold { font-weight: 700; }
+  .pos-small { font-size: 11px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section>
+  <div class="max-w-6xl mx-auto py-2">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+      <div>
+        <div class="text-dark text-sm uppercase tracking-[0.35em] opacity-80">
+          Delivery Order
+        </div>
+        <div class="brand-serif text-3xl md:text-4xl font-semibold text-dark tracking-tight">
+          Order #{{ o.id }}
+        </div>
+        <div class="mt-2 text-xs uppercase tracking-[0.35em] text-dark/70">
+          Created {{ o.created_at|date:"d M Y, H:i" }} •
+          Status:
+          <span class="font-semibold">{{ o.get_status_display }}</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="{% url 'restaurant:delivery_orders_list' %}"
+           class="text-sm font-semibold text-dark/70 hover:text-dark underline underline-offset-4">
+          ← Back to Orders
+        </a>
+
+        <!-- ✅ POS print button -->
+        <button type="button"
+                onclick="printPOSReceipt()"
+                class="inline-flex items-center justify-center px-5 py-2 rounded-xl font-semibold text-dark text-sm"
+                style="background: linear-gradient(#cdb57b, #a8844a); border: 1px solid rgba(50,30,10,.25); box-shadow: inset 0 1px 0 rgba(255,255,255,.26), 0 10px 22px rgba(0,0,0,.10);">
+          Print POS →
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- Customer -->
+        <div class="rounded-2xl border border-dark/10 bg-white/70 p-6">
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <div>
+              <div class="brand-serif text-xl font-semibold text-dark">Customer</div>
+              <div class="text-xs uppercase tracking-[0.30em] text-dark/60 mt-1">
+                Contact & delivery address
+              </div>
+            </div>
+
+            <a
+              class="inline-flex items-center justify-center px-5 py-2 rounded-xl font-semibold text-dark text-sm"
+              style="background: linear-gradient(#cdb57b, #a8844a); border: 1px solid rgba(50,30,10,.25); box-shadow: inset 0 1px 0 rgba(255,255,255,.26), 0 10px 22px rgba(0,0,0,.10);"
+              target="_blank" rel="noopener noreferrer"
+              href="https://www.google.com/maps?q={{ o.lat }},{{ o.lng }}"
+            >
+              Open in Maps →
+            </a>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
+            <div class="p-4 rounded-xl bg-white/60 border border-dark/10">
+              <div class="text-xs uppercase tracking-wider text-dark/60">Name</div>
+              <div class="mt-1 font-semibold text-dark">{{ o.customer_name }}</div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-white/60 border border-dark/10">
+              <div class="text-xs uppercase tracking-wider text-dark/60">Phone</div>
+              <div class="mt-1 font-semibold text-dark">{{ o.customer_phone }}</div>
+            </div>
+
+            <div class="md:col-span-2 p-4 rounded-xl bg-white/60 border border-dark/10">
+              <div class="text-xs uppercase tracking-wider text-dark/60">Address</div>
+              <div class="mt-1 font-semibold text-dark">
+                {{ o.address_label }}
+                {% if o.address_extra %}
+                  <span class="text-dark/70">, {{ o.address_extra }}</span>
+                {% endif %}
+              </div>
+              <div class="mt-1 text-[12px] text-dark/60">
+                Coordinates: {{ o.lat|floatformat:6 }}, {{ o.lng|floatformat:6 }}
+                • Distance: {{ o.distance_km|floatformat:2 }} km
+              </div>
+            </div>
+
+            {% if o.customer_note %}
+              <div class="md:col-span-2 p-4 rounded-xl bg-white/60 border border-dark/10">
+                <div class="text-xs uppercase tracking-wider text-dark/60">Customer note</div>
+                <div class="mt-1 text-dark/80 whitespace-pre-line">{{ o.customer_note }}</div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Items -->
+        <div class="rounded-2xl border border-dark/10 bg-white/70 p-6">
+          <div class="flex items-end justify-between gap-4 mb-4">
+            <div>
+              <div class="brand-serif text-xl font-semibold text-dark">Items</div>
+              <div class="text-xs uppercase tracking-[0.30em] text-dark/60 mt-1">
+                Order lines
+              </div>
+            </div>
+            <div class="text-xs text-dark/60">
+              {% if o.items.count %}{{ o.items.count }} lines{% endif %}
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            {% for it in o.items.all %}
+              <div class="p-4 rounded-2xl bg-white/80 border border-dark/10 flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                  <div class="font-semibold text-dark truncate">{{ it.name }}</div>
+                  <div class="mt-1 text-[12px] text-dark/65">
+                    € {{ it.unit_price|floatformat:2 }} × {{ it.qty }}
+                  </div>
+                </div>
+
+                <div class="text-right shrink-0">
+                  <div class="text-[11px] uppercase tracking-wider text-dark/50">Line total</div>
+                  <div class="font-semibold text-dark">
+                    € {{ it.line_total|floatformat:2 }}
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="text-sm text-dark/60">No items.</div>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT -->
+      <aside class="lg:col-span-5 space-y-6">
+
+        <!-- Totals -->
+        <div class="rounded-2xl border border-dark/10 p-6 text-beige"
+             style="background: linear-gradient(#3b231d, #24130f);">
+          <div class="brand-serif text-xl font-semibold text-white mb-4">Totals</div>
+
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <div class="text-beige/75">Subtotal</div>
+              <div class="font-semibold text-white">€ {{ o.subtotal|floatformat:2 }}</div>
+            </div>
+
+            <div class="flex justify-between items-start gap-2">
+              <div class="text-beige/75">
+                Delivery fee
+                {% if o.promo_title %}
+                  <div class="text-[11px] text-beige/70 mt-1">
+                    Promo: {{ o.promo_title }}
+                    {% if o.promo_free_delivery %}
+                      • <span class="font-semibold text-white">FREE DELIVERY</span>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="font-semibold text-white">€ {{ o.delivery_fee|floatformat:2 }}</div>
+            </div>
+
+            {% if o.coupon_code and o.coupon_discount %}
+              <div class="flex justify-between items-start gap-2">
+                <div class="text-beige/75">
+                  Coupon
+                  <div class="text-[11px] text-beige/70 mt-1">
+                    Code: <span class="font-semibold text-white">{{ o.coupon_code }}</span>
+                  </div>
+                </div>
+                <div class="font-semibold text-white">− € {{ o.coupon_discount|floatformat:2 }}</div>
+              </div>
+            {% endif %}
+
+            <div class="h-px bg-white/10 my-3"></div>
+
+            <div class="flex justify-between">
+              <div class="text-beige/75">Total</div>
+              <div class="font-semibold text-white text-lg">€ {{ o.total|floatformat:2 }}</div>
+            </div>
+          </div>
+
+          <div class="mt-4 text-[11px] text-beige/70">
+            Payment: Pay on delivery
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="rounded-2xl border border-dark/10 bg-white/70 p-6">
+          <div class="brand-serif text-xl font-semibold text-dark mb-3">Update Status</div>
+
+          <form method="post" action="{% url 'restaurant:delivery_order_update_status' o.id %}" class="space-y-3">
+            {% csrf_token %}
+
+            <select name="status"
+                    class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white outline-none focus:border-gold/70">
+              {% for key,label in o.STATUS_CHOICES %}
+                <option value="{{ key }}" {% if o.status == key %}selected{% endif %}>
+                  {{ label }}
+                </option>
+              {% endfor %}
+            </select>
+
+            <button
+              class="w-full px-6 py-3 rounded-xl font-semibold text-dark"
+              style="background: linear-gradient(#cdb57b, #a8844a); border: 1px solid rgba(50,30,10,.25); box-shadow: inset 0 1px 0 rgba(255,255,255,.26), 0 10px 22px rgba(0,0,0,.10);"
+            >
+              Save Status →
+            </button>
+          </form>
+
+          <div class="mt-3 text-[11px] text-dark/60">
+            Recommended flow: Pending → Accepted → Preparing → Out for delivery → Delivered.
+          </div>
+        </div>
+
+      </aside>
+    </div>
+
+    <!-- ✅ POS receipt source (off-screen, used for cloning into print window) -->
+    <div id="posReceiptSource">
+      <div class="pos-center pos-bold">Items</div>
+      <div class="pos-line"></div>
+
+      {% for it in o.items.all %}
+        <div class="pos-row">
+          <div>{{ it.qty }}× {{ it.name|truncatechars:26 }}</div>
+          <div>€{{ it.line_total|floatformat:2 }}</div>
+        </div>
+      {% endfor %}
+
+      <div class="pos-line"></div>
+
+      <div class="pos-center pos-bold">Totals</div>
+
+      <div class="pos-row">
+        <div>Subtotal</div>
+        <div>€{{ o.subtotal|floatformat:2 }}</div>
+      </div>
+
+      <div class="pos-row">
+        <div>Delivery fee</div>
+        <div>€{{ o.delivery_fee|floatformat:2 }}</div>
+      </div>
+
+      {% if o.coupon_code and o.coupon_discount %}
+        <div class="pos-row">
+          <div>Coupon</div>
+          <div></div>
+        </div>
+        <div class="pos-row">
+          <div class="pos-small">Code: {{ o.coupon_code }}</div>
+          <div>− €{{ o.coupon_discount|floatformat:2 }}</div>
+        </div>
+      {% endif %}
+
+      <div class="pos-line"></div>
+
+      <div class="pos-row pos-bold">
+        <div>Total</div>
+        <div>€{{ o.total|floatformat:2 }}</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  function printPOSReceipt() {
+    const src = document.getElementById("posReceiptSource");
+    if (!src) return;
+
+    // Popup window for POS printing (most reliable)
+    const w = window.open("", "POS_PRINT", "width=420,height=700");
+    if (!w) {
+      alert("Popup blocked. Please allow popups for this site to print POS.");
+      return;
+    }
+
+    // CSS inside print window (ONLY receipt)
+    const css = `
+      <style>
+        @page { margin: 6mm 4mm; }
+        body{
+          margin:0; padding:0;
+          width: 58mm;
+          background:#fff;
+          color:#000;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+          font-size: 12px;
+          line-height: 1.25;
+        }
+        .pos-row{ display:flex; justify-content:space-between; gap:10px; }
+        .pos-line{ border-top:1px dashed #000; margin:8px 0; }
+        .pos-center{ text-align:center; }
+        .pos-bold{ font-weight:700; }
+        .pos-small{ font-size:11px; }
+      </style>
+    `;
+
+    w.document.open();
+    w.document.write(`<!doctype html><html><head><meta charset="utf-8">${css}</head><body>${src.innerHTML}</body></html>`);
+    w.document.close();
+
+    w.focus();
+    w.print();
+    w.close();
+  }
+</script>
+{% endblock %}
