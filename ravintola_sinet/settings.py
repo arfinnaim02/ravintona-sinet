@@ -1,35 +1,45 @@
 """Django settings for the Ravintola Sinet project (development)."""
 
 from __future__ import annotations
-
+import dj_database_url
 import os
 from pathlib import Path
+from django.utils.translation import gettext_lazy as _
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-change-this-key")
-DEBUG = True
-ALLOWED_HOSTS: list[str] = ["*"]
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
+
+# Comma-separated in Render env: "ravintona-sinet.onrender.com,www.yourdomain.com"
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h.strip()]
+if DEBUG and not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ["*"]
+
 
 INSTALLED_APPS = [
-    # Django Admin (OPTION B: keep it enabled for debugging)
     "django.contrib.admin",
-
-    # Core Django auth stack
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # Project apps
+    # Cloudinary (for media uploads)
+    "cloudinary",
+    "cloudinary_storage",
+
     "restaurant",
 ]
 
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-        # ✅ ADD THIS
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -60,12 +70,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "ravintola_sinet.wsgi.application"
 
+
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
+        conn_max_age=600,
+        ssl_require=not DEBUG,
+    )
 }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -77,7 +91,7 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Dhaka"
 USE_I18N = True
-from django.utils.translation import gettext_lazy as _
+
 
 LANGUAGES = [
     ("en", _("English")),
@@ -94,8 +108,13 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    }
+}
+
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -145,3 +164,22 @@ MENU_ITEM_ALLERGENS: list[tuple[str, str]] = [
 
 # Use the named route (safer than hardcoded path)
 LOGIN_URL = "restaurant:admin_login"
+
+
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
+
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "media"))
+
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+CLOUDINARY_STORAGE = {
+    "CLOUDINARY_URL": os.environ.get("CLOUDINARY_URL", "")
+}
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
