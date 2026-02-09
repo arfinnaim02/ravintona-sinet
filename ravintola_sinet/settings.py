@@ -104,14 +104,28 @@ LOCALE_PATHS = [
 
 USE_TZ = True
 
+# Static
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# Cloudinary config (media uploads)
+CLOUDINARY_URL = os.environ.get("CLOUDINARY_URL", "")
+
+if not DEBUG and not CLOUDINARY_URL:
+    raise RuntimeError("CLOUDINARY_URL is required in production")
+
+CLOUDINARY_STORAGE = {"CLOUDINARY_URL": CLOUDINARY_URL}
+
 STORAGES = {
+    # Media (admin uploads)
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    # Static
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    }
+    },
 }
 
 
