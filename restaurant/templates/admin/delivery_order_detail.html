@@ -305,7 +305,6 @@
       return;
     }
 
-    // CSS inside print window (ONLY receipt)
     const css = `
       <style>
         @page { margin: 6mm 4mm; }
@@ -327,12 +326,31 @@
     `;
 
     w.document.open();
-    w.document.write(`<!doctype html><html><head><meta charset="utf-8">${css}</head><body>${src.innerHTML}</body></html>`);
+    w.document.write(`<!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>POS Receipt</title>
+          ${css}
+        </head>
+        <body>${src.innerHTML}</body>
+      </html>`);
     w.document.close();
 
-    w.focus();
-    w.print();
-    w.close();
+    // ✅ KEY FIX: wait until popup finishes rendering
+    w.onload = function () {
+      w.focus();
+      w.print();
+
+      // ✅ close AFTER printing (reliable in production)
+      w.onafterprint = function () {
+        w.close();
+      };
+
+      // fallback: some browsers don't fire onafterprint consistently
+      setTimeout(() => { try { w.close(); } catch(e) {} }, 1500);
+    };
   }
 </script>
+
 {% endblock %}
