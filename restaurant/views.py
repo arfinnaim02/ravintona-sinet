@@ -38,6 +38,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
+from django.db.models.deletion import ProtectedError
+
 
 from .forms import (
     AdminLoginForm,
@@ -262,15 +264,30 @@ def edit_menu_item(request: HttpRequest, pk: int) -> HttpResponse:
     return render(request, "admin/edit_item.html", {"form": form, "item": item})
 
 
-@login_required
-def delete_menu_item(request: HttpRequest, pk: int) -> HttpResponse:
-    item = get_object_or_404(MenuItem, pk=pk)
-    if request.method == "POST":
-        item.delete()
-        messages.success(request, "Menu item deleted.")
-        return redirect(reverse("restaurant:dashboard"))
-    return render(request, "admin/delete_item.html", {"item": item})
 
+
+@login_required
+def delete_menu_item(request, pk):
+    item = get_object_or_404(MenuItem, pk=pk)
+
+    if request.method == "POST":
+        try:
+            item.delete()
+            messages.success(request, "Menu item deleted.")
+            return redirect(reverse("restaurant:dashboard"))
+
+        except ProtectedError:
+            # cannot delete because used in ReservationItem
+            item.status = MenuItem.STATUS_HIDDEN
+            item.save(update_fields=["status"])
+            messages.warning(
+                request,
+                "This item cannot be deleted because it was used in reservations/orders. "
+                "It has been hidden instead."
+            )
+            return redirect(reverse("restaurant:dashboard"))
+
+    return render(request, "admin/delete_item.html", {"item": item})
 
 @login_required
 def categories_list(request: HttpRequest) -> HttpResponse:
