@@ -191,7 +191,7 @@ def admin_login(request: HttpRequest) -> HttpResponse:
     else:
         form = AdminLoginForm(request)
 
-    return render(request, "admin/login.html", {"form": form})
+    return render(request, "admin/custom_login.html", {"form": form})
 
 
 @login_required
