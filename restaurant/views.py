@@ -1131,10 +1131,10 @@ def delivery_place_order(request: HttpRequest) -> HttpResponse:
         return redirect("restaurant:delivery_order")
 
     # customer details from session (set in checkout POST)
-    name = (request.session.get("customer_name") or "").strip()
-    phone = (request.session.get("customer_phone") or "").strip()
-    note = (request.session.get("customer_note") or "").strip()
-    extra = (request.session.get("customer_address_extra") or "").strip()
+        name = (request.POST.get("name") or "").strip() or (request.session.get("customer_name") or "").strip()
+        phone = (request.POST.get("phone") or "").strip() or (request.session.get("customer_phone") or "").strip()
+        note = (request.POST.get("note") or "").strip() or (request.session.get("customer_note") or "").strip()
+        extra = (request.POST.get("address_extra") or "").strip() or (request.session.get("customer_address_extra") or "").strip()
 
     if not name or not phone:
         messages.error(request, "Please enter your name and phone number.")

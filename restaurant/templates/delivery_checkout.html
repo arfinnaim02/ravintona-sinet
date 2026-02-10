@@ -95,7 +95,7 @@
 
 
             <!-- Form -->
-            <form method="post" class="space-y-4 sm:space-y-5">
+            <form method="post" action="{% url 'restaurant:delivery_place_order' %}" class="space-y-4 sm:space-y-5">
 
               {% csrf_token %}
 
@@ -137,10 +137,11 @@
               <div class="frame p-4 sm:p-5 bg-white/25">
 
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <button type="submit"
+                 <button type="submit"
                           class="btn-gold px-7 py-3 rounded-sm font-semibold text-dark w-full sm:w-auto">
-                    {% trans "Save details →" %}
+                    {% trans "Place order → (Pay on delivery)" %}
                   </button>
+
 
                   <div class="text-[11px] text-dark/55">
                     {% trans "We’ll keep these details for this session." %}
@@ -148,21 +149,6 @@
                 </div>
               </div>
             </form>
-
-            <!-- Place order -->
-            <div class="mt-4 sm:mt-6 frame p-4 sm:p-5 bg-white/25">
-
-              <form method="post" action="{% url 'restaurant:delivery_place_order' %}">
-                {% csrf_token %}
-                <button type="submit"
-                        class="btn-wood text-white px-7 py-3 rounded-sm font-semibold waund w-full">
-                  {% trans "Place order → (Pay on delivery)" %}
-                </button>
-                <div class="mt-2 text-[11px] text-dark/55">
-                  {% trans "After placing the order, we’ll contact you shortly to confirm." %}
-                </div>
-              </form>
-            </div>
 
           </div>
 
