@@ -129,21 +129,24 @@
           </span>
         </div>
 
-        <div class="flex items-center gap-4 text-sm">
-          <span class="hidden sm:inline text-beige/80">
-            Welcome, <span class="font-semibold text-white">{{ request.user.username }}</span>
-          </span>
+        {% if request.user.is_authenticated %}
+          <div class="flex items-center gap-4 text-sm">
+            <span class="hidden sm:inline text-beige/80">
+              Welcome, <span class="font-semibold text-white">{{ request.user.username }}</span>
+            </span>
 
-          <a href="{% url 'restaurant:home' %}"
-             class="text-beige/80 hover:text-gold underline underline-offset-4">
-            Open Website
-          </a>
+            <a href="{% url 'restaurant:home' %}"
+              class="text-beige/80 hover:text-gold underline underline-offset-4">
+              Open Website
+            </a>
 
-          <a href="{% url 'restaurant:admin_logout' %}"
-             class="text-beige/80 hover:text-gold underline underline-offset-4">
-            Logout
-          </a>
-        </div>
+            <a href="{% url 'restaurant:admin_logout' %}"
+              class="text-beige/80 hover:text-gold underline underline-offset-4">
+              Logout
+            </a>
+          </div>
+        {% endif %}
+
       </div>
     </div>
 
@@ -218,9 +221,12 @@
 
               <div class="mt-5 hairline mx-3"></div>
 
-              <a href="{% url 'restaurant:admin_logout' %}" class="side-link mt-3">
-                Logout
-              </a>
+              {% if request.user.is_authenticated %}
+                <a href="{% url 'restaurant:admin_logout' %}" class="side-link mt-3">
+                  Logout
+                </a>
+              {% endif %}
+
             </nav>
 
             <div class="px-6 py-4 text-xs text-beige/70 border-t border-white/10">
