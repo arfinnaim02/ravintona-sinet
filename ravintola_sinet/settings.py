@@ -139,7 +139,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # --- Custom restaurant constants ---
 RESTAURANT_NAME = "Ravintola Sinet"
-RESTAURANT_ADDRESS = "Joensuu, Finland"
+RESTAURANT_ADDRESS = "Kauppakatu 28, ISO MYY 2nd Floor, Opposite of Tapio Cinema Center,Joensuu, 80100."
 RESTAURANT_PHONE = "+358 123 4567"
 RESTAURANT_EMAIL = "info@sinet.fi"
 RESTAURANT_OPENING_HOURS = "Mon–Sun 10:00–22:00"
