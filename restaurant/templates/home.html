@@ -249,12 +249,14 @@
       <div class="absolute -inset-2 bg-gold/10 blur-xl rounded-2xl"></div>
 
       <div class="relative frame overflow-hidden bg-white/30">
-        <div class="grid grid-cols-1 lg:grid-cols-3">
+        <div class="grid grid-cols-1 lg:grid-cols-3 items-stretch">
+
 
 <!-- MAP AREA (FULL HEIGHT + PREMIUM) -->
 <div class="lg:col-span-2 relative bg-white/20">
   <!-- Make a fixed premium height for the whole map panel -->
-  <div class="relative h-[300px] md:h-[360px] lg:h-[380px]">
+  <div class="relative h-full min-h-[380px]">
+
 
     <!-- Subtle vignette overlay -->
     <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/25 via-transparent to-transparent z-10"></div>
@@ -280,7 +282,7 @@
 
 
           <!-- INFO PANEL -->
-          <div class="p-6 md:p-7 flex flex-col justify-center bg-paper">
+          <div class="p-6 md:p-7 flex flex-col justify-center bg-paper h-full">
             <div class="brand-serif text-2xl font-semibold mb-2">
               {% trans "Visit Ravintola Sinet" %}
             </div>
@@ -306,35 +308,18 @@
               </a>
             </div>
 
-            <div class="flex flex-wrap gap-3">
-              <a
-                href="https://maps.app.goo.gl/GFEB3mypqX71faYQA"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="btn-gold px-6 py-3 rounded-sm font-semibold w-fit"
-              >
-                {% trans "Get Directions →" %}
-              </a>
+                <div class="mt-6">
+                  <a
+                    href="https://maps.app.goo.gl/GFEB3mypqX71faYQA"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn-gold px-6 py-3 rounded-sm font-semibold inline-block"
+                  >
+                    {% trans "Get Directions →" %}
+                  </a>
+                </div>
 
-<a
-  href="{% url 'restaurant:reservation' %}"
-  class="btn-wood text-white px-6 py-3 rounded-sm font-semibold w-fit"
->
-  {% trans "Book for Dine In" %}
-</a>
-
-<a
-  href="{% url 'restaurant:delivery_location' %}"
-  class="btn-wood text-white px-6 py-3 rounded-sm font-semibold w-fit"
->
-  {% trans "Order Online" %}
-</a>
-
-            </div>
-
-            <div class="mt-6 text-xs text-dark/55 leading-relaxed">
-            {% trans "Tip: Tap the map to zoom, or use “Get Directions” for the fastest route." %}
-            </div>
+      
           </div>
 
         </div>
