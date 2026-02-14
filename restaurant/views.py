@@ -76,14 +76,15 @@ from django.utils.translation import gettext as _
 # -------------------------
 
 def home(request: HttpRequest) -> HttpResponse:
-    """Render the home page."""
     popular_items = (
         MenuItem.objects.filter(status=MenuItem.STATUS_ACTIVE)
         .filter(tags__icontains="popular")
         .select_related("category")
         .order_by("-created_at")[:4]
     )
-    categories = Category.objects.filter(is_active=True).order_by("order", "name")
+
+    categories = Category.objects.filter(is_active=True)
+
     hero_banners = HeroBanner.objects.filter(is_active=True)
 
     return render(
