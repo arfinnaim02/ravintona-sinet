@@ -128,21 +128,54 @@
             {% trans "Order Online" %}
           </a>
 
-          <form action="{% url 'set_language' %}" method="post" class="ml-4">
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            <select name="language"
-                    onchange="this.form.submit()"
-                    class="bg-transparent border border-white/30 text-beige text-xs px-2 py-1">
-              {% get_current_language as CURRENT_LANGUAGE %}
-              {% get_available_languages as LANGUAGES %}
-              {% for lang_code, lang_name in LANGUAGES %}
-                <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
-                  {{ lang_name }}
-                </option>
-              {% endfor %}
-            </select>
-          </form>
+          {% get_current_language as CURRENT_LANGUAGE %}
+
+          <div class="ml-4 flex items-center gap-3">
+
+            <!-- EN label -->
+            <span class="{% if CURRENT_LANGUAGE == 'en' %}text-gold{% else %}text-beige/60{% endif %} text-xs font-semibold">
+              EN
+            </span>
+
+            <!-- Toggle -->
+            <form action="{% url 'set_language' %}" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <input type="hidden" name="language"
+                    value="{% if CURRENT_LANGUAGE == 'en' %}fi{% else %}en{% endif %}">
+
+              <button type="submit"
+                class="relative w-16 h-8 rounded-full overflow-hidden shadow-inner transition">
+
+                {% if CURRENT_LANGUAGE == 'en' %}
+                  <!-- UK Flag -->
+                  <img src="https://flagcdn.com/w80/gb.png"
+                      class="absolute inset-0 w-full h-full object-cover" />
+                {% else %}
+                  <!-- Finland Flag -->
+                  <img src="https://flagcdn.com/w80/fi.png"
+                      class="absolute inset-0 w-full h-full object-cover" />
+                {% endif %}
+
+                <!-- Slider -->
+                <span class="absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300
+                  {% if CURRENT_LANGUAGE == 'en' %}
+                    left-1
+                  {% else %}
+                    right-1
+                  {% endif %}">
+                </span>
+
+              </button>
+            </form>
+
+            <!-- FI label -->
+            <span class="{% if CURRENT_LANGUAGE == 'fi' %}text-gold{% else %}text-beige/60{% endif %} text-xs font-semibold">
+              FI
+            </span>
+
+          </div>
+
         </nav>
 
         <!-- MOBILE MENU BUTTON (NEW) -->
@@ -191,21 +224,48 @@
           </a>
 
           <!-- Language switcher (mobile) -->
-          <form action="{% url 'set_language' %}" method="post" class="pt-2">
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            <select name="language"
-                    onchange="this.form.submit()"
-                    class="w-full bg-transparent border border-white/30 text-beige text-xs px-2 py-2 rounded-sm">
-              {% get_current_language as CURRENT_LANGUAGE %}
-              {% get_available_languages as LANGUAGES %}
-              {% for lang_code, lang_name in LANGUAGES %}
-                <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
-                  {{ lang_name }}
-                </option>
-              {% endfor %}
-            </select>
-          </form>
+          {% get_current_language as CURRENT_LANGUAGE %}
+
+          <div class="flex items-center justify-center gap-4 pt-3">
+
+            <span class="{% if CURRENT_LANGUAGE == 'en' %}text-gold{% else %}text-beige/60{% endif %} text-sm font-semibold">
+              EN
+            </span>
+
+            <form action="{% url 'set_language' %}" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <input type="hidden" name="language"
+                    value="{% if CURRENT_LANGUAGE == 'en' %}fi{% else %}en{% endif %}">
+
+              <button type="submit"
+                class="relative w-14 h-7 rounded-full overflow-hidden shadow-inner">
+
+                {% if CURRENT_LANGUAGE == 'en' %}
+                  <img src="https://flagcdn.com/w80/gb.png"
+                      class="absolute inset-0 w-full h-full object-cover" />
+                {% else %}
+                  <img src="https://flagcdn.com/w80/fi.png"
+                      class="absolute inset-0 w-full h-full object-cover" />
+                {% endif %}
+
+                <span class="absolute top-1 w-5 h-5 bg-white rounded-full shadow-md
+                  {% if CURRENT_LANGUAGE == 'en' %}
+                    left-1
+                  {% else %}
+                    right-1
+                  {% endif %}">
+                </span>
+
+              </button>
+            </form>
+
+            <span class="{% if CURRENT_LANGUAGE == 'fi' %}text-gold{% else %}text-beige/60{% endif %} text-sm font-semibold">
+              FI
+            </span>
+
+          </div>
+
         </div>
       </div>
     </header>
