@@ -129,11 +129,12 @@
           </a>
 
           {% get_current_language as CURRENT_LANGUAGE %}
+          {% with CURRENT_LANGUAGE|slice:":2" as LANG %}
 
           <div class="ml-4 flex items-center gap-3">
 
             <!-- EN label -->
-            <span class="{% if CURRENT_LANGUAGE == 'en' %}text-gold{% else %}text-beige/60{% endif %} text-xs font-semibold">
+            <span class="{% if LANG == 'en' %}text-gold{% else %}text-beige/60{% endif %} text-xs font-semibold">
               EN
             </span>
 
@@ -142,24 +143,21 @@
               {% csrf_token %}
               <input type="hidden" name="next" value="{{ request.get_full_path }}">
               <input type="hidden" name="language"
-                    value="{% if CURRENT_LANGUAGE == 'en' %}fi{% else %}en{% endif %}">
+                    value="{% if LANG == 'en' %}fi{% else %}en{% endif %}">
 
               <button type="submit"
                 class="relative w-16 h-8 rounded-full overflow-hidden shadow-inner transition">
 
-                {% if CURRENT_LANGUAGE == 'en' %}
-                  <!-- UK Flag -->
+                {% if LANG == 'en' %}
                   <img src="https://flagcdn.com/w80/gb.png"
                       class="absolute inset-0 w-full h-full object-cover" />
                 {% else %}
-                  <!-- Finland Flag -->
                   <img src="https://flagcdn.com/w80/fi.png"
                       class="absolute inset-0 w-full h-full object-cover" />
                 {% endif %}
 
-                <!-- Slider -->
                 <span class="absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300
-                  {% if CURRENT_LANGUAGE == 'en' %}
+                  {% if LANG == 'en' %}
                     left-1
                   {% else %}
                     right-1
@@ -170,11 +168,13 @@
             </form>
 
             <!-- FI label -->
-            <span class="{% if CURRENT_LANGUAGE == 'fi' %}text-gold{% else %}text-beige/60{% endif %} text-xs font-semibold">
+            <span class="{% if LANG == 'fi' %}text-gold{% else %}text-beige/60{% endif %} text-xs font-semibold">
               FI
             </span>
 
           </div>
+
+          {% endwith %}
 
         </nav>
 
@@ -223,12 +223,12 @@
             {% trans "Order Online" %}
           </a>
 
-          <!-- Language switcher (mobile) -->
           {% get_current_language as CURRENT_LANGUAGE %}
+          {% with CURRENT_LANGUAGE|slice:":2" as LANG %}
 
           <div class="flex items-center justify-center gap-4 pt-3">
 
-            <span class="{% if CURRENT_LANGUAGE == 'en' %}text-gold{% else %}text-beige/60{% endif %} text-sm font-semibold">
+            <span class="{% if LANG == 'en' %}text-gold{% else %}text-beige/60{% endif %} text-sm font-semibold">
               EN
             </span>
 
@@ -236,12 +236,12 @@
               {% csrf_token %}
               <input type="hidden" name="next" value="{{ request.get_full_path }}">
               <input type="hidden" name="language"
-                    value="{% if CURRENT_LANGUAGE == 'en' %}fi{% else %}en{% endif %}">
+                    value="{% if LANG == 'en' %}fi{% else %}en{% endif %}">
 
               <button type="submit"
                 class="relative w-14 h-7 rounded-full overflow-hidden shadow-inner">
 
-                {% if CURRENT_LANGUAGE == 'en' %}
+                {% if LANG == 'en' %}
                   <img src="https://flagcdn.com/w80/gb.png"
                       class="absolute inset-0 w-full h-full object-cover" />
                 {% else %}
@@ -250,7 +250,7 @@
                 {% endif %}
 
                 <span class="absolute top-1 w-5 h-5 bg-white rounded-full shadow-md
-                  {% if CURRENT_LANGUAGE == 'en' %}
+                  {% if LANG == 'en' %}
                     left-1
                   {% else %}
                     right-1
@@ -260,11 +260,13 @@
               </button>
             </form>
 
-            <span class="{% if CURRENT_LANGUAGE == 'fi' %}text-gold{% else %}text-beige/60{% endif %} text-sm font-semibold">
+            <span class="{% if LANG == 'fi' %}text-gold{% else %}text-beige/60{% endif %} text-sm font-semibold">
               FI
             </span>
 
           </div>
+
+          {% endwith %}
 
         </div>
       </div>
