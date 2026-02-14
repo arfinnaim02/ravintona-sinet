@@ -1,0 +1,18 @@
+{% extends "admin/base.html" %}
+{% block title %}Banner{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold mb-6">
+  {% if banner %}Edit{% else %}Add{% endif %} Hero Banner
+</h1>
+
+<form method="post" enctype="multipart/form-data" class="space-y-6">
+  {% csrf_token %}
+  {{ form.as_p }}
+
+  <button type="submit"
+          class="btn-gold px-6 py-3 rounded-sm font-semibold text-dark">
+    Save
+  </button>
+</form>
+{% endblock %}

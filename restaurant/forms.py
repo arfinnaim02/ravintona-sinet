@@ -12,6 +12,7 @@ Tags/allergens are stored as comma-separated strings in DB but displayed as chec
 from __future__ import annotations
 
 from typing import Any
+from .models import HeroBanner
 
 from django import forms
 from django.conf import settings
@@ -327,3 +328,20 @@ class DeliveryCouponForm(forms.ModelForm):
         if not start_at:
             cleaned["start_at"] = timezone.now()
         return cleaned
+
+
+class HeroBannerForm(forms.ModelForm):
+    class Meta:
+        model = HeroBanner
+        fields = ["image", "is_active", "order"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        base = (
+            "w-full px-4 py-3 bg-white/50 border border-dark/20 "
+            "focus:border-gold focus:outline-none rounded-sm"
+        )
+
+        self.fields["order"].widget.attrs.update({"class": base})
+        self.fields["is_active"].widget.attrs.update({"class": "h-4 w-4"})

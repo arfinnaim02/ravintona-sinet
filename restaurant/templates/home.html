@@ -7,8 +7,20 @@
 
 <!-- HERO -->
 <section class="relative">
-  <div class="relative h-[520px] md:h-[640px] bg-center bg-cover"
-       style="background-image:url('{% static 'images/hero_pizza.jpg' %}');">
+  <div class="relative h-[520px] md:h-[640px] overflow-hidden">
+  
+  {% for banner in hero_banners %}
+    <div
+      class="hero-slide absolute inset-0 bg-center bg-cover transition-opacity duration-1000 opacity-0"
+      style="background-image:url('{{ banner.image.url }}');">
+    </div>
+  {% empty %}
+    <div
+      class="absolute inset-0 bg-center bg-cover"
+      style="background-image:url('{% static 'images/hero_pizza.jpg' %}');">
+    </div>
+  {% endfor %}
+
     <div class="absolute inset-0 bg-black/35"></div>
 
     <div class="relative h-full flex items-start justify-center">
@@ -566,7 +578,23 @@
     if (!url) return;
     loadItem(url);
   });
+
+  // HERO SLIDESHOW
+  const slides = document.querySelectorAll(".hero-slide");
+  if (slides.length) {
+    let index = 0;
+    slides[0].classList.remove("opacity-0");
+
+    setInterval(() => {
+      slides[index].classList.add("opacity-0");
+      index = (index + 1) % slides.length;
+      slides[index].classList.remove("opacity-0");
+    }, 5000);
+  }
+
+  // refresh cart badge on load
   refreshCartBadge();
+
 })();
 </script>
 

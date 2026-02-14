@@ -57,7 +57,10 @@ from .models import (
     MenuItem,
     Reservation,
     ReservationItem,
+    HeroBanner,   # ← ADD THIS
 )
+from .forms import HeroBannerForm
+
 from .utils import haversine_km, delivery_fee_for_distance
 from .forms import DeliveryCouponForm
 
@@ -81,7 +84,18 @@ def home(request: HttpRequest) -> HttpResponse:
         .order_by("-created_at")[:4]
     )
     categories = Category.objects.filter(is_active=True).order_by("order", "name")
-    return render(request, "home.html", {"popular_items": popular_items, "categories": categories})
+    hero_banners = HeroBanner.objects.filter(is_active=True)
+
+    return render(
+        request,
+        "home.html",
+        {
+            "popular_items": popular_items,
+            "categories": categories,
+            "hero_banners": hero_banners,
+        },
+    )
+
 
 
 def menu(request: HttpRequest) -> HttpResponse:

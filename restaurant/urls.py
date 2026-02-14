@@ -50,6 +50,13 @@ urlpatterns = [
     path("admin/delivery-coupons/<int:pk>/edit/", views.delivery_coupon_edit, name="delivery_coupon_edit"),
     path("admin/delivery-coupons/<int:pk>/delete/", views.delivery_coupon_delete, name="delivery_coupon_delete"),
 
+    # Hero banners
+    path("admin/hero-banners/", views.hero_banners_list, name="hero_banners_list"),
+    path("admin/hero-banners/add/", views.hero_banner_add, name="hero_banner_add"),
+    path("admin/hero-banners/<int:pk>/edit/", views.hero_banner_edit, name="hero_banner_edit"),
+    path("admin/hero-banners/<int:pk>/delete/", views.hero_banner_delete, name="hero_banner_delete"),
+
+
     # Delivery
     path("delivery/location/", views.delivery_location, name="delivery_location"),
     path("delivery/calc/", views.delivery_calc, name="delivery_calc"),

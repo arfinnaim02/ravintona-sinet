@@ -1,0 +1,13 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="text-xl font-semibold mb-4">Delete Banner</h1>
+
+<p>Are you sure you want to delete this banner?</p>
+
+<form method="post" class="mt-6">
+  {% csrf_token %}
+  <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded">
+    Yes, Delete
+  </button>
+</form>
+{% endblock %}

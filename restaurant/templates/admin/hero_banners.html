@@ -1,0 +1,47 @@
+{% extends "admin/base.html" %}
+{% block title %}Hero Banners{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-semibold">Hero Banners</h1>
+  <a href="{% url 'restaurant:hero_banner_add' %}"
+     class="btn-gold px-4 py-2 rounded-sm font-semibold text-dark">
+     Add Banner
+  </a>
+</div>
+
+<div class="bg-white border border-lightbrown rounded shadow-sm overflow-hidden">
+  <table class="min-w-full text-sm">
+    <thead class="bg-dark text-beige">
+      <tr>
+        <th class="px-4 py-3 text-left">Preview</th>
+        <th class="px-4 py-3 text-left">Active</th>
+        <th class="px-4 py-3 text-left">Order</th>
+        <th class="px-4 py-3 text-left">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for banner in banners %}
+      <tr class="border-b border-lightbrown hover:bg-beige/40">
+        <td class="px-4 py-3">
+          <img src="{{ banner.image.url }}" class="h-16 w-28 object-cover rounded">
+        </td>
+        <td class="px-4 py-3">
+          {{ banner.is_active }}
+        </td>
+        <td class="px-4 py-3">{{ banner.order }}</td>
+        <td class="px-4 py-3">
+          <a href="{% url 'restaurant:hero_banner_edit' banner.id %}" class="text-gold font-semibold hover:underline">Edit</a>
+          |
+          <a href="{% url 'restaurant:hero_banner_delete' banner.id %}" class="text-red-600 hover:underline">Delete</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" class="px-4 py-4 text-dark/70">No banners yet.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
