@@ -47,7 +47,10 @@ from .forms import (
     ContactForm,
     MenuItemForm,
     ReservationForm,
+    DeliveryCouponForm,
+    HeroBannerForm,
 )
+
 from .models import (
     Category,
     DeliveryCoupon,
@@ -59,17 +62,14 @@ from .models import (
     ReservationItem,
     HeroBanner,   # ← ADD THIS
 )
-from .forms import HeroBannerForm
+
 
 from .utils import haversine_km, delivery_fee_for_distance
-from .forms import DeliveryCouponForm
 
 from django.utils.translation import gettext as _
 
-from django.http import JsonResponse
-from django.shortcuts import redirect
 
-from django.views.decorators.http import require_POST
+
 
 # -------------------------
 # Public pages
@@ -1373,3 +1373,51 @@ def delivery_coupon_delete(request: HttpRequest, pk: int) -> HttpResponse:
         return redirect("restaurant:delivery_coupons_list")
 
     return render(request, "admin/delivery_coupon_delete.html", {"obj": obj})
+
+
+@login_required
+def hero_banners_list(request: HttpRequest) -> HttpResponse:
+    banners = HeroBanner.objects.all()
+    return render(request, "admin/hero_banners.html", {"banners": banners})
+
+
+@login_required
+def hero_banner_add(request: HttpRequest) -> HttpResponse:
+    if request.method == "POST":
+        form = HeroBannerForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Hero banner added.")
+            return redirect("restaurant:hero_banners_list")
+    else:
+        form = HeroBannerForm()
+
+    return render(request, "admin/hero_banner_form.html", {"form": form})
+
+
+@login_required
+def hero_banner_edit(request: HttpRequest, pk: int) -> HttpResponse:
+    banner = get_object_or_404(HeroBanner, pk=pk)
+
+    if request.method == "POST":
+        form = HeroBannerForm(request.POST, request.FILES, instance=banner)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Hero banner updated.")
+            return redirect("restaurant:hero_banners_list")
+    else:
+        form = HeroBannerForm(instance=banner)
+
+    return render(request, "admin/hero_banner_form.html", {"form": form, "banner": banner})
+
+
+@login_required
+def hero_banner_delete(request: HttpRequest, pk: int) -> HttpResponse:
+    banner = get_object_or_404(HeroBanner, pk=pk)
+
+    if request.method == "POST":
+        banner.delete()
+        messages.success(request, "Hero banner deleted.")
+        return redirect("restaurant:hero_banners_list")
+
+    return render(request, "admin/hero_banner_delete.html", {"banner": banner})
