@@ -1,11 +1,11 @@
 """URL definitions for the restaurant application."""
 
-from django.urls import path
+from django.urls import path, include
 from . import views
 from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
-from django.urls import include, path
+
 app_name = "restaurant"
 
 urlpatterns = [
