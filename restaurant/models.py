@@ -17,6 +17,7 @@ from decimal import Decimal
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from cloudinary.models import CloudinaryField
 import math
 class Category(models.Model):
     """A grouping for menu items.
@@ -419,8 +420,21 @@ class DeliveryCoupon(models.Model):
 # Hero Banner (Homepage Slideshow)
 # -------------------------
 
+
+
+
 class HeroBanner(models.Model):
-    image = models.ImageField(upload_to="hero_banners/")
+    image = CloudinaryField("image")
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "-created_at"]
+
+    def __str__(self):
+        return f"Hero Banner #{self.id}"
+
     is_active = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
