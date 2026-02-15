@@ -1052,7 +1052,7 @@ def delivery_checkout(request: HttpRequest) -> HttpResponse:
         "phone": request.session.get("customer_phone", ""),
         "note": request.session.get("customer_note", ""),
         "address_extra": request.session.get("customer_address_extra", ""),
-        "pay_method": "Pay on delivery",
+        "pay_method": request.session.get("payment_method", "cash"),
         "coupon_code": request.session.get("delivery_coupon_code", ""),
 
         # ✅ popup
@@ -1150,6 +1150,10 @@ def delivery_place_order(request: HttpRequest) -> HttpResponse:
     phone = (request.POST.get("phone") or "").strip() or (request.session.get("customer_phone") or "").strip()
     note = (request.POST.get("note") or "").strip() or (request.session.get("customer_note") or "").strip()
     extra = (request.POST.get("address_extra") or "").strip() or (request.session.get("customer_address_extra") or "").strip()
+    payment_method = (request.POST.get("payment_method") or "cash").strip()
+
+    if payment_method not in ["cash", "card"]:
+        payment_method = "cash"
 
     if not name or not phone:
         messages.error(request, "Please enter your name and phone number.")
@@ -1191,6 +1195,8 @@ def delivery_place_order(request: HttpRequest) -> HttpResponse:
         promo_min_subtotal=Decimal(str(promo.get("min_subtotal") or 0)),
         coupon_code=coupon_code,
         coupon_discount=coupon_discount,
+        payment_method=payment_method,
+
     )
 
     # snapshot items (NO menu_item FK in model)

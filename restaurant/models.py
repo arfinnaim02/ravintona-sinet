@@ -308,6 +308,21 @@ class DeliveryOrder(models.Model):
     customer_name = models.CharField(max_length=120)
     customer_phone = models.CharField(max_length=40)
     customer_note = models.TextField(blank=True)
+    
+    PAYMENT_CASH = "cash"
+    PAYMENT_CARD = "card"
+
+    PAYMENT_METHOD_CHOICES = [
+        (PAYMENT_CASH, "Cash on Delivery"),
+        (PAYMENT_CARD, "Card on Delivery (POS)"),
+    ]
+
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHOD_CHOICES,
+        default=PAYMENT_CASH,
+    )
+
 
     # location
     address_label = models.CharField(max_length=255, blank=True)

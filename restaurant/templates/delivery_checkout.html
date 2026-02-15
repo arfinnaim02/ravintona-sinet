@@ -133,6 +133,37 @@
                             class="w-full px-4 py-3 rounded-sm border border-dark/15 bg-white/85 outline-none focus:border-gold/60 sm:rows-4">{{ note }}</textarea>
 
               </div>
+              <!-- Payment Method -->
+              <div>
+                <label class="block text-xs uppercase tracking-wider text-dark/60 mb-3">
+                  {% trans "Payment Method" %}
+                </label>
+
+                <div class="space-y-3">
+
+                  <label class="flex items-center gap-3 p-3 rounded-sm border border-dark/15 bg-white/80 cursor-pointer">
+                    <input type="radio" name="payment_method" value="cash"
+                          class="h-4 w-4 text-gold focus:ring-gold"
+                          {% if pay_method == "Cash on Delivery" %}checked{% endif %}>
+                    <span class="text-sm font-medium text-dark">
+                      {% trans "Cash on Delivery" %}
+                    </span>
+                  </label>
+
+                  <label class="flex items-center gap-3 p-3 rounded-sm border border-dark/15 bg-white/80 cursor-pointer">
+                    <input type="radio" name="payment_method" value="card"
+                          class="h-4 w-4 text-gold focus:ring-gold">
+                    <span class="text-sm font-medium text-dark">
+                      {% trans "Card on Delivery (POS machine)" %}
+                    </span>
+                  </label>
+
+                </div>
+
+                <p class="text-xs text-dark/60 mt-2">
+                  {% trans "If you choose card, our rider will bring a POS machine for payment." %}
+                </p>
+              </div>
 
               <div class="frame p-4 sm:p-5 bg-white/25">
 
@@ -328,7 +359,14 @@
 
                 <div class="p-4 rounded-sm bg-white/60 border border-dark/10">
                   <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Payment" %}</div>
-                  <div class="mt-1 font-semibold text-dark">{% trans "Pay on delivery" %}</div>
+                  <div class="mt-1 font-semibold text-dark">
+                    {% if order_obj.payment_method == "card" %}
+                      {% trans "Card on Delivery (POS)" %}
+                    {% else %}
+                      {% trans "Cash on Delivery" %}
+                    {% endif %}
+                  </div>
+
                 </div>
 
                 <div class="p-4 rounded-sm bg-white/60 border border-dark/10">

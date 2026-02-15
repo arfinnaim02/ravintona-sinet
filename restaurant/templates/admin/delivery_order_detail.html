@@ -208,9 +208,17 @@
             </div>
           </div>
 
-          <div class="mt-4 text-[11px] text-beige/70">
-            Payment: Pay on delivery
+         <div class="mt-4 text-[11px] text-beige/70">
+            Payment:
+            <span class="font-semibold text-white">
+              {% if o.payment_method == "card" %}
+                Card on Delivery (POS)
+              {% else %}
+                Cash on Delivery
+              {% endif %}
+            </span>
           </div>
+
         </div>
 
         <!-- Status -->
