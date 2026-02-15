@@ -74,8 +74,8 @@ WSGI_APPLICATION = "ravintola_sinet.wsgi.application"
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
-if not DEBUG and not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL is required in production")
+#if not DEBUG and not DATABASE_URL:
+    #raise RuntimeError("DATABASE_URL is required in production")
 
 DATABASES = {
     "default": dj_database_url.config(
