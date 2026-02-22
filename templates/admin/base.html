@@ -164,80 +164,66 @@
               </div>
             </div>
 
-            <nav class="p-3 text-sm">
+           <nav class="p-4 text-sm space-y-1">
 
-              <a href="{% url 'restaurant:dashboard' %}"
-                 class="side-link {% if request.path|slice:':16' == '/admin/dashboard' %}side-link-active{% endif %}">
-                Dashboard
-              </a>
+  <!-- Dashboard -->
+  <a href="{% url 'restaurant:dashboard' %}"
+     class="side-link {% if '/admin/dashboard' in request.path %}side-link-active{% endif %}">
+    Dashboard
+  </a>
 
-              <div class="mt-4 mb-2 px-3 text-[11px] uppercase tracking-wider text-beige/60">
-                Operations
-              </div>
-              <a href="{% url 'restaurant:delivery_coupons_list' %}"
-                class="side-link {% if '/admin/delivery-coupons' in request.path %}side-link-active{% endif %}">
-                Manage Coupons
-              </a>
+  <div class="mt-4 mb-2 px-3 text-[11px] uppercase tracking-wider text-beige/60">
+    Operations
+  </div>
 
-              <a href="{% url 'restaurant:delivery_coupon_add' %}"
-                class="side-link {% if '/admin/delivery-coupons/add' in request.path %}side-link-active{% endif %}">
-                Add Coupon
-              </a>
+  <a href="{% url 'restaurant:delivery_coupons_list' %}"
+     class="side-link {% if '/admin/delivery-coupons' in request.path %}side-link-active{% endif %}">
+    Manage Coupons
+  </a>
 
-              <a href="{% url 'restaurant:reservations_list' %}"
-                 class="side-link {% if request.path|slice:':20' == '/admin/reservations' %}side-link-active{% endif %}">
-                Manage Reservations
-              </a>
+  <a href="{% url 'restaurant:reservations_list' %}"
+     class="side-link {% if '/admin/reservations' in request.path %}side-link-active{% endif %}">
+    Manage Reservations
+  </a>
 
-              {# ✅ Add this URL name in urls.py if not already: delivery_orders_list #}
-              <a href="{% url 'restaurant:delivery_orders_list' %}"
-                 class="side-link {% if '/admin/delivery-orders' in request.path %}side-link-active{% endif %}">
-                Manage Online Orders
-              </a>
+  <a href="{% url 'restaurant:delivery_orders_list' %}"
+     class="side-link {% if '/admin/delivery-orders' in request.path %}side-link-active{% endif %}">
+    Manage Online Orders
+  </a>
 
-              <div class="mt-4 mb-2 px-3 text-[11px] uppercase tracking-wider text-beige/60">
-                Menu
-              </div>
+  <a href="{% url 'restaurant:hero_banners_list' %}"
+     class="side-link {% if '/admin/hero-banners' in request.path %}side-link-active{% endif %}">
+    Manage Hero Banners →
+  </a>
 
-              <a href="{% url 'restaurant:menu_items_list' %}"
-                 class="side-link {% if request.path|slice:':11' == '/admin/menu' %}side-link-active{% endif %}">
-                Manage Items
-              </a>
+  <a href="{% url 'restaurant:loyalty_settings' %}"
+     class="side-link {% if '/admin/loyalty' in request.path %}side-link-active{% endif %}">
+    Manage Loyalty Program
+  </a>
 
-              <a href="{% url 'restaurant:add_menu_item' %}"
-                 class="side-link {% if request.path|slice:':16' == '/admin/menu/add' %}side-link-active{% endif %}">
-                Add Menu Item
-              </a>
+  <div class="mt-4 mb-2 px-3 text-[11px] uppercase tracking-wider text-beige/60">
+    Menu
+  </div>
 
-              <a href="{% url 'restaurant:categories_list' %}"
-                 class="side-link {% if request.path|slice:':17' == '/admin/categories' %}side-link-active{% endif %}">
-                Manage Categories
-              </a>
+  <a href="{% url 'restaurant:menu_items_list' %}"
+     class="side-link {% if '/admin/menu' in request.path %}side-link-active{% endif %}">
+    Manage Items
+  </a>
 
-              <a href="{% url 'restaurant:add_category' %}"
-                 class="side-link {% if request.path|slice:':20' == '/admin/category/add' %}side-link-active{% endif %}">
-                Add Category
-              </a>
+  <a href="{% url 'restaurant:categories_list' %}"
+     class="side-link {% if '/admin/categories' in request.path %}side-link-active{% endif %}">
+    Manage Categories
+  </a>
 
-                <a href="{% url 'restaurant:hero_banners_list' %}"
-                class="inline-block px-6 py-3 bg-dark text-beige rounded hover:bg-gold hover:text-dark transition">
-                Manage Hero Banners →
-              </a>
-              <div>
-                  <a href="{% url 'restaurant:loyalty_settings' %}"
-                class="side-link {% if '/admin/loyalty' in request.path %}side-link-active{% endif %}">
-                Loyalty Program
-              </a>
-              </div>
-              <div class="mt-5 hairline mx-3"></div>
+  <div class="mt-5 hairline mx-3"></div>
 
-              {% if request.user.is_authenticated %}
-                <a href="{% url 'restaurant:admin_logout' %}" class="side-link mt-3">
-                  Logout
-                </a>
-              {% endif %}
+  {% if request.user.is_authenticated %}
+    <a href="{% url 'restaurant:admin_logout' %}" class="side-link mt-3">
+      Logout
+    </a>
+  {% endif %}
 
-            </nav>
+</nav>
 
             <div class="px-6 py-4 text-xs text-beige/70 border-t border-white/10">
               <div class="font-semibold text-white/90">{{ settings.RESTAURANT_OPENING_HOURS }}</div>
