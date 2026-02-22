@@ -216,20 +216,20 @@
               <div class="rounded-2xl bg-black/20 border border-white/10 p-4 sm:p-5 shadow-sm">
 
                 <!-- Loyalty (Monthly) -->
-              {% if loyalty.enabled %}
+              {% if loyalty and loyalty.enabled %}
                 <div class="p-4 rounded-2xl bg-black/20 border border-white/10 mb-4">
                   <div class="flex items-start justify-between gap-3">
                     <div class="text-xs uppercase tracking-wider text-beige/70">
                       {% trans "Loyalty reward" %}
                     </div>
                     <div class="text-[11px] text-beige/60">
-                      {{ loyalty.month }}
+                      {{ loyalty and loyalty.month }}
                     </div>
                   </div>
 
-                  {% if loyalty.earned %}
+                  {% if loyalty and loyalty.earned %}
                     <div class="mt-2 text-sm text-white font-semibold">
-                      {% blocktrans with p=loyalty.percent %}You unlocked {{ p }}% OFF this month!{% endblocktrans %}
+                      {% blocktrans with p=loyalty and loyalty.percent %}You unlocked {{ p }}% OFF this month!{% endblocktrans %}
                     </div>
                     <div class="mt-2 text-[11px] text-beige/75">
                       {% trans "Use this coupon on your next order:" %}
@@ -237,7 +237,7 @@
 
                     <div class="mt-2 flex items-center justify-between gap-3">
                       <div class="px-3 py-2 rounded-xl bg-white/10 border border-white/10 text-white font-semibold text-sm">
-                        <span id="loyaltyCouponCode">{{ loyalty.coupon_code }}</span>
+                        <span id="loyaltyCouponCode">{{ loyalty and loyalty.coupon_code }}</span>
                       </div>
 
                       {# This only helps user fill the existing coupon input (no backend changes) #}
@@ -253,16 +253,16 @@
                     </div>
                   {% else %}
                     <div class="mt-2 text-sm text-white font-semibold">
-                      {% blocktrans with p=loyalty.percent %}Complete {{ loyalty.target }} delivered orders this month to get {{ p }}% OFF{% endblocktrans %}
+                      {% blocktrans with p=loyalty and loyalty.percent %}Complete {{ loyalty and loyalty.target }} delivered orders this month to get {{ p }}% OFF{% endblocktrans %}
                     </div>
 
                     <div class="mt-2 text-[11px] text-beige/75">
-                      {% blocktrans with c=loyalty.count t=loyalty.target %}Progress: {{ c }}/{{ t }} delivered orders{% endblocktrans %}
+                      {% blocktrans with c=loyalty and loyalty.count t=loyalty and loyalty.target %}Progress: {{ c }}/{{ t }} delivered orders{% endblocktrans %}
                     </div>
 
                     <div class="mt-2 text-[11px] text-beige/70">
-                      {% if loyalty.remaining > 0 %}
-                        {% blocktrans with r=loyalty.remaining %}Order {{ r }} more delivered order(s) to unlock the reward.{% endblocktrans %}
+                      {% if loyalty and loyalty.remaining > 0 %}
+                        {% blocktrans with r=loyalty and loyalty.remaining %}Order {{ r }} more delivered order(s) to unlock the reward.{% endblocktrans %}
                       {% endif %}
                     </div>
                   {% endif %}
