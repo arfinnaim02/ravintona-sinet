@@ -259,7 +259,7 @@
 
     document.querySelectorAll("[data-menu-card]").forEach((card) => {
       const hasItemDiscount = card.getAttribute("data-has-item-discount") === "1";
-      const basePrice = Number(card.getAttribute("data-base-price") || "0");
+      const basePrice = parseFloat(String(card.getAttribute("data-base-price") || "0").replace(",", ".")) || 0;
 
       const priceWrap = card.querySelector("[data-price-wrap]");
       if (!priceWrap) return;
