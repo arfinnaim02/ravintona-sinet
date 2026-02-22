@@ -1,8 +1,9 @@
 {# templates/partials/_menu_card.html #}
+{% load l10n %}
 <div class="relative bg-white/85 backdrop-blur rounded-2xl border border-[#3e2723]/10 shadow-sm hover:shadow-md transition overflow-hidden ring-offset-2"
      data-menu-card
      data-item-id="{{ item.id }}"
-     data-base-price="{{ item.price }}"
+     data-base-price="{{ item.price|unlocalize }}"
      data-has-item-discount="{% if item.discount_price %}1{% else %}0{% endif %}">
 
   <div class="p-4 sm:p-5">
