@@ -221,7 +221,7 @@ if not DEBUG:
     SESSION_COOKIE_SAMESITE = "Lax"
     CSRF_COOKIE_SAMESITE = "Lax"
 
-GOOGLE_MAPS_API_KEY = "AIzaSyD8DlWe553JDP0mGVTFZ8hC1zUdDXPw0_g"
+GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY", "")
 
 # --- Telegram notifications ---
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
