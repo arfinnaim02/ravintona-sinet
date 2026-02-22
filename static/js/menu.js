@@ -874,21 +874,48 @@
     const ok = await ensureGoogleMaps();
     if (!ok) return;
 
-    requestAnimationFrame(() => {
-      destroyDlMap();
+    // ✅ wait until dlMap is реально in DOM + has size (Render needs this)
+function waitForDlMapReady(tries = 0) {
+  const el = document.getElementById("dlMap");
 
-      if (typeof window.initDeliveryLocationModal !== "function") {
-        console.error(_("initDeliveryLocationModal missing."));
-        alert(_("Map init missing. Check console."));
-        return;
-      }
+  // must exist + be an element + be in DOM + have size
+  const ok =
+    el &&
+    el instanceof Element &&
+    el.isConnected &&
+    el.offsetWidth > 0 &&
+    el.offsetHeight > 0;
 
-      window.initDeliveryLocationModal({
-        setLocationUrl: URLS.set_location,
-        checkoutUrl: URLS.checkout,
-        csrf: csrfToken(),
-      });
-    });
+  if (!ok) {
+    if (tries > 60) { // ~1s max (60 frames)
+      console.error(_("dlMap not ready for init."));
+      return;
+    }
+    requestAnimationFrame(() => waitForDlMapReady(tries + 1));
+    return;
+  }
+
+  destroyDlMap();
+
+  if (typeof window.initDeliveryLocationModal !== "function") {
+    console.error(_("initDeliveryLocationModal missing."));
+    alert(_("Map init missing. Check console."));
+    return;
+  }
+
+  window.initDeliveryLocationModal({
+    setLocationUrl: URLS.set_location,
+    checkoutUrl: URLS.checkout,
+    csrf: csrfToken(),
+  });
+
+  // ✅ extra resize after paint (helps inside modals)
+  setTimeout(() => {
+    if (window.__gm_map) google.maps.event.trigger(window.__gm_map, "resize");
+  }, 80);
+}
+
+requestAnimationFrame(() => waitForDlMapReady());
   }
 
   async function openCheckoutFlow() {
