@@ -63,12 +63,54 @@
       </form>
     </div>
 
+    <!-- Bulk actions -->
+<form id="bulkForm" method="post" class="rounded-2xl border border-dark/10 bg-white/70 p-4 mb-6">
+  {% csrf_token %}
+
+  <div class="flex flex-col md:flex-row md:items-end gap-3">
+    <div class="flex-1">
+      <div class="text-xs uppercase tracking-wider text-dark/70 mb-2">Selected orders</div>
+      <div id="selectedCount" class="text-sm font-semibold text-dark">0 selected</div>
+    </div>
+
+    <div class="md:w-[260px]">
+      <label class="block text-xs uppercase tracking-wider text-dark/70 mb-2">Set status</label>
+      <select name="new_status"
+              class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white outline-none focus:border-gold/70">
+        <option value="">Choose status…</option>
+        {% for key,label in status_choices %}
+          <option value="{{ key }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="flex gap-2">
+      <button formaction="{% url 'restaurant:delivery_orders_bulk_update' %}"
+              class="px-5 py-3 rounded-xl font-semibold text-dark"
+              style="background: linear-gradient(#cdb57b, #a8844a); border: 1px solid rgba(50,30,10,.25); box-shadow: inset 0 1px 0 rgba(255,255,255,.26), 0 10px 22px rgba(0,0,0,.12);">
+        Bulk Update →
+      </button>
+
+      <button formaction="{% url 'restaurant:delivery_orders_bulk_delete' %}"
+              onclick="return confirm('Delete selected orders? This cannot be undone.')"
+              class="px-5 py-3 rounded-xl font-semibold text-white"
+              style="background: linear-gradient(#6b2d2d, #441b1b); border: 1px solid rgba(255,255,255,.14); box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 10px 22px rgba(0,0,0,.18);">
+        Delete
+      </button>
+    </div>
+  </div>
+</form>
+
     <!-- Orders table (NO horizontal scroll) -->
     <div class="rounded-2xl border border-dark/10 bg-white/70 overflow-hidden">
       <table class="w-full text-sm table-fixed">
         <thead class="bg-white/80">
           <tr class="text-left">
+            <th class="px-5 py-4 font-semibold text-dark w-[56px]">
+              <input id="selectAll" type="checkbox" class="h-4 w-4 accent-[#bfa76f]">
+            </th>
             <th class="px-5 py-4 font-semibold text-dark w-[90px]">Order</th>
+
             <th class="px-5 py-4 font-semibold text-dark w-[38%]">Customer</th>
             <th class="px-5 py-4 font-semibold text-dark w-[150px]">Phone</th>
             <th class="px-5 py-4 font-semibold text-dark w-[110px]">Total</th>
@@ -81,9 +123,18 @@
         <tbody class="divide-y divide-dark/10">
           {% for o in orders %}
             <tr class="hover:bg-white/60">
+              <td class="px-5 py-4">
+                <input type="checkbox"
+                      name="order_ids"
+                      value="{{ o.id }}"
+                      form="bulkForm"
+                      class="rowCheck h-4 w-4 accent-[#bfa76f]">
+              </td>
+
               <td class="px-5 py-4 font-semibold text-dark">
                 #{{ o.id }}
               </td>
+
 
               <td class="px-5 py-4">
                 <div class="font-semibold text-dark truncate">
@@ -146,4 +197,33 @@
 
   </div>
 </section>
+<script>
+  const selectAll = document.getElementById("selectAll");
+  const checks = () => Array.from(document.querySelectorAll(".rowCheck"));
+  const selectedCount = document.getElementById("selectedCount");
+
+  function updateCount(){
+    const n = checks().filter(c => c.checked).length;
+    selectedCount.textContent = `${n} selected`;
+  }
+
+  if (selectAll) {
+    selectAll.addEventListener("change", () => {
+      checks().forEach(c => c.checked = selectAll.checked);
+      updateCount();
+    });
+  }
+
+  document.addEventListener("change", (e) => {
+    if (e.target.classList.contains("rowCheck")) {
+      const all = checks();
+      const checked = all.filter(c => c.checked).length;
+      if (selectAll) selectAll.checked = (checked === all.length && all.length > 0);
+      updateCount();
+    }
+  });
+
+  updateCount();
+</script>
+
 {% endblock %}

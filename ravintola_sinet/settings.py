@@ -8,6 +8,10 @@ from django.utils.translation import gettext_lazy as _
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -33,6 +37,7 @@ INSTALLED_APPS = [
     "cloudinary_storage",
 
     "restaurant",
+    "accounts",
 ]
 
 
@@ -84,6 +89,13 @@ DATABASES = {
         ssl_require=not DEBUG,
     )
 }
+# Cache (used by context processors to avoid DB hits on every request)
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "ravintola-sinet-cache",
+    }
+}
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -117,21 +129,28 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # Cloudinary config (media uploads)
 CLOUDINARY_URL = os.environ.get("CLOUDINARY_URL", "")
 
-if not DEBUG and not CLOUDINARY_URL:
-    raise RuntimeError("CLOUDINARY_URL is required in production")
+if DEBUG:
+    # Local → save media to filesystem
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+else:
+    if not CLOUDINARY_URL:
+        raise RuntimeError("CLOUDINARY_URL is required in production")
 
-CLOUDINARY_STORAGE = {"CLOUDINARY_URL": CLOUDINARY_URL}
-
-STORAGES = {
-    # Media (admin uploads)
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    # Static
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 
 
@@ -202,8 +221,25 @@ if not DEBUG:
     SESSION_COOKIE_SAMESITE = "Lax"
     CSRF_COOKIE_SAMESITE = "Lax"
 
+GOOGLE_MAPS_API_KEY = "AIzaSyD8DlWe553JDP0mGVTFZ8hC1zUdDXPw0_g"
 
-CLOUDINARY_STORAGE = {
-    "CLOUDINARY_URL": os.environ.get("CLOUDINARY_URL", "")
-}
+# --- Telegram notifications ---
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_GROUP_CHAT_ID = os.environ.get("TELEGRAM_GROUP_CHAT_ID", "")
 
+
+# --- Customer auth (accounts) ---
+#AUTH_USER_MODEL = "accounts.User"
+
+# --------------------------
+# Login redirects (customer accounts)
+# --------------------------
+LOGIN_URL = "accounts:login"
+LOGIN_REDIRECT_URL = "accounts:dashboard"
+LOGOUT_REDIRECT_URL = "restaurant:home"
+
+# --------------------------
+# Email (DEV) -> prints emails to runserver console
+# --------------------------
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "Ravintola Sinet <no-reply@ravintola-sinet.fi>"

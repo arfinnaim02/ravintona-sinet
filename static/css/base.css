@@ -1,0 +1,79 @@
+/* base.css
+   Only styles that you already rely on in base.html (footer/buttons/typography helpers).
+   Tailwind still handles the majority of layout.
+*/
+
+/* ===== Fonts (RESTORE OLD BASE HEAD STYLE) ===== */
+@import url("https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;600;700&family=Open+Sans:wght@300;400;600&display=swap");
+
+/* Global typography */
+body { font-family: "Open Sans", sans-serif; }
+h1, h2, h3, h4 { font-family: "Playfair Display", serif; }
+
+
+/* Footer background + card */
+.footer-bg {
+  background: #3b231d;
+}
+
+.footer-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* Thin separator line */
+.hairline {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Footer link button style */
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 0.125rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  transition: opacity 0.2s ease, transform 0.15s ease;
+  text-decoration: none;
+}
+.footer-link:hover {
+  opacity: 0.92;
+}
+.footer-link:active {
+  transform: scale(0.99);
+}
+
+/* Buttons */
+.btn-wood {
+  background: #3e2723;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: opacity 0.2s ease, transform 0.15s ease;
+  text-decoration: none;
+}
+.btn-wood:hover {
+  opacity: 0.95;
+}
+.btn-wood:active {
+  transform: scale(0.99);
+}
+
+.btn-gold {
+  background: #bfa76f;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: filter 0.2s ease, transform 0.15s ease;
+  text-decoration: none;
+}
+.btn-gold:hover {
+  filter: brightness(0.95);
+}
+.btn-gold:active {
+  transform: scale(0.99);
+}
+
+/* Optional typography helpers (safe, doesn’t break anything) */
+.brand-script { font-family: "Great Vibes", cursive; letter-spacing: 0.01em; }
+.brand-serif  { font-family: "Playfair Display", serif; letter-spacing: 0.01em; }

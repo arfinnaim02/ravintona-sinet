@@ -1,0 +1,28 @@
+/* reservation.css
+   Only minimal CSS helpers for your Tailwind-based page.
+   (No functionality changes)
+*/
+
+/* Better iOS scroll-lock when modals open */
+html.overflow-hidden,
+body.overflow-hidden {
+  height: 100%;
+  overflow: hidden !important;
+}
+
+/* Smooth scrolling inside modal scrollers */
+[data-picker-scroll] {
+  scroll-behavior: smooth;
+}
+
+/* Make number inputs consistent */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+

@@ -12,7 +12,8 @@ from __future__ import annotations
 from datetime import timedelta
 
 from django.core.exceptions import ValidationError
-
+from django.conf import settings
+from django.core.cache import cache
 from decimal import Decimal
 from django.db import models
 from django.urls import reverse
@@ -144,6 +145,15 @@ class Reservation(models.Model):
     name = models.CharField(max_length=120)
     phone = models.CharField(max_length=40)
     email = models.EmailField(blank=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name="reservations",
+    )
+
+
+
 
     party_size = models.PositiveIntegerField(default=2)  # chairs needed
     baby_seats = models.PositiveIntegerField(default=0)
@@ -308,6 +318,8 @@ class DeliveryOrder(models.Model):
     customer_name = models.CharField(max_length=120)
     customer_phone = models.CharField(max_length=40)
     customer_note = models.TextField(blank=True)
+
+
     
     PAYMENT_CASH = "cash"
     PAYMENT_CARD = "card"
@@ -341,6 +353,13 @@ class DeliveryOrder(models.Model):
     promo_free_delivery = models.BooleanField(default=False)
     promo_min_subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name="delivery_orders",
+    )
+
     def __str__(self):
         return f"Order #{self.id} ({self.get_status_display()})"
 
@@ -365,14 +384,31 @@ class DeliveryOrderItem(models.Model):
 class DeliveryCoupon(models.Model):
     DISCOUNT_PERCENT = "percent"
     DISCOUNT_FIXED = "fixed"
+    DISCOUNT_FREE_DELIVERY = "free_delivery"
 
     DISCOUNT_TYPE_CHOICES = [
         (DISCOUNT_PERCENT, "Percent (%)"),
         (DISCOUNT_FIXED, "Fixed (€)"),
+        (DISCOUNT_FREE_DELIVERY, "Free Delivery"),
     ]
 
     code = models.CharField(max_length=32, unique=True)
     is_active = models.BooleanField(default=True)
+        # -------------------------
+    # Loyalty / personal coupon (SAFE ADDITIONS)
+    # -------------------------
+    is_personal = models.BooleanField(default=False)
+
+    assigned_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name="personal_delivery_coupons",
+    )
+
+    # Helps prevent duplicates per month, format: "YYYY-MM"
+    issued_month = models.CharField(max_length=7, blank=True, default="")
+
 
     discount_type = models.CharField(max_length=16, choices=DISCOUNT_TYPE_CHOICES, default=DISCOUNT_PERCENT)
     discount_value = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -382,7 +418,7 @@ class DeliveryCoupon(models.Model):
     start_at = models.DateTimeField(null=True, blank=True)
     end_at = models.DateTimeField(null=True, blank=True)
 
-    max_uses = models.PositiveIntegerField(null=True, blank=True)  # null = unlimited
+    max_uses = models.PositiveIntegerField(null=True, blank=True)
     used_count = models.PositiveIntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -407,29 +443,32 @@ class DeliveryCoupon(models.Model):
 
     def compute_discount(self, subtotal: Decimal) -> Decimal:
         """
-        Discount applies to subtotal (NOT delivery fee).
-        Returns a safe discount (never > subtotal).
+        Discount applies to subtotal only.
+        Free delivery coupon returns 0 here (delivery handled separately).
         """
+        if self.discount_type == self.DISCOUNT_FREE_DELIVERY:
+            return Decimal("0")
+
         if subtotal is None:
             subtotal = Decimal("0")
         if subtotal < Decimal(str(self.min_subtotal or 0)):
             return Decimal("0")
 
         val = Decimal(str(self.discount_value or 0))
-
         if self.discount_type == self.DISCOUNT_FIXED:
             disc = val
         else:
-            # percent
             disc = (subtotal * val) / Decimal("100")
 
-        if disc < 0:
-            disc = Decimal("0")
-        if disc > subtotal:
-            disc = subtotal
-        return disc
+        disc = max(Decimal("0"), disc)
+        return min(disc, subtotal)
 
-
+    def grants_free_delivery(self, subtotal: Decimal) -> bool:
+        if self.discount_type != self.DISCOUNT_FREE_DELIVERY:
+            return False
+        if subtotal is None:
+            subtotal = Decimal("0")
+        return subtotal >= Decimal(str(self.min_subtotal or 0))
 
 # -------------------------
 # Hero Banner (Homepage Slideshow)
@@ -449,3 +488,63 @@ class HeroBanner(models.Model):
 
     def __str__(self):
         return f"Hero Banner #{self.id}"
+
+
+
+class TelegramLog(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    ok = models.BooleanField(default=False)
+    kind = models.CharField(max_length=40, blank=True)  # "delivery" / "reservation" / "test"
+    chat_id = models.CharField(max_length=50, blank=True)
+    message_preview = models.TextField(blank=True)
+    response_text = models.TextField(blank=True)  # Telegram API response or exception repr
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        status = "OK" if self.ok else "FAIL"
+        return f"[{status}] {self.kind} @ {self.created_at:%Y-%m-%d %H:%M}"
+class Review(models.Model):
+    name = models.CharField(max_length=120)
+    rating = models.PositiveSmallIntegerField()
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.name} ({self.rating}⭐)"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete("footer_review_stats_v1")
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        cache.delete("footer_review_stats_v1")
+
+
+# -------------------------
+# Loyalty Program Settings
+# -------------------------
+
+class LoyaltyProgram(models.Model):
+    is_active = models.BooleanField(default=True)
+
+    # How many delivered orders required
+    target_orders = models.PositiveIntegerField(default=10)
+
+    # Discount percent reward
+    reward_percent = models.PositiveIntegerField(default=30)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Loyalty Program"
+        verbose_name_plural = "Loyalty Program"
+
+    def __str__(self):
+        status = "Active" if self.is_active else "Inactive"
+        return f"Loyalty ({self.target_orders} orders → {self.reward_percent}% | {status})"

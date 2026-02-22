@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "My Account" %} | {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<section class="bg-[#f5f0e6]">
+  <div class="max-w-6xl mx-auto px-4 py-10">
+
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-3xl md:text-4xl font-semibold text-[#3e2723]">{% trans "My Account" %}</h1>
+
+        <p class="mt-2 text-[#3e2723]/70">
+          {% blocktrans with user_email=request.user.email|default:request.user.username %}
+            Hi {{ user_email }} 👋
+          {% endblocktrans %}
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="{% url 'accounts:my_orders' %}" class="px-4 py-2 rounded-sm bg-white border border-[#3e2723]/10 hover:bg-[#fff7ea] transition">
+          {% trans "My Orders" %}
+        </a>
+        <a href="{% url 'accounts:my_reservations' %}" class="px-4 py-2 rounded-sm bg-white border border-[#3e2723]/10 hover:bg-[#fff7ea] transition">
+          {% trans "My Reservations" %}
+        </a>
+      </div>
+    </div>
+
+    {# Loyalty section strings also need translation #}
+    {% if loyalty.enabled %}
+      <div class="mt-6 rounded-2xl border border-dark/10 bg-white/70 shadow-sm p-5">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <div class="text-xs uppercase tracking-wider text-dark/60">
+              {% blocktrans with month=loyalty.month %}Loyalty Reward ({{ month }}){% endblocktrans %}
+            </div>
+            <div class="mt-1 text-sm text-dark/80">
+              {% blocktrans with percent=loyalty.percent target=loyalty.target %}
+                Get {{ percent }}% OFF after {{ target }} delivered orders this month.
+              {% endblocktrans %}
+            </div>
+          </div>
+          <div class="text-xs text-dark/60">
+            {{ loyalty.count }}/{{ loyalty.target }}
+          </div>
+        </div>
+
+        {% if loyalty.earned %}
+          <div class="mt-4 rounded-xl border border-gold/30 bg-gold/10 p-4">
+            <div class="text-sm font-semibold text-dark">
+              {% trans "✅ You unlocked your reward!" %}
+            </div>
+            <div class="mt-2 text-xs text-dark/70">{% trans "Your coupon code:" %}</div>
+            <div class="mt-2 inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-dark/10 font-semibold">
+              {{ loyalty.coupon_code }}
+            </div>
+            <div class="mt-2 text-xs text-dark/60">
+              {% trans "Use it during checkout." %}
+            </div>
+          </div>
+        {% else %}
+          <div class="mt-4">
+            <div class="flex items-center justify-between text-xs text-dark/70 mb-2">
+              <div>
+                {% blocktrans with c=loyalty.count t=loyalty.target %}
+                  Progress: {{ c }}/{{ t }}
+                {% endblocktrans %}
+              </div>
+              <div>
+                {% blocktrans with remaining=loyalty.remaining %}
+                  {{ remaining }} left
+                {% endblocktrans %}
+              </div>
+            </div>
+
+            <div class="w-full h-3 rounded-full bg-dark/10 overflow-hidden">
+              <div class="h-full bg-gold"
+                   style="width: {% widthratio loyalty.count loyalty.target 100 %}%;"></div>
+            </div>
+
+            <div class="mt-2 text-[11px] text-dark/60">
+              {% blocktrans with remaining=loyalty.remaining %}
+                Complete {{ remaining }} more delivered order(s) to unlock.
+              {% endblocktrans %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
+      <div class="rounded-2xl bg-white border border-[#3e2723]/10 p-5 shadow-sm">
+        <div class="text-xs uppercase tracking-[0.25em] text-[#3e2723]/50">{% trans "Total Orders" %}</div>
+        <div class="mt-2 text-2xl font-semibold text-[#3e2723]">{{ total_orders }}</div>
+      </div>
+
+      <div class="rounded-2xl bg-white border border-[#3e2723]/10 p-5 shadow-sm">
+        <div class="text-xs uppercase tracking-[0.25em] text-[#3e2723]/50">{% trans "Total Reservations" %}</div>
+        <div class="mt-2 text-2xl font-semibold text-[#3e2723]">{{ total_reservations }}</div>
+      </div>
+
+      <div class="rounded-2xl bg-white border border-[#3e2723]/10 p-5 shadow-sm">
+        <div class="text-xs uppercase tracking-[0.25em] text-[#3e2723]/50">{% trans "Upcoming Reservations" %}</div>
+        <div class="mt-2 text-2xl font-semibold text-[#3e2723]">{{ upcoming_reservations }}</div>
+      </div>
+
+      <div class="rounded-2xl bg-white border border-[#3e2723]/10 p-5 shadow-sm">
+        <div class="text-xs uppercase tracking-[0.25em] text-[#3e2723]/50">{% trans "Total Spent" %}</div>
+        <div class="mt-2 text-2xl font-semibold text-[#3e2723]">€ {{ total_spent|floatformat:2 }}</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="rounded-2xl bg-white border border-[#3e2723]/10 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-[#3e2723]">{% trans "Recent Orders" %}</h2>
+          <a href="{% url 'accounts:my_orders' %}" class="text-sm underline text-[#3e2723]/70 hover:text-[#3e2723]">{% trans "View all" %}</a>
+        </div>
+
+        {% if recent_orders %}
+          ...
+        {% else %}
+          <p class="text-sm text-[#3e2723]/70">{% trans "No orders yet." %}</p>
+        {% endif %}
+      </div>
+
+      <div class="rounded-2xl bg-white border border-[#3e2723]/10 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-[#3e2723]">{% trans "Recent Reservations" %}</h2>
+          <a href="{% url 'accounts:my_reservations' %}" class="text-sm underline text-[#3e2723]/70 hover:text-[#3e2723]">{% trans "View all" %}</a>
+        </div>
+
+        {% if recent_reservations %}
+          ...
+        {% else %}
+          <p class="text-sm text-[#3e2723]/70">{% trans "No reservations yet." %}</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

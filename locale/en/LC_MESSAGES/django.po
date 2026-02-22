@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-07 19:29+0600\n"
+"POT-Creation-Date: 2026-02-22 15:38+0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,82 +17,1220 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-#: .\ravintola_sinet\settings.py:83
+
+#: .\ravintola_sinet\settings.py:114
 msgid "English"
 msgstr ""
 
-#: .\ravintola_sinet\settings.py:84
+#: .\ravintola_sinet\settings.py:115
 msgid "Finnish"
 msgstr ""
 
-#: .\restaurant\views.py:238
-msgid "Menu item created successfully."
-msgstr ""
-
-#: .\templates\base.html:105
-msgid "Home"
-msgstr ""
-
-#: .\templates\base.html:110
-msgid "Menu"
-msgstr ""
-
-#: .\templates\base.html:115
+#: .\restaurant\templates\about.html:4 .\templates\base.html:70
+#: .\templates\base.html:197
 msgid "About"
 msgstr ""
 
-#: .\templates\base.html:121 .\templates\base.html:232
-msgid "Book for Dine In"
+#: .\restaurant\templates\about.html:19
+msgid "About Us"
 msgstr ""
 
-#: .\templates\base.html:128 .\templates\base.html:238
+#: .\restaurant\templates\about.html:24
+msgid "Welcome to"
+msgstr ""
+
+#: .\restaurant\templates\about.html:42
+msgid "A Taste of Joensuu"
+msgstr ""
+
+#: .\restaurant\templates\about.html:45
+#, python-format
+msgid ""
+"\n"
+"            %(name)s is your cozy, inviting restaurant in the heart of "
+"Joensuu.\n"
+"            Since opening our doors, we’ve been dedicated to crafting "
+"delicious, high-quality dishes\n"
+"            using the freshest local ingredients. Whether you’re craving a "
+"perfectly baked pizza,\n"
+"            a juicy burger, or a hearty kebab, we have something to satisfy "
+"every taste.\n"
+"          "
+msgstr ""
+
+#: .\restaurant\templates\about.html:62
+msgid ""
+"“Enjoy authentic flavors of Finland and the Mediterranean, made with "
+"passion.”"
+msgstr ""
+
+#: .\restaurant\templates\about.html:71
+msgid "Signature pizza"
+msgstr ""
+
+#: .\restaurant\templates\about.html:82
+msgid "Fresh ingredients"
+msgstr ""
+
+#: .\restaurant\templates\about.html:84 .\restaurant\templates\home.html:75
+msgid "Fresh Ingredients"
+msgstr ""
+
+#: .\restaurant\templates\about.html:86
+msgid ""
+"We take pride in using locally sourced, top-quality ingredients. Our pizza "
+"dough is made in-house daily, ensuring you get the freshest taste in every "
+"bite."
+msgstr ""
+
+#: .\restaurant\templates\about.html:92
+msgid "Warm ambience"
+msgstr ""
+
+#: .\restaurant\templates\about.html:94
+msgid "Warm Ambience"
+msgstr ""
+
+#: .\restaurant\templates\about.html:96
+msgid ""
+"Our restaurant offers a welcoming and relaxed atmosphere, perfect for dining "
+"with family and friends. Enjoy our cozy space filled with the inviting aroma "
+"of freshly cooked meals."
+msgstr ""
+
+#: .\restaurant\templates\about.html:102
+msgid "Friendly service"
+msgstr ""
+
+#: .\restaurant\templates\about.html:104
+msgid "Friendly Service"
+msgstr ""
+
+#: .\restaurant\templates\about.html:106
+msgid ""
+"Our team is passionate about hospitality. From the moment you arrive, we’re "
+"here to make sure you have a memorable dining experience."
+msgstr ""
+
+#: .\restaurant\templates\about.html:121
+msgid "Location"
+msgstr ""
+
+#: .\restaurant\templates\about.html:133
+msgid "Tel:"
+msgstr ""
+
+#: .\restaurant\templates\about.html:142 .\restaurant\templates\home.html:272
+msgid "Get Directions →"
+msgstr ""
+
+#: .\restaurant\templates\about.html:151
+msgid "Contact Us"
+msgstr ""
+
+#: .\restaurant\templates\about.html:158
+#: .\restaurant\templates\delivery_checkout.html:99
+#: .\restaurant\templates\reservation.html:528
+msgid "Name"
+msgstr ""
+
+#: .\restaurant\templates\about.html:162 .\templates\accounts\login.html:23
+#: .\templates\accounts\signup.html:23
+msgid "Email"
+msgstr ""
+
+#: .\restaurant\templates\about.html:168
+msgid "Message"
+msgstr ""
+
+#: .\restaurant\templates\about.html:173
+msgid ""
+"We store and process your message to respond to your inquiry. For details, "
+"please check our privacy policy."
+msgstr ""
+
+#: .\restaurant\templates\about.html:177
+msgid "Send Message →"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:6
+#: .\restaurant\templates\delivery_checkout.html:14
+msgid "Checkout"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:16
+msgid "Confirm details • Pay on delivery • We’ll contact you if needed"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:32
+msgid "Delivery details"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:34
+msgid "Please enter your contact info"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:40
+msgid "← Back to menu"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:48
+msgid "Delivery address"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:56
+#: .\restaurant\templates\partials\delivery_location_modal.html:119
+msgid "Distance"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:63
+#: .\restaurant\templates\delivery_checkout.html:545
+#: .\restaurant\templates\partials\delivery_location_modal.html:124
+msgid "Delivery fee"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:72
+msgid "Offer:"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:76
+msgid "FREE DELIVERY"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:80
+msgid "min subtotal"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:107
+msgid "Your full name"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:110
+msgid "Please enter your name."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:116
+#: .\restaurant\templates\home.html:260
+msgid "Phone"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:124
+msgid "+358 …"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:127
+msgid "Please enter a valid phone number."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:134
+msgid "Extra directions for the driver (optional)"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:137
+msgid ""
+"Example: Building A, apartment 12, door code 1234, near K-Market / landmark…"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:140
+msgid "Add a landmark or clear directions so the driver can find you faster."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:146
+msgid "Note to restaurant (optional)"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:149
+msgid "Allergies, no onions, extra spicy…"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:156
+msgid "Payment Method"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:165
+#: .\restaurant\templates\delivery_checkout.html:466 .\restaurant\views.py:1428
+msgid "Cash on Delivery"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:166
+msgid "Pay with cash when your order arrives."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:175 .\restaurant\views.py:1428
+msgid "Card on Delivery (POS machine)"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:176
+msgid "Our rider will bring a POS machine for payment."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:187
+msgid "Place order →"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:191
+msgid "We’ll keep these details for this session."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:205
+msgid "Your Order"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:210
+#: .\restaurant\templates\reservation.html:173
+msgid "Clear"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:221
+msgid "Loyalty reward"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:230
+#, python-format
+msgid "You unlocked %(p)s%% OFF this month!"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:233
+msgid "Use this coupon on your next order:"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:245
+msgid "Use it"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:250
+msgid "Valid until end of this month. One-time use."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:254
+#, python-format
+msgid ""
+"Complete %(loyalty.target)s delivered orders this month to get %(p)s%% OFF"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:258
+#, python-format
+msgid "Progress: %(c)s/%(t)s delivered orders"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:263
+#, python-format
+msgid "Order %(r)s more delivered order(s) to unlock the reward."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:272
+#: .\restaurant\templates\delivery_checkout.html:529
+msgid "Coupon"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:279
+msgid "Applied:"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:284
+#: .\restaurant\templates\delivery_checkout.html:354
+#: .\restaurant\templates\delivery_checkout.html:808
+msgid "Remove"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:287
+msgid "Discount is included in totals."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:295
+msgid "Enter code"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:300
+msgid "Apply"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:305
+msgid "Example:"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:335
+#: .\restaurant\templates\delivery_checkout.html:399
+#: .\restaurant\templates\delivery_checkout.html:552
+#: .\restaurant\templates\delivery_checkout.html:795
+#: .\restaurant\templates\reservation.html:242
+msgid "Total"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:363
+#: .\restaurant\templates\delivery_checkout.html:763 .\restaurant\views.py:1420
+msgid "Your cart is empty."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:368
+#: .\restaurant\templates\delivery_checkout.html:766
+msgid "Go to menu →"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:379
+#: .\restaurant\templates\delivery_checkout.html:538
+msgid "Subtotal"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:384
+msgid "Coupon discount"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:390
+msgid "Delivery"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:392
+msgid "Free delivery applied"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:406
+msgid "Tip: You can still adjust items here before placing the order."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:413
+msgid "We’ll contact you if anything is unclear. Thank you!"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:437
+msgid "Order confirmed!"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:440
+msgid "We received your order. We’ll contact you shortly to confirm."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:446
+#: .\restaurant\templates\partials\datetime_picker_modal.html:31
+#: .\restaurant\templates\reservation.html:300
+#: .\restaurant\templates\reservation.html:500
+#: .\restaurant\templates\reservation.html:560
+msgid "Close"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:456
+msgid "Order #"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:461
+msgid "Payment"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:464
+msgid "Card on Delivery (POS)"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:472
+msgid "Status"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:479
+msgid "Delivery information"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:481
+msgid "Address:"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:483
+msgid "Extra directions:"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:485
+msgid "Phone:"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:486
+msgid "Name:"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:488
+msgid "Note:"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:495
+msgid "Items"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:519
+msgid "Promotion"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:521
+msgid "Free delivery"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:560
+msgid ""
+"Tip: Keep your phone reachable. Our driver may call if your entrance is "
+"unclear."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:568
+msgid "Order again →"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:573
+#: .\restaurant\templates\reservation.html:295
+msgid "Done"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:673
+msgid "Coupon error"
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:870
+msgid "Please enter a coupon code."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:873
+msgid "Invalid or expired coupon."
+msgstr ""
+
+#: .\restaurant\templates\delivery_checkout.html:882
+msgid "Could not remove coupon."
+msgstr ""
+
+#: .\restaurant\templates\home.html:35
+msgid "Taste of Joensuu"
+msgstr ""
+
+#: .\restaurant\templates\home.html:37
+msgid "Since 2007"
+msgstr ""
+
+#: .\restaurant\templates\home.html:46 .\templates\base.html:422
+msgid "Make Reservation"
+msgstr ""
+
+#: .\restaurant\templates\home.html:51
+msgid "View Menu"
+msgstr ""
+
+#: .\restaurant\templates\home.html:56 .\templates\base.html:427
 msgid "Order Online"
 msgstr ""
 
-#: .\templates\base.html:186
-msgid "Order on Wolt"
+#: .\restaurant\templates\home.html:76
+msgid "Locally sourced produce"
 msgstr ""
 
-#: .\templates\base.html:195
-msgid "Facebook"
+#: .\restaurant\templates\home.html:90
+msgid "Handcrafted Dough"
 msgstr ""
 
-#: .\templates\base.html:202
-msgid "Opening Times"
+#: .\restaurant\templates\home.html:91
+msgid "Pizza dough made in-house"
 msgstr ""
 
-#: .\templates\base.html:204
-msgid "Mon"
+#: .\restaurant\templates\home.html:106
+#, python-format
+msgid "Open Daily %(hours)s"
 msgstr ""
 
-#: .\templates\base.html:205
-msgid "Tue"
+#: .\restaurant\templates\home.html:108
+msgid "Welcome every day."
 msgstr ""
 
-#: .\templates\base.html:206
-msgid "Wed"
+#: .\restaurant\templates\home.html:124
+msgid "Customer Favorites"
 msgstr ""
 
-#: .\templates\base.html:207
-msgid "Thu"
+#: .\restaurant\templates\home.html:128
+msgid "Most Loved Dishes"
 msgstr ""
 
-#: .\templates\base.html:208
-msgid "Fri"
+#: .\restaurant\templates\home.html:206
+msgid ""
+"No customer favorites yet. Add tag <b>popular</b> to menu items in the admin "
+"panel."
 msgstr ""
 
-#: .\templates\base.html:209
-msgid "Sat"
+#: .\restaurant\templates\home.html:212
+msgid "Explore Our Menu"
 msgstr ""
 
-#: .\templates\base.html:210
+#: .\restaurant\templates\home.html:236
+msgid "Find Us"
+msgstr ""
+
+#: .\restaurant\templates\home.html:253
+msgid "Visit Ravintola Sinet"
+msgstr ""
+
+#: .\restaurant\templates\home.html:257
+msgid "Address"
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:24
+msgid "Select Date & Time"
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:25
+msgid "Choose your slot (30-minute intervals)."
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:45
+msgid "Select Date"
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:72
+#: .\templates\base.html:366 .\templates\base.html:390
 msgid "Sun"
 msgstr ""
 
-#: .\templates\base.html:216
+#: .\restaurant\templates\partials\datetime_picker_modal.html:73
+#: .\templates\base.html:360 .\templates\base.html:372
+msgid "Mon"
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:74
+#: .\templates\base.html:361 .\templates\base.html:375
+msgid "Tue"
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:75
+#: .\templates\base.html:362 .\templates\base.html:378
+msgid "Wed"
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:76
+#: .\templates\base.html:363 .\templates\base.html:381
+msgid "Thu"
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:77
+#: .\templates\base.html:364 .\templates\base.html:384
+msgid "Fri"
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:78
+#: .\templates\base.html:365 .\templates\base.html:387
+msgid "Sat"
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:89
+#: .\restaurant\templates\partials\datetime_picker_modal.html:157
+msgid "Set Time"
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:119
+msgid "Hour"
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:125
+msgid "Minute"
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:131
+msgid "AM/PM"
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:148
+msgid "Open hours: 10:00 to 22:00 (last reservation start 21:30)."
+msgstr ""
+
+#: .\restaurant\templates\partials\datetime_picker_modal.html:162
+msgid "Cancel"
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:14
+msgid "Confirm delivery location"
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:17
+msgid "Search your address or drag the pin to your entrance."
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:26
+msgid "Use my location →"
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:29
+msgid "Status:"
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:29
+msgid "Idle"
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:37
+msgid "Search address"
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:43
+msgid "Start typing… e.g., Kauppakatu 10, Joensuu"
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:48
+msgid "Tip: pick a suggestion from the dropdown for best accuracy."
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:64
+msgid "Drag pin to entrance"
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:66
+msgid "Accuracy:"
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:74
+msgid "Selected address"
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:78
+#, python-format
+msgid "Delivery radius: <b>%(max_radius)s km</b>."
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:92
+msgid "Confirm & Continue →"
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:96
+msgid "Select an address or drag the pin, then confirm."
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:114
+msgid "Delivery Estimate"
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:131
+msgid "Estimated total"
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:137
+msgid "Outside delivery range. Please move the pin closer."
+msgstr ""
+
+#: .\restaurant\templates\partials\delivery_location_modal.html:142
+msgid "You can still scroll this modal; the confirm button stays visible."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:16
+msgid "Fast"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:17
+msgid "Smart availability"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:18
+msgid "Slots are validated automatically on submit."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:21
+msgid "Comfort"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:22
+msgid "Baby seats supported"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:23
+msgid "Add baby seats if you need them."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:26
+msgid "Bonus"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:27
+msgid "Pre-order food"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:28
+msgid "Select items in the picker; totals update live."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:37
+msgid "Reservation Details"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:39
+msgid "Choose a date & time (30-minute intervals). Pre-order is optional."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:63
+msgid "Please fix the errors:"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:73
+#: .\restaurant\templates\reservation.html:227
+#: .\restaurant\templates\reservation.html:534
+msgid "When"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:74
+msgid "30-minute slots"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:85
+msgid "Open date & time picker"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:89
+msgid "Selected slot"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:91
+msgid "We’ll reserve a table for this exact time."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:98
+#: .\restaurant\templates\reservation.html:232
+#: .\restaurant\templates\reservation.html:538
+msgid "Guests"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:99
+msgid "Per slot: 55 chairs, 2 baby seats"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:105
+msgid "Party size"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:108
+msgid "Total chairs available per slot: 55"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:113
+msgid "Baby seats"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:116
+msgid "Baby seats available per slot: 2"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:123
+msgid "Customer details"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:124
+msgid "We’ll use this to confirm your reservation if needed."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:129
+msgid "Full name"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:136
+msgid "Phone number"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:143
+msgid "Email (optional)"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:146
+msgid "Optional, but helpful for sending updates."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:156
+msgid "Pre-order Food"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:156
+msgid "optional"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:159
+msgid "Add items in the picker. Click an item to preview details."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:167
+msgid "Open picker"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:182
+msgid "Your items"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:183
+msgid "Adjust quantities before confirming."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:192
+msgid "No items selected."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:205
+msgid "Confirm reservation"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:209
+msgid ""
+"By confirming, you agree that staff may contact you if changes are needed."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:221
+msgid "Summary"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:237
+#: .\restaurant\templates\reservation.html:280
+#: .\restaurant\templates\reservation.html:545
+msgid "Pre-order"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:238
+#: .\restaurant\templates\reservation.html:288
+#: .\restaurant\templates\reservation.html:470
+msgid "0 items"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:249
+msgid ""
+"You can arrive a little early. If you pre-order, we’ll start preparing "
+"closer to your slot."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:255
+msgid ""
+"Need changes? Use the contact page and mention your reservation time + phone."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:281
+msgid "Pick your items"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:282
+msgid "Tap item to preview • Use −/+ to change quantity"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:308
+msgid "Search items..."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:314
+#: .\restaurant\templates\reservation.html:460
+msgid "Tip: you can leave pre-order empty and still reserve a table."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:333
+msgid "All"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:362
+msgid "Selected items"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:363
+msgid "Review your pre-order at the top."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:420
+msgid "No image"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:432
+msgid "Qty"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:442
+msgid "Quantity"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:477
+msgid "Review"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:494
+msgid "Item details"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:495
+msgid "This will update your reservation pre-order."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:507
+msgid "Loading..."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:520
+msgid "Reservation placed ✅"
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:522
+msgid "Thanks! Here are your reservation details."
+msgstr ""
+
+#: .\restaurant\templates\reservation.html:550
+msgid "x"
+msgstr ""
+
+#: .\restaurant\views.py:296
+msgid "Menu item created successfully."
+msgstr ""
+
+#: .\restaurant\views.py:1375
+msgid "Please set your delivery location first."
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:4 .\templates\accounts\dashboard.html:12
+#: .\templates\base.html:104 .\templates\base.html:215
+msgid "My Account"
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:15
+#, python-format
+msgid ""
+"\n"
+"            Hi %(user_email)s 👋\n"
+"          "
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:23 .\templates\base.html:108
+#: .\templates\base.html:232
+msgid "My Orders"
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:26 .\templates\base.html:112
+#: .\templates\base.html:233
+msgid "My Reservations"
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:37
+#, python-format
+msgid "Loyalty Reward (%(month)s)"
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:40
+#, python-format
+msgid ""
+"\n"
+"                Get %(percent)s%% OFF after %(target)s delivered orders this "
+"month.\n"
+"              "
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:53
+msgid "✅ You unlocked your reward!"
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:55
+msgid "Your coupon code:"
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:60
+msgid "Use it during checkout."
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:67
+#, python-format
+msgid ""
+"\n"
+"                  Progress: %(c)s/%(t)s\n"
+"                "
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:72
+#, python-format
+msgid ""
+"\n"
+"                  %(remaining)s left\n"
+"                "
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:84
+#, python-format
+msgid ""
+"\n"
+"                Complete %(remaining)s more delivered order(s) to unlock.\n"
+"              "
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:96
+msgid "Total Orders"
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:101
+msgid "Total Reservations"
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:106
+msgid "Upcoming Reservations"
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:111
+msgid "Total Spent"
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:119
+msgid "Recent Orders"
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:120
+#: .\templates\accounts\dashboard.html:133
+msgid "View all"
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:126
+msgid "No orders yet."
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:132
+msgid "Recent Reservations"
+msgstr ""
+
+#: .\templates\accounts\dashboard.html:139
+msgid "No reservations yet."
+msgstr ""
+
+#: .\templates\accounts\login.html:9 .\templates\accounts\login.html:33
+#: .\templates\accounts\password_reset_complete.html:11
+#: .\templates\accounts\signup.html:53 .\templates\base.html:124
+#: .\templates\base.html:236
+msgid "Login"
+msgstr ""
+
+#: .\templates\accounts\login.html:10
+msgid "Welcome back 👋"
+msgstr ""
+
+#: .\templates\accounts\login.html:28 .\templates\accounts\signup.html:35
+msgid "Password"
+msgstr ""
+
+#: .\templates\accounts\login.html:38 .\templates\base.html:135
+#: .\templates\base.html:238
+msgid "Forgot password?"
+msgstr ""
+
+#: .\templates\accounts\login.html:41
+msgid "Create account"
+msgstr ""
+
+#: .\templates\accounts\password_reset.html:8
+msgid "Reset password"
+msgstr ""
+
+#: .\templates\accounts\password_reset.html:10
+msgid "Enter your email and we’ll send you a reset link."
+msgstr ""
+
+#: .\templates\accounts\password_reset.html:18
+msgid "Send reset link"
+msgstr ""
+
+#: .\templates\accounts\password_reset_complete.html:8
+msgid "Password updated"
+msgstr ""
+
+#: .\templates\accounts\password_reset_complete.html:9
+msgid "You can now login with your new password."
+msgstr ""
+
+#: .\templates\accounts\password_reset_confirm.html:11
+msgid "Set new password"
+msgstr ""
+
+#: .\templates\accounts\password_reset_confirm.html:13
+msgid "Enter your new password below."
+msgstr ""
+
+#: .\templates\accounts\password_reset_confirm.html:42
+msgid "Update password"
+msgstr ""
+
+#: .\templates\accounts\password_reset_confirm.html:47
+msgid "Reset link invalid"
+msgstr ""
+
+#: .\templates\accounts\password_reset_confirm.html:49
+msgid "This reset link is invalid or has already been used."
+msgstr ""
+
+#: .\templates\accounts\password_reset_confirm.html:53
+msgid "Request a new link"
+msgstr ""
+
+#: .\templates\accounts\password_reset_done.html:8
+msgid "Check your email"
+msgstr ""
+
+#: .\templates\accounts\password_reset_done.html:10
+msgid "If an account exists with that email, a reset link has been sent."
+msgstr ""
+
+#: .\templates\accounts\password_reset_done.html:13
+msgid "Back to login"
+msgstr ""
+
+#: .\templates\accounts\signup.html:9 .\templates\base.html:128
+#: .\templates\base.html:237
+msgid "Create Account"
+msgstr ""
+
+#: .\templates\accounts\signup.html:10
+msgid "Track your orders and reservations in one place."
+msgstr ""
+
+#: .\templates\accounts\signup.html:29
+msgid "Phone (optional)"
+msgstr ""
+
+#: .\templates\accounts\signup.html:41
+msgid "Confirm Password"
+msgstr ""
+
+#: .\templates\accounts\signup.html:47
+msgid "Sign up"
+msgstr ""
+
+#: .\templates\accounts\signup.html:51
+msgid "Already have an account?"
+msgstr ""
+
+#: .\templates\base.html:60 .\templates\base.html:185
+msgid "Home"
+msgstr ""
+
+#: .\templates\base.html:65 .\templates\base.html:191
+msgid "Menu"
+msgstr ""
+
+#: .\templates\base.html:92
+msgid "Signed in as"
+msgstr ""
+
+#: .\templates\base.html:95
+msgid "Welcome"
+msgstr ""
+
+#: .\templates\base.html:96
+msgid "Login to manage orders & reservations."
+msgstr ""
+
+#: .\templates\base.html:119 .\templates\base.html:234
+msgid "Logout"
+msgstr ""
+
+#: .\templates\base.html:218
+msgid "Account"
+msgstr ""
+
+#: .\templates\base.html:219
+msgid "Login or create account"
+msgstr ""
+
+#: .\templates\base.html:231
+msgid "Dashboard"
+msgstr ""
+
+#: .\templates\base.html:358
+msgid "Opening Times"
+msgstr ""
+
+#: .\templates\base.html:397
 msgid "Contact"
 msgstr ""
 
-#: .\templates\base.html:250
+#: .\templates\base.html:417
+msgid "Order on Wolt"
+msgstr ""
+
+#: .\templates\base.html:439
 msgid "All rights reserved."
 msgstr ""

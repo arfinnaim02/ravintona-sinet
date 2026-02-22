@@ -1,48 +1,95 @@
-{% load static %}
+{# templates/partials/_menu_card.html #}
+<div class="relative bg-white/85 backdrop-blur rounded-2xl border border-[#3e2723]/10 shadow-sm hover:shadow-md transition overflow-hidden ring-offset-2"
+     data-menu-card
+     data-item-id="{{ item.id }}"
+     data-base-price="{{ item.price }}"
+     data-has-item-discount="{% if item.discount_price %}1{% else %}0{% endif %}">
 
-<button type="button"
-        data-menu-item="{{ item.id }}"
-        class="text-left group">
+  <div class="p-4 sm:p-5">
+    <div class="flex gap-4 items-start">
 
-  <div class="relative overflow-hidden border border-[#d6c6b0] bg-white/35 shadow-sm">
-    {% if item.image %}
-      <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-40 object-cover group-hover:scale-[1.02] transition">
-    {% else %}
-      <img src="{% static 'images/pizza.jpg' %}" alt="{{ item.name }}" class="w-full h-40 object-cover">
-    {% endif %}
+      <!-- Text -->
+      <div class="flex-1 min-w-0">
+        <button type="button"
+                class="w-full text-left group"
+                data-item-url="{% url 'restaurant:menu_item_detail' item.id %}?ctx=menu">
 
-    {% if item.status == 'sold_out' %}
-      <div class="absolute top-3 left-3 bg-[#2a1a12] text-[#f3e7d3] text-xs px-3 py-1 border border-[#d7b874] shadow">
-        Sold out
+          <div class="flex items-start gap-2">
+            <h3 class="text-base sm:text-lg font-semibold text-[#3e2723] leading-snug truncate group-hover:underline underline-offset-4">
+              {{ item.name }}
+            </h3>
+
+            {% if item.discount_percentage %}
+              <span class="shrink-0 inline-flex items-center rounded-full bg-red-600 text-white text-[11px] font-bold px-2 py-0.5">
+                -{{ item.discount_percentage }}%
+              </span>
+            {% endif %}
+          </div>
+
+          {% if item.description %}
+            <p class="mt-1 text-sm text-[#3e2723]/70 leading-relaxed line-clamp-2">
+              {{ item.description }}
+            </p>
+          {% endif %}
+
+          <!-- Price -->
+          <div class="mt-3 flex items-baseline gap-2" data-price-wrap>
+            {% if item.discount_price %}
+              <span class="text-sm text-[#3e2723]/45 line-through" data-price-strike>
+                € {{ item.price }}
+              </span>
+              <span class="text-lg font-bold text-red-600" data-price-normal>
+                € {{ item.discount_price }}
+              </span>
+              <span class="text-lg font-bold text-red-600 hidden" data-price-coupon></span>
+            {% else %}
+              <span class="text-sm text-[#3e2723]/45 line-through hidden" data-price-strike></span>
+              <span class="text-lg font-bold text-[#3e2723]" data-price-normal>
+                € {{ item.price }}
+              </span>
+              <span class="text-lg font-bold text-red-600 hidden" data-price-coupon></span>
+            {% endif %}
+          </div>
+        </button>
       </div>
-      <div class="absolute inset-0 bg-black/10"></div>
-    {% endif %}
+
+      <!-- Image + add -->
+      <div class="relative w-28 h-24 sm:w-32 sm:h-28 shrink-0">
+        <button type="button"
+                data-item-url="{% url 'restaurant:menu_item_detail' item.id %}?ctx=menu"
+                class="w-full h-full rounded-xl overflow-hidden border border-[#3e2723]/10 bg-[#f5f0e6]">
+          {% if item.image %}
+            <img src="{{ item.image.url }}"
+                 class="w-full h-full object-cover hover:scale-105 transition duration-300"
+                 alt="{{ item.name }}">
+          {% else %}
+            <div class="w-full h-full flex items-center justify-center text-xs text-[#3e2723]/45">
+              No image
+            </div>
+          {% endif %}
+        </button>
+
+        <!-- Qty badge when in cart -->
+        <div data-qty-badge
+             class="hidden absolute -top-2 -left-2 min-w-[26px] h-7 px-2 rounded-full bg-[#1f6feb] text-white text-xs font-bold
+                    flex items-center justify-center shadow-lg">
+          0
+        </div>
+
+        <!-- Add button -->
+        <button type="button"
+                aria-label="Add"
+                data-add-delivery="{{ item.id }}"
+                class="absolute -right-2 -bottom-2 h-10 w-10 rounded-full
+                       bg-[#1f6feb] text-white text-2xl leading-none
+                       flex items-center justify-center shadow-lg
+                       hover:shadow-xl active:scale-95 transition">
+          +
+        </button>
+      </div>
+
+    </div>
   </div>
 
-  <div class="pt-3">
-    <div class="flex items-end justify-between gap-3">
-      <div class="font-[Playfair_Display] text-xl text-[#3a2418] leading-tight">
-        {{ item.name }}
-      </div>
-      <div class="text-[#3a2418] font-semibold whitespace-nowrap">
-        € {{ item.price }}
-      </div>
-    </div>
-
-    {% if item.description %}
-      <p class="mt-2 text-sm text-[#3a2418]/75 line-clamp-2">
-        {{ item.description }}
-      </p>
-    {% endif %}
-
-    <!-- small icons row (mockup style) -->
-    <div class="mt-3 flex items-center gap-3 text-lg">
-      {% if item.tags_list %}
-        {% if 'spicy' in item.tags_list %}<span title="Spicy">🌶️</span>{% endif %}
-        {% if 'vegan' in item.tags_list %}<span title="Vegan">🥬</span>{% endif %}
-        {% if 'vegetarian' in item.tags_list %}<span title="Vegetarian">🌿</span>{% endif %}
-        {% if 'gluten-free' in item.tags_list %}<span title="Gluten-free">🌾</span>{% endif %}
-      {% endif %}
-    </div>
-  </div>
-</button>
+  <div class="h-1 w-full bg-gradient-to-r from-transparent via-[#bfa76f]/40 to-transparent"></div>
+</div>

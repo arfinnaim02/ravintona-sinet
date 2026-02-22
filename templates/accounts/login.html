@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<section class="bg-[#f5f0e6]">
+  <div class="max-w-6xl mx-auto px-4 py-10">
+    <div class="max-w-md mx-auto">
+      <div class="rounded-2xl border border-[#3e2723]/10 bg-white/70 backdrop-blur p-6 shadow-sm">
+        <div class="mb-6 text-center">
+          <h1 class="text-2xl md:text-3xl font-semibold text-[#3e2723]">{% trans "Login" %}</h1>
+          <p class="text-sm text-[#3e2723]/70 mt-2">{% trans "Welcome back 👋" %}</p>
+        </div>
+
+        <form method="post" class="space-y-4">
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
+
+          <div>
+            <label class="block text-sm font-semibold text-[#3e2723] mb-1">{% trans "Email" %}</label>
+            {{ form.email }}
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-[#3e2723] mb-1">{% trans "Password" %}</label>
+            {{ form.password }}
+          </div>
+
+          <button class="w-full btn-wood px-5 py-3 rounded-lg font-semibold text-white">
+            {% trans "Login" %}
+          </button>
+
+          <div class="flex items-center justify-between text-sm">
+            <a class="underline underline-offset-4 hover:text-[#bfa76f]" href="{% url 'accounts:password_reset' %}">
+              {% trans "Forgot password?" %}
+            </a>
+            <a class="underline underline-offset-4 hover:text-[#bfa76f]" href="{% url 'accounts:signup' %}">
+              {% trans "Create account" %}
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  input{
+    width:100%;
+    border:1px solid rgba(62,39,35,.15);
+    border-radius:12px;
+    padding:.75rem .9rem;
+    background:rgba(255,255,255,.8);
+    outline:none;
+  }
+  input:focus{
+    border-color: rgba(191,167,111,.8);
+    box-shadow: 0 0 0 3px rgba(191,167,111,.18);
+  }
+</style>
+{% endblock %}

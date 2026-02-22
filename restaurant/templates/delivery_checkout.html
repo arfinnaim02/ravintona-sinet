@@ -7,10 +7,10 @@
 
 {% block content %}
 <section class="paper-bg">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-8 md:py-12">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 md:py-12">
 
     <!-- Header -->
-    <div class="text-center mb-5 sm:mb-8 md:mb-10">
+    <div class="text-center mb-6 sm:mb-8 md:mb-10">
       <div class="brand-script text-4xl sm:text-5xl md:text-6xl text-dark">{% trans "Checkout" %}</div>
       <div class="mt-2 text-[10px] sm:text-xs uppercase tracking-[0.28em] sm:tracking-[0.35em] text-dark/60">
         {% trans "Confirm details • Pay on delivery • We’ll contact you if needed" %}
@@ -21,158 +21,173 @@
       <div class="absolute -inset-4 bg-dark/10 blur-2xl rounded-[22px]"></div>
       <div class="absolute -inset-2 bg-gold/10 blur-xl rounded-[22px]"></div>
 
-      <div class="relative frame bg-white/35 overflow-hidden">
+      <div class="relative overflow-hidden rounded-[22px] border border-dark/10 bg-white/35 shadow-sm">
         <div class="grid grid-cols-1 lg:grid-cols-12">
 
-          <!-- LEFT: Form -->
+          <!-- LEFT: Details -->
           <div class="lg:col-span-7 p-4 sm:p-6 md:p-8 lg:p-10">
-
 
             <div class="flex items-start justify-between gap-4 mb-6">
               <div>
                 <div class="brand-serif text-2xl font-semibold">{% trans "Delivery details" %}</div>
                 <div class="text-sm text-dark/65 mt-1">
-                  {% blocktrans %}Please enter your contact info. Payment method: <b>{{ pay_method }}</b>.{% endblocktrans %}
+                  {% blocktrans %}Please enter your contact info{% endblocktrans %}
                 </div>
               </div>
 
-              <a href="{% url 'restaurant:delivery_order' %}"
+              <a href="{% url 'restaurant:menu' %}"
                  class="text-sm font-semibold text-dark/70 hover:text-dark underline underline-offset-4 shrink-0">
                 {% trans "← Back to menu" %}
               </a>
             </div>
 
-            <!-- Address summary -->
+            <!-- Address card (display only, no "Change" modal) -->
+            <div class="rounded-2xl border border-dark/10 bg-white/60 shadow-sm p-4 sm:p-5 mb-5">
+              <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                  <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Delivery address" %}</div>
 
-              <!-- ❌ Hidden on mobile: address + distance + fee -->
-              <div class="hidden sm:block frame p-4 sm:p-5 bg-white/25 mb-4 sm:mb-5">
+                  <div id="addrLabel" class="mt-2 text-sm font-semibold text-dark break-words">
+                    {{ address_label|default:"—" }}
+                  </div>
 
-                <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Delivery address" %}</div>
+                  <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-dark/70">
+                    <div class="p-3 rounded-xl bg-white/70 border border-dark/10">
+                      <div class="uppercase tracking-wider text-dark/55">{% trans "Distance" %}</div>
+                      <div class="mt-1 font-semibold text-dark">
+                        <span id="addrDistance">{{ distance_km|unlocalize|floatformat:2 }}</span> km
+                      </div>
+                    </div>
 
-                <div class="mt-2 text-sm font-semibold text-dark break-words">
-                  {{ address_label|default:"—" }}
-                </div>
-
-                <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-dark/70">
-                  <div class="p-3 rounded-sm bg-white/60 border border-dark/10">
-                    <div class="uppercase tracking-wider text-dark/55">{% trans "Distance" %}</div>
-                    <div class="mt-1 font-semibold text-dark">
-                      {{ distance_km|unlocalize|floatformat:2 }} km
+                    <div class="p-3 rounded-xl bg-white/70 border border-dark/10">
+                      <div class="uppercase tracking-wider text-dark/55">{% trans "Delivery fee" %}</div>
+                      <div class="mt-1 font-semibold text-dark">
+                        € <span id="addrFee">{{ delivery_fee|unlocalize|floatformat:2 }}</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div class="p-3 rounded-sm bg-white/60 border border-dark/10">
-                    <div class="uppercase tracking-wider text-dark/55">{% trans "Delivery fee" %}</div>
-                    <div class="mt-1 font-semibold text-dark">
-                      € {{ delivery_fee|unlocalize|floatformat:2 }}
-                    </div>
-                  </div>
-                </div>
-
-                {% if promo.active %}
-                  <div class="mt-4 inline-flex flex-wrap items-center gap-2 px-3 py-2 rounded-sm bg-gold/15 border border-gold/20 text-sm text-dark">
-                    <span class="font-semibold">{% trans "Offer:" %}</span>
-                    <span class="break-words">{{ promo.title }}</span>
-                    {% if promo.free_delivery %}
-                      <span class="px-2 py-1 rounded-sm bg-dark text-beige text-xs font-semibold">
-                        {% trans "FREE DELIVERY" %}
+                  {% if promo.active %}
+                    <div id="addrPromo" class="mt-4 inline-flex flex-wrap items-center gap-2 px-3 py-2 rounded-xl bg-gold/15 border border-gold/20 text-sm text-dark">
+                      <span class="font-semibold">{% trans "Offer:" %}</span>
+                      <span class="break-words">{{ promo.title }}</span>
+                      {% if promo.free_delivery %}
+                        <span class="px-2 py-1 rounded-lg bg-dark text-beige text-xs font-semibold">
+                          {% trans "FREE DELIVERY" %}
+                        </span>
+                      {% endif %}
+                      <span class="text-xs text-dark/60">
+                        ({% trans "min subtotal" %} € {{ promo.min_subtotal|unlocalize|floatformat:2 }})
                       </span>
-                    {% endif %}
-                    <span class="text-xs text-dark/60">
-                      ({% trans "min subtotal" %} € {{ promo.min_subtotal|unlocalize|floatformat:2 }})
-                    </span>
-                  </div>
-                {% endif %}
-              </div>
+                    </div>
+                  {% else %}
+                    <div id="addrPromo" class="hidden"></div>
+                  {% endif %}
+                </div>
 
-              <!-- ✅ Always visible: Change location link -->
-              <div class="mb-4 sm:mb-5">
-                <a href="{% url 'restaurant:delivery_location' %}"
-                  class="inline-flex text-sm font-semibold text-dark/70 hover:text-dark underline underline-offset-4">
-                  {% trans "Change location →" %}
-                </a>
+                {# No Change button #}
               </div>
-
+            </div>
 
             <!-- Form -->
-            <form method="post" action="{% url 'restaurant:delivery_place_order' %}" class="space-y-4 sm:space-y-5">
-
+            <form id="checkoutForm" method="post" action="{% url 'restaurant:delivery_place_order' %}" class="space-y-4 sm:space-y-5">
               {% csrf_token %}
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">{% trans "Name" %}</label>
-                  <input type="text" name="name" value="{{ name }}"
+                  <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">
+                    {% trans "Name" %} <span class="text-red-600">*</span>
+                  </label>
+                  <input id="nameInput"
+                         type="text"
+                         name="name"
+                         value="{{ name }}"
+                         required
+                         minlength="2"
                          placeholder="{% trans "Your full name" %}"
-                         class="w-full px-4 py-3 rounded-sm border border-dark/15 bg-white/85 outline-none focus:border-gold/60">
+                         class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white/85 outline-none focus:border-gold/60">
+                  <div id="nameErr" class="mt-1 text-[11px] text-red-700 hidden">
+                    {% trans "Please enter your name." %}
+                  </div>
                 </div>
 
                 <div>
-                  <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">{% trans "Phone" %}</label>
-                  <input type="text" name="phone" value="{{ phone }}"
-                         placeholder="{% trans "+358 …" %}"
-                         class="w-full px-4 py-3 rounded-sm border border-dark/15 bg-white/85 outline-none focus:border-gold/60">
+                  <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">
+                    {% trans "Phone" %} <span class="text-red-600">*</span>
+                  </label>
+                  <input id="phoneInput"
+                    type="tel"
+                    name="phone"
+                    value="{{ phone }}"
+                    required
+                    inputmode="tel"
+                    placeholder="{% trans "+358 …" %}"
+                    pattern="^(\+358|358)\d{6,12}$"
+                    title="Start with +358 or 358, then 6–12 digits"
+                    class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white/85 outline-none focus:border-gold/60">
+                  <div id="phoneErr" class="mt-1 text-[11px] text-red-700 hidden">
+                    {% trans "Please use a valid Finland number to order (start with +358 or 358)." %}
+                  </div>
                 </div>
               </div>
 
               <div>
                 <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">
-                  {% trans "Apartment / Door code / Extra directions (optional)" %}
+                  {% trans "Extra directions for the driver (optional)" %}
                 </label>
                 <input type="text" name="address_extra" value="{{ address_extra }}"
-                       placeholder="{% trans "E.g., A 12, door code 1234, call on arrival…" %}"
-                       class="w-full px-4 py-3 rounded-sm border border-dark/15 bg-white/85 outline-none focus:border-gold/60">
+                       placeholder="{% trans "Example: Building A, apartment 12, door code 1234, near K-Market / landmark…" %}"
+                       class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white/85 outline-none focus:border-gold/60">
+                <div class="mt-1 text-[11px] text-dark/60">
+                  {% trans "Add a landmark or clear directions so the driver can find you faster." %}
+                </div>
               </div>
 
               <div>
                 <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">
                   {% trans "Note to restaurant (optional)" %}
                 </label>
-                  <textarea name="note" rows="3"
-                            placeholder="{% trans "Allergies, no onions, extra spicy…" %}"
-                            class="w-full px-4 py-3 rounded-sm border border-dark/15 bg-white/85 outline-none focus:border-gold/60 sm:rows-4">{{ note }}</textarea>
-
+                <textarea name="note" rows="4"
+                          placeholder="{% trans "Allergies, no onions, extra spicy…" %}"
+                          class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white/85 outline-none focus:border-gold/60">{{ note }}</textarea>
               </div>
-              <!-- Payment Method -->
-              <div>
+
+              <!-- Payment -->
+              <div class="rounded-2xl border border-dark/10 bg-white/60 shadow-sm p-4 sm:p-5">
                 <label class="block text-xs uppercase tracking-wider text-dark/60 mb-3">
                   {% trans "Payment Method" %}
                 </label>
 
-                <div class="space-y-3">
-
-                  <label class="flex items-center gap-3 p-3 rounded-sm border border-dark/15 bg-white/80 cursor-pointer">
+                <div class="grid grid-cols-1 gap-3">
+                  <label class="flex items-center gap-3 p-4 rounded-xl border border-dark/15 bg-white/80 cursor-pointer hover:bg-white">
                     <input type="radio" name="payment_method" value="cash"
-                          class="h-4 w-4 text-gold focus:ring-gold"
-                          {% if pay_method == "Cash on Delivery" %}checked{% endif %}>
-                    <span class="text-sm font-medium text-dark">
-                      {% trans "Cash on Delivery" %}
-                    </span>
+                           class="h-4 w-4 text-gold focus:ring-gold"
+                           {% if "Cash" in pay_method or "cash" in pay_method %}checked{% endif %}>
+                    <div class="min-w-0">
+                      <div class="text-sm font-semibold text-dark">{% trans "Cash on Delivery" %}</div>
+                      <div class="text-xs text-dark/60">{% trans "Pay with cash when your order arrives." %}</div>
+                    </div>
                   </label>
 
-                  <label class="flex items-center gap-3 p-3 rounded-sm border border-dark/15 bg-white/80 cursor-pointer">
+                  <label class="flex items-center gap-3 p-4 rounded-xl border border-dark/15 bg-white/80 cursor-pointer hover:bg-white">
                     <input type="radio" name="payment_method" value="card"
-                          class="h-4 w-4 text-gold focus:ring-gold">
-                    <span class="text-sm font-medium text-dark">
-                      {% trans "Card on Delivery (POS machine)" %}
-                    </span>
+                           class="h-4 w-4 text-gold focus:ring-gold"
+                           {% if "Card" in pay_method or "POS" in pay_method or "card" in pay_method %}checked{% endif %}>
+                    <div class="min-w-0">
+                      <div class="text-sm font-semibold text-dark">{% trans "Card on Delivery (POS machine)" %}</div>
+                      <div class="text-xs text-dark/60">{% trans "Our rider will bring a POS machine for payment." %}</div>
+                    </div>
                   </label>
-
                 </div>
-
-                <p class="text-xs text-dark/60 mt-2">
-                  {% trans "If you choose card, our rider will bring a POS machine for payment." %}
-                </p>
               </div>
 
-              <div class="frame p-4 sm:p-5 bg-white/25">
-
+              <!-- Submit -->
+              <div class="rounded-2xl border border-dark/10 bg-white/60 shadow-sm p-4 sm:p-5">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                 <button type="submit"
-                          class="btn-gold px-7 py-3 rounded-sm font-semibold text-dark w-full sm:w-auto">
+                  <button id="placeOrderBtn" type="submit"
+                          class="btn-gold px-7 py-3 rounded-xl font-semibold text-dark w-full sm:w-auto">
                     {% trans "Place order →" %}
                   </button>
-
 
                   <div class="text-[11px] text-dark/55">
                     {% trans "We’ll keep these details for this session." %}
@@ -180,134 +195,224 @@
                 </div>
               </div>
             </form>
-
           </div>
 
-          <!-- RIGHT: Cart Summary -->
+          <!-- RIGHT: Summary -->
           <div class="lg:col-span-5 bg-[#3b231d] text-beige p-4 sm:p-6 md:p-8 lg:p-10 relative overflow-hidden">
-
             <div class="absolute inset-0 opacity-[0.08] pointer-events-none"
                  style="background-image:url('{% static "images/admin/wood-bg.jpg" %}'); background-size:cover; background-position:center;"></div>
 
             <div class="relative">
-              <div class="brand-serif text-2xl font-semibold text-white mb-3">{% trans "Order summary" %}</div>
+              <div class="flex items-center justify-between gap-3 mb-3">
+                <div class="brand-serif text-2xl font-semibold text-white">{% trans "Your Order" %}</div>
 
-              <div class="p-4 sm:p-5 rounded-sm bg-black/20 border border-white/10">
+                <button type="button"
+                        id="clearCartBtn"
+                        class="px-3 py-2 rounded-xl bg-white/10 border border-white/10 text-xs font-semibold text-white/90 hover:bg-white/15">
+                  {% trans "Clear" %}
+                </button>
+              </div>
 
-                {% if cart.lines and cart.count %}
+              <div class="rounded-2xl bg-black/20 border border-white/10 p-4 sm:p-5 shadow-sm">
 
-                  <!-- ✅ Coupon block -->
-                  <div class="p-4 rounded-sm bg-black/20 border border-white/10 mb-4">
-                    <div class="text-xs uppercase tracking-wider text-beige/70 mb-2">{% trans "Coupon" %}</div>
-
-                    {% if coupon_code %}
-                      <div class="flex items-center justify-between gap-3">
-                        <div class="text-sm">
-                          {% trans "Applied:" %} <span class="font-semibold text-white">{{ coupon_code }}</span>
-                        </div>
-                        <form method="post" action="{% url 'restaurant:delivery_remove_coupon' %}">
-                          {% csrf_token %}
-                          <button type="submit"
-                                  class="text-xs font-semibold text-white/80 hover:text-white underline underline-offset-4">
-                            {% trans "Remove" %}
-                          </button>
-                        </form>
-                      </div>
-                      <div class="mt-2 text-[11px] text-beige/70">
-                        {% trans "Discount is already included in totals below." %}
-                      </div>
-                    {% else %}
-                      <form method="post" action="{% url 'restaurant:delivery_apply_coupon' %}" class="flex gap-2">
-                        {% csrf_token %}
-                        <input type="text"
-                               name="coupon_code"
-                               placeholder="{% trans "Enter code" %}"
-                               class="w-full px-3 py-2 rounded-sm bg-white/90 text-dark border border-dark/10 outline-none focus:border-gold/60">
-                        <button type="submit"
-                                class="btn-gold px-4 py-2 rounded-sm font-semibold text-dark">
-                          {% trans "Apply" %}
-                        </button>
-                      </form>
-                      <div class="mt-2 text-[11px] text-beige/70">
-                        {% trans "Enter your promo code to get discount." %}
-                      </div>
-                    {% endif %}
+                <!-- Loyalty (Monthly) -->
+              {% if loyalty.enabled %}
+                <div class="p-4 rounded-2xl bg-black/20 border border-white/10 mb-4">
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="text-xs uppercase tracking-wider text-beige/70">
+                      {% trans "Loyalty reward" %}
+                    </div>
+                    <div class="text-[11px] text-beige/60">
+                      {{ loyalty.month }}
+                    </div>
                   </div>
 
-                  <div class="space-y-2">
+                  {% if loyalty.earned %}
+                    <div class="mt-2 text-sm text-white font-semibold">
+                      {% blocktrans with p=loyalty.percent %}You unlocked {{ p }}% OFF this month!{% endblocktrans %}
+                    </div>
+                    <div class="mt-2 text-[11px] text-beige/75">
+                      {% trans "Use this coupon on your next order:" %}
+                    </div>
+
+                    <div class="mt-2 flex items-center justify-between gap-3">
+                      <div class="px-3 py-2 rounded-xl bg-white/10 border border-white/10 text-white font-semibold text-sm">
+                        <span id="loyaltyCouponCode">{{ loyalty.coupon_code }}</span>
+                      </div>
+
+                      {# This only helps user fill the existing coupon input (no backend changes) #}
+                      <button type="button"
+                              id="useLoyaltyCouponBtn"
+                              class="btn-gold px-4 py-2 rounded-xl font-semibold text-dark text-xs">
+                        {% trans "Use it" %}
+                      </button>
+                    </div>
+
+                    <div class="mt-2 text-[11px] text-beige/70">
+                      {% trans "Valid until end of this month. One-time use." %}
+                    </div>
+                  {% else %}
+                    <div class="mt-2 text-sm text-white font-semibold">
+                      {% blocktrans with p=loyalty.percent %}Complete {{ loyalty.target }} delivered orders this month to get {{ p }}% OFF{% endblocktrans %}
+                    </div>
+
+                    <div class="mt-2 text-[11px] text-beige/75">
+                      {% blocktrans with c=loyalty.count t=loyalty.target %}Progress: {{ c }}/{{ t }} delivered orders{% endblocktrans %}
+                    </div>
+
+                    <div class="mt-2 text-[11px] text-beige/70">
+                      {% if loyalty.remaining > 0 %}
+                        {% blocktrans with r=loyalty.remaining %}Order {{ r }} more delivered order(s) to unlock the reward.{% endblocktrans %}
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endif %}
+
+                <!-- Coupon -->
+                <div class="p-4 rounded-2xl bg-black/20 border border-white/10 mb-4">
+                  <div class="text-xs uppercase tracking-wider text-beige/70 mb-2">{% trans "Coupon" %}</div>
+
+                  <div id="couponError" class="hidden mb-2 text-[11px] text-red-200"></div>
+
+                  <div id="couponApplied" class="{% if not coupon_code %}hidden{% endif %}">
+                    <div class="flex items-center justify-between gap-3">
+                      <div class="text-sm">
+                        {% trans "Applied:" %} <span class="font-semibold text-white" id="couponCode">{{ coupon_code }}</span>
+                      </div>
+                      <button type="button"
+                              id="couponRemove"
+                              class="text-xs font-semibold text-white/80 hover:text-white underline underline-offset-4">
+                        {% trans "Remove" %}
+                      </button>
+                    </div>
+                    <div class="mt-2 text-[11px] text-beige/70">{% trans "Discount is included in totals." %}</div>
+                  </div>
+
+                  <form id="couponForm" class="flex gap-2 {% if coupon_code %}hidden{% endif %}">
+                    {% csrf_token %}
+                    <input type="text"
+                           name="coupon_code"
+                           id="couponInput"
+                           placeholder="{% trans "Enter code" %}"
+                           autocomplete="off"
+                           class="w-full px-3 py-2 rounded-xl bg-white/90 text-dark border border-dark/10 outline-none focus:border-gold/60">
+                    <button type="submit"
+                            class="btn-gold px-4 py-2 rounded-xl font-semibold text-dark">
+                      {% trans "Apply" %}
+                    </button>
+                  </form>
+
+                  <div class="mt-2 text-[11px] text-beige/70 {% if coupon_code %}hidden{% endif %}" id="couponHint">
+                    {% trans "Example:" %} SINET10
+                  </div>
+                </div>
+
+                <!-- Items -->
+                <div id="orderLines" class="space-y-3">
+                  {% if cart.lines and cart.count %}
                     {% for line in cart.lines %}
-                      <div class="p-3 rounded-sm bg-black/20 border border-white/10">
-                        <div class="flex items-start justify-between gap-3">
-                          <div class="min-w-0">
-                            <div class="font-semibold text-white truncate">{{ line.name }}</div>
-                            <div class="text-xs text-beige/70">
-                              € {{ line.unit_price|unlocalize|floatformat:2 }} × {{ line.qty }}
-                            </div>
+                      <div class="rounded-2xl bg-black/20 border border-white/10 p-3">
+                        <div class="flex items-start gap-3">
+                          <div class="shrink-0 w-14 h-14 rounded-xl overflow-hidden border border-white/10 bg-white/10 flex items-center justify-center">
+                            <img data-img-for="{{ line.id }}"
+                                 src="{% static 'images/placeholder-food.png' %}"
+                                 alt="{{ line.name }}"
+                                 class="w-full h-full object-cover"
+                                 onerror="this.style.display='none'; this.parentElement.classList.add('bg-white/10');">
+                            <span data-fallback-for="{{ line.id }}" class="text-white/70 text-xs font-semibold hidden">
+                              {{ line.name|slice:":1" }}
+                            </span>
                           </div>
-                          <div class="font-semibold text-white">
-                            € {{ line.line_total|unlocalize|floatformat:2 }}
+
+                          <div class="min-w-0 flex-1">
+                            <div class="flex items-start justify-between gap-3">
+                              <div class="min-w-0">
+                                <div class="font-semibold text-white truncate">{{ line.name }}</div>
+                                <div class="text-xs text-beige/70 mt-0.5">
+                                  € {{ line.unit_price|unlocalize|floatformat:2 }} × <span data-qty-text="{{ line.id }}">{{ line.qty }}</span>
+                                </div>
+                              </div>
+                              <div class="text-right">
+                                <div class="text-[11px] text-beige/70 uppercase tracking-wider">{% trans "Total" %}</div>
+                                <div class="font-semibold text-white">€ <span data-line-total="{{ line.id }}">{{ line.line_total|unlocalize|floatformat:2 }}</span></div>
+                              </div>
+                            </div>
+
+                            <div class="mt-3 flex items-center justify-between gap-3">
+                              <div class="inline-flex items-center gap-2">
+                                <button type="button"
+                                        class="w-9 h-9 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 font-semibold"
+                                        data-minus="{{ line.id }}">−</button>
+                                <div class="w-10 text-center font-semibold text-white" data-qty="{{ line.id }}">{{ line.qty }}</div>
+                                <button type="button"
+                                        class="w-9 h-9 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 font-semibold"
+                                        data-plus="{{ line.id }}">+</button>
+                              </div>
+
+                              <button type="button"
+                                      class="text-xs font-semibold text-red-200 hover:text-red-100 underline underline-offset-4"
+                                      data-remove="{{ line.id }}">
+                                {% trans "Remove" %}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
                     {% endfor %}
+                  {% else %}
+                    <div class="text-sm text-beige/75">
+                      {% trans "Your cart is empty." %}
+                    </div>
+                    <div class="mt-3">
+                      <a href="{% url 'restaurant:menu' %}"
+                         class="inline-flex text-sm font-semibold text-white underline underline-offset-4">
+                        {% trans "Go to menu →" %}
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
+
+                <!-- Totals -->
+                <div class="h-px bg-white/10 my-4"></div>
+
+                <div class="space-y-2 text-sm">
+                  <div class="flex justify-between">
+                    <div class="text-beige/75">{% trans "Subtotal" %}</div>
+                    <div class="font-semibold text-white" id="sumSubtotal">€ {{ cart.subtotal|unlocalize|floatformat:2 }}</div>
                   </div>
 
-                  <div class="h-px bg-white/10 my-4"></div>
+                  <div id="sumCouponRow" class="{% if not cart.coupon_discount or cart.coupon_discount|unlocalize|floatformat:2 == '0.00' %}hidden{% endif %} flex justify-between">
+                    <div class="text-beige/75">{% trans "Coupon discount" %}</div>
+                    <div class="font-semibold text-white" id="sumCoupon">− € {{ cart.coupon_discount|unlocalize|floatformat:2 }}</div>
+                  </div>
 
-                  <div class="space-y-2 text-sm">
-
-                    <div class="flex justify-between items-start gap-3">
-                      <div class="text-beige/75">
-                        {% trans "Delivery fee" %}
-                        {% if promo.active %}
-                          <div class="text-[11px] text-beige/70 mt-1">
-                            {{ promo.title }}
-                            {% if promo.free_delivery %} • {% trans "Free delivery applied" %}{% endif %}
-                          </div>
-                        {% endif %}
+                  <div class="flex justify-between items-start gap-3">
+                    <div class="text-beige/75">
+                      {% trans "Delivery" %}
+                      <div id="sumPromo" class="text-[11px] text-beige/70 mt-1 {% if not promo.active %}hidden{% endif %}">
+                        {{ promo.title }}{% if promo.free_delivery %} • {% trans "Free delivery applied" %}{% endif %}
                       </div>
-                      <div class="font-semibold text-white">€ {{ cart.delivery_fee|unlocalize|floatformat:2 }}</div>
                     </div>
-
-                    {% if cart.coupon_discount and cart.coupon_discount|unlocalize|floatformat:2 != "0.00" %}
-                      <div class="flex justify-between">
-                        <div class="text-beige/75">
-                          {% trans "Discount" %}
-                          {% if coupon_code %}
-                            <span class="text-[11px] text-beige/70 ml-1">({{ coupon_code }})</span>
-                          {% endif %}
-                        </div>
-                        <div class="font-semibold text-white">− € {{ cart.coupon_discount|unlocalize|floatformat:2 }}</div>
-                      </div>
-                    {% endif %}
-
-                    <div class="flex justify-between">
-                      <div class="text-beige/75">{% trans "Subtotal" %}</div>
-                      <div class="font-semibold text-white">€ {{ cart.subtotal|unlocalize|floatformat:2 }}</div>
-                    </div>
-
-                    <div class="flex justify-between">
-                      <div class="text-beige/75">{% trans "Estimated total" %}</div>
-                      <div class="font-semibold text-white text-lg">€ {{ cart.total|unlocalize|floatformat:2 }}</div>
-                    </div>
+                    <div class="font-semibold text-white" id="sumFee">€ {{ cart.delivery_fee|unlocalize|floatformat:2 }}</div>
                   </div>
 
-                {% else %}
-                  <div class="text-sm text-beige/75">
-                    {% trans "Your cart is empty." %}
+                  <div class="flex justify-between pt-1">
+                    <div class="text-beige/75 font-semibold">{% trans "Total" %}</div>
+                    <div class="font-semibold text-white text-lg" id="sumTotal">€ {{ cart.total|unlocalize|floatformat:2 }}</div>
                   </div>
-                  <div class="mt-3">
-                    <a href="{% url 'restaurant:delivery_order' %}"
-                       class="inline-flex text-sm font-semibold text-white underline underline-offset-4">
-                      {% trans "Go to menu →" %}
-                    </a>
+                </div>
+
+                <div class="mt-4">
+                  <div class="mt-2 text-[11px] text-beige/70">
+                    {% trans "Tip: You can still adjust items here before placing the order." %}
                   </div>
-                {% endif %}
+                </div>
+
               </div>
 
-              <div class="mt-4 sm:mt-6 md:mt-8 p-4 sm:p-5 rounded-sm bg-black/25 border border-white/10 text-xs text-beige/80 leading-relaxed">
-
-                {% trans "Tip: Keep your phone reachable. Our driver may call if your entrance is unclear." %}
+              <div class="mt-4 sm:mt-6 rounded-2xl bg-black/25 border border-white/10 p-4 sm:p-5 text-xs text-beige/80 leading-relaxed">
+                {% trans "We’ll contact you if anything is unclear. Thank you!" %}
               </div>
             </div>
           </div>
@@ -320,16 +425,13 @@
 </section>
 
 
+<!-- ✅ Order confirmed modal -->
 {% if show_order_modal and order_obj %}
   <div id="orderModal" class="fixed inset-0 z-[999] hidden">
-    <!-- overlay -->
     <div id="orderModalOverlay" class="absolute inset-0 bg-black/60"></div>
 
-    <!-- modal wrapper -->
     <div class="relative w-full h-full flex items-end sm:items-center justify-center p-3 sm:p-6">
-      <!-- modal panel -->
-      <div class="relative w-full sm:max-w-2xl max-h-[88vh] sm:max-h-[85vh] overflow-hidden frame bg-white/95">
-        <!-- header -->
+      <div class="relative w-full sm:max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl border border-dark/10 bg-white/95 shadow-xl">
         <div class="p-5 sm:p-6 border-b border-dark/10 bg-white/70">
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
@@ -342,46 +444,60 @@
             </div>
 
             <button type="button" id="orderModalClose"
-                    class="shrink-0 px-3 py-2 rounded-sm bg-dark text-beige text-xs font-semibold hover:bg-dark/90">
+                    class="shrink-0 px-3 py-2 rounded-xl bg-dark text-beige text-xs font-semibold hover:bg-dark/90">
               {% trans "Close" %}
             </button>
           </div>
         </div>
 
-        <!-- body (scroll) -->
-        <div class="p-5 sm:p-6 overflow-y-auto max-h-[72vh] sm:max-h-[68vh]">
-          <!-- top cards -->
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                <div class="p-4 rounded-sm bg-white/60 border border-dark/10">
-                  <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Order #" %}</div>
-                  <div class="mt-1 font-semibold text-dark">#{{ order_obj.id }}</div>
-                </div>
+        <div class="p-5 sm:p-6 overflow-y-auto max-h-[78vh]">
 
-                <div class="p-4 rounded-sm bg-white/60 border border-dark/10">
-                  <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Payment" %}</div>
-                  <div class="mt-1 font-semibold text-dark">
-                    {% if order_obj.payment_method == "card" %}
-                      {% trans "Card on Delivery (POS)" %}
-                    {% else %}
-                      {% trans "Cash on Delivery" %}
-                    {% endif %}
-                  </div>
+          <!-- Top summary -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+            <div class="p-4 rounded-xl bg-white/70 border border-dark/10">
+              <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Order #" %}</div>
+              <div class="mt-1 font-semibold text-dark">#{{ order_obj.id }}</div>
+            </div>
 
-                </div>
-
-                <div class="p-4 rounded-sm bg-white/60 border border-dark/10">
-                  <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Status" %}</div>
-                  <div class="mt-1 font-semibold text-dark">{{ order_obj.get_status_display }}</div>
-                </div>
+            <div class="p-4 rounded-xl bg-white/70 border border-dark/10">
+              <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Payment" %}</div>
+              <div class="mt-1 font-semibold text-dark">
+                {% if order_obj.payment_method == "card" %}
+                  {% trans "Card on Delivery (POS)" %}
+                {% else %}
+                  {% trans "Cash on Delivery" %}
+                {% endif %}
               </div>
+            </div>
 
+            <div class="p-4 rounded-xl bg-white/70 border border-dark/10">
+              <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Status" %}</div>
+              <div class="mt-1 font-semibold text-dark">{{ order_obj.get_status_display }}</div>
+            </div>
+          </div>
 
-          <!-- items -->
+          <!-- Delivery info -->
+          <div class="mt-4 rounded-xl bg-white/70 border border-dark/10 p-4">
+            <div class="text-xs uppercase tracking-wider text-dark/60">{% trans "Delivery information" %}</div>
+            <div class="mt-2 text-sm text-dark/80">
+              <div><span class="font-semibold text-dark">{% trans "Address:" %}</span> {{ order_obj.address_label|default:"—" }}</div>
+              {% if order_obj.address_extra %}
+                <div class="mt-1"><span class="font-semibold text-dark">{% trans "Extra directions:" %}</span> {{ order_obj.address_extra }}</div>
+              {% endif %}
+              <div class="mt-1"><span class="font-semibold text-dark">{% trans "Phone:" %}</span> {{ order_obj.customer_phone }}</div>
+              <div class="mt-1"><span class="font-semibold text-dark">{% trans "Name:" %}</span> {{ order_obj.customer_name }}</div>
+              {% if order_obj.customer_note %}
+                <div class="mt-1"><span class="font-semibold text-dark">{% trans "Note:" %}</span> {{ order_obj.customer_note }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Items -->
           <div class="mt-5">
             <div class="text-xs uppercase tracking-wider text-dark/60 mb-2">{% trans "Items" %}</div>
             <div class="space-y-2">
               {% for it in order_obj.items.all %}
-                <div class="p-3 rounded-sm bg-white/60 border border-dark/10 flex items-start justify-between gap-3">
+                <div class="p-3 rounded-xl bg-white/70 border border-dark/10 flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <div class="font-semibold text-dark truncate">{{ it.name }}</div>
                     <div class="text-xs text-dark/70">
@@ -398,8 +514,17 @@
 
           <div class="mt-5 h-px bg-dark/10"></div>
 
-          <!-- totals -->
+          <!-- Totals -->
           <div class="mt-4 space-y-2 text-sm">
+            {% if order_obj.promo_title %}
+              <div class="flex justify-between gap-4">
+                <div class="text-dark/70">{% trans "Promotion" %}</div>
+                <div class="font-semibold text-dark whitespace-nowrap">
+                  {{ order_obj.promo_title }}{% if order_obj.promo_free_delivery %} • {% trans "Free delivery" %}{% endif %}
+                </div>
+              </div>
+            {% endif %}
+
             {% if order_obj.coupon_code %}
               <div class="flex justify-between gap-4">
                 <div class="text-dark/70">
@@ -433,21 +558,20 @@
             </div>
           </div>
 
-          <div class="mt-5 p-4 rounded-sm bg-gold/10 border border-gold/20 text-xs text-dark/80 leading-relaxed">
+          <div class="mt-5 p-4 rounded-xl bg-gold/10 border border-gold/20 text-xs text-dark/80 leading-relaxed">
             {% trans "Tip: Keep your phone reachable. Our driver may call if your entrance is unclear." %}
           </div>
         </div>
 
-        <!-- footer buttons -->
         <div class="p-5 sm:p-6 border-t border-dark/10 bg-white/70">
           <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-            <a href="{% url 'restaurant:delivery_order' %}"
-               class="btn-gold px-6 py-3 rounded-sm font-semibold text-dark text-center w-full sm:w-auto">
+            <a href="{% url 'restaurant:menu' %}"
+               class="btn-gold px-6 py-3 rounded-xl font-semibold text-dark text-center w-full sm:w-auto">
               {% trans "Order again →" %}
             </a>
 
             <button type="button" id="orderModalClose2"
-                    class="btn-wood text-white px-6 py-3 rounded-sm font-semibold w-full sm:w-auto">
+                    class="btn-wood text-white px-6 py-3 rounded-xl font-semibold w-full sm:w-auto">
               {% trans "Done" %}
             </button>
           </div>
@@ -455,42 +579,385 @@
       </div>
     </div>
   </div>
-
-  <script>
-    (function () {
-      const modal = document.getElementById("orderModal");
-      const overlay = document.getElementById("orderModalOverlay");
-      const closeBtn = document.getElementById("orderModalClose");
-      const closeBtn2 = document.getElementById("orderModalClose2");
-
-      function openModal() {
-        if (!modal) return;
-        modal.classList.remove("hidden");
-        document.body.style.overflow = "hidden";
-      }
-
-      function closeModal() {
-        if (!modal) return;
-        modal.classList.add("hidden");
-        document.body.style.overflow = "";
-        // optional: remove placed=1 from URL after close (prevents re-open on back)
-        try {
-          const url = new URL(window.location.href);
-          url.searchParams.delete("placed");
-          window.history.replaceState({}, "", url.toString());
-        } catch (e) {}
-      }
-
-      document.addEventListener("DOMContentLoaded", openModal);
-      if (overlay) overlay.addEventListener("click", closeModal);
-      if (closeBtn) closeBtn.addEventListener("click", closeModal);
-      if (closeBtn2) closeBtn2.addEventListener("click", closeModal);
-
-      document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") closeModal();
-      });
-    })();
-  </script>
 {% endif %}
 
+<script>
+(function () {
+  // -------------------------
+  // Helpers
+  // -------------------------
+  function csrfToken() {
+    const m = document.cookie.match(/csrftoken=([^;]+)/);
+    return m ? m[1] : "";
+  }
+
+  function money(n){ return "€ " + (parseFloat(n || 0)).toFixed(2); }
+
+  async function apiGet(url) {
+    const res = await fetch(url, { headers: { "Accept": "application/json" }, credentials: "same-origin" });
+    return res.json();
+  }
+
+  async function apiPost(url, payload) {
+    const fd = new FormData();
+    Object.keys(payload || {}).forEach(k => fd.append(k, payload[k]));
+    const res = await fetch(url, {
+      method:"POST",
+      headers: {
+        "X-CSRFToken": csrfToken(),
+        "X-Requested-With": "XMLHttpRequest"
+      },
+      body: fd,
+      credentials: "same-origin",
+      redirect: "manual"
+    });
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, data, res };
+  }
+
+  // -------------------------
+  // Required fields validation
+  // -------------------------
+  const form = document.getElementById("checkoutForm");
+  const nameInput = document.getElementById("nameInput");
+  const phoneInput = document.getElementById("phoneInput");
+  const nameErr = document.getElementById("nameErr");
+  const phoneErr = document.getElementById("phoneErr");
+  const placeBtn = document.getElementById("placeOrderBtn");
+
+  function isPhoneValid(v) {
+  const s = (v || "").trim();
+
+  // remove spaces, dashes, parentheses
+  const cleaned = s.replace(/[()\s-]/g, "");
+
+  // ✅ ONLY allow Finland format starting with +358 or 358
+  if (/^\+358\d{6,12}$/.test(cleaned)) return true;
+  if (/^358\d{6,12}$/.test(cleaned)) return true;
+
+  return false;
+}
+
+  function validateNow() {
+    const nameOk = (nameInput.value || "").trim().length >= 2;
+    const phoneOk = isPhoneValid(phoneInput.value);
+
+    if (nameErr) nameErr.classList.toggle("hidden", nameOk);
+    if (phoneErr) phoneErr.classList.toggle("hidden", phoneOk);
+
+    if (placeBtn) placeBtn.disabled = !(nameOk && phoneOk);
+    if (placeBtn) placeBtn.classList.toggle("opacity-60", !(nameOk && phoneOk));
+    if (placeBtn) placeBtn.classList.toggle("cursor-not-allowed", !(nameOk && phoneOk));
+
+    return nameOk && phoneOk;
+  }
+
+  if (nameInput) nameInput.addEventListener("input", validateNow);
+  if (phoneInput) phoneInput.addEventListener("input", validateNow);
+
+  if (form) {
+    form.addEventListener("submit", function(e){
+      if (!validateNow()) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+  }
+  validateNow();
+
+  // -------------------------
+  // Cart summary refresh
+  // -------------------------
+  const orderLines = document.getElementById("orderLines");
+  const sumSubtotal = document.getElementById("sumSubtotal");
+  const sumFee = document.getElementById("sumFee");
+  const sumTotal = document.getElementById("sumTotal");
+  const sumCouponRow = document.getElementById("sumCouponRow");
+  const sumCoupon = document.getElementById("sumCoupon");
+  const clearCartBtn = document.getElementById("clearCartBtn");
+
+  function setCouponError(msg) {
+    const el = document.getElementById("couponError");
+    if (!el) return;
+    el.textContent = msg || "{% trans 'Coupon error' %}";
+    el.classList.remove("hidden");
+  }
+  function clearCouponError() {
+    const el = document.getElementById("couponError");
+    if (el) el.classList.add("hidden");
+  }
+
+  function setCouponUIFromCart(cart) {
+    const c = (cart && cart.coupon) ? cart.coupon : { active: false };
+    const active = !!c.active;
+
+    const applied = document.getElementById("couponApplied");
+    const form = document.getElementById("couponForm");
+    const hint = document.getElementById("couponHint");
+    const code = document.getElementById("couponCode");
+
+    if (!applied || !form || !hint || !code) return;
+
+    if (active) {
+      applied.classList.remove("hidden");
+      form.classList.add("hidden");
+      hint.classList.add("hidden");
+      code.textContent = c.code || "";
+    } else {
+      applied.classList.add("hidden");
+      form.classList.remove("hidden");
+      hint.classList.remove("hidden");
+      code.textContent = "";
+    }
+  }
+
+  async function loadLineImages(lines) {
+    if (!lines || !lines.length) return;
+
+    const tasks = lines.map(async (line) => {
+      const id = line.id;
+      const imgEl = document.querySelector(`[data-img-for="${id}"]`);
+      const fallbackEl = document.querySelector(`[data-fallback-for="${id}"]`);
+      if (!imgEl) return;
+
+      try {
+        const url = "{% url 'restaurant:menu_item_detail' 0 %}".replace("/0/", `/${id}/`) + "?ctx=delivery";
+        const res = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" }, credentials: "same-origin" });
+        if (!res.ok) throw new Error("bad");
+        const html = await res.text();
+
+        const m = html.match(/<img[^>]+src="([^"]+)"/i);
+        if (m && m[1]) {
+          imgEl.style.display = "";
+          imgEl.src = m[1];
+        } else {
+          imgEl.style.display = "none";
+          if (fallbackEl) fallbackEl.classList.remove("hidden");
+        }
+      } catch {
+        imgEl.style.display = "none";
+        if (fallbackEl) fallbackEl.classList.remove("hidden");
+      }
+    });
+
+    await Promise.all(tasks);
+  }
+
+  function renderCart(cart) {
+    const lines = cart.lines || [];
+    const subtotal = parseFloat(cart.subtotal || 0);
+    const fee = parseFloat(cart.delivery_fee || 0);
+    const total = parseFloat(cart.total || 0);
+    const couponDiscount = parseFloat(cart.coupon_discount || 0);
+
+    if (sumSubtotal) sumSubtotal.textContent = money(subtotal);
+    if (sumFee) sumFee.textContent = money(fee);
+    if (sumTotal) sumTotal.textContent = money(total);
+
+    if (sumCouponRow && sumCoupon) {
+      if (couponDiscount > 0) {
+        sumCouponRow.classList.remove("hidden");
+        sumCoupon.textContent = "− " + money(couponDiscount);
+      } else {
+        sumCouponRow.classList.add("hidden");
+      }
+    }
+
+    setCouponUIFromCart(cart);
+
+    if (!orderLines) return;
+
+    if (!lines.length) {
+      orderLines.innerHTML = `
+        <div class="text-sm text-beige/75">{% trans "Your cart is empty." %}</div>
+        <div class="mt-3">
+          <a href="{% url 'restaurant:menu' %}" class="inline-flex text-sm font-semibold text-white underline underline-offset-4">
+            {% trans "Go to menu →" %}
+          </a>
+        </div>
+      `;
+      return;
+    }
+
+    orderLines.innerHTML = lines.map(line => {
+      const id = line.id;
+      const safeName = (line.name || "").replaceAll('"','&quot;');
+      const firstLetter = (line.name || "").slice(0, 1);
+      return `
+        <div class="rounded-2xl bg-black/20 border border-white/10 p-3">
+          <div class="flex items-start gap-3">
+            <div class="shrink-0 w-14 h-14 rounded-xl overflow-hidden border border-white/10 bg-white/10 flex items-center justify-center">
+              <img data-img-for="${id}" src="{% static 'images/placeholder-food.png' %}" alt="${safeName}" class="w-full h-full object-cover"
+                   onerror="this.style.display='none'; const f=document.querySelector('[data-fallback-for=\\'${id}\\']'); if(f) f.classList.remove('hidden');">
+              <span data-fallback-for="${id}" class="text-white/70 text-xs font-semibold hidden">${firstLetter}</span>
+            </div>
+
+            <div class="min-w-0 flex-1">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="font-semibold text-white truncate">${line.name}</div>
+                  <div class="text-xs text-beige/70 mt-0.5">
+                    € ${parseFloat(line.unit_price||0).toFixed(2)} × <span data-qty-text="${id}">${line.qty}</span>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-[11px] text-beige/70 uppercase tracking-wider">{% trans "Total" %}</div>
+                  <div class="font-semibold text-white">€ <span data-line-total="${id}">${parseFloat(line.line_total||0).toFixed(2)}</span></div>
+                </div>
+              </div>
+
+              <div class="mt-3 flex items-center justify-between gap-3">
+                <div class="inline-flex items-center gap-2">
+                  <button type="button" class="w-9 h-9 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 font-semibold" data-minus="${id}">−</button>
+                  <div class="w-10 text-center font-semibold text-white" data-qty="${id}">${line.qty}</div>
+                  <button type="button" class="w-9 h-9 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 font-semibold" data-plus="${id}">+</button>
+                </div>
+
+                <button type="button" class="text-xs font-semibold text-red-200 hover:text-red-100 underline underline-offset-4" data-remove="${id}">
+                  {% trans "Remove" %}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    loadLineImages(lines);
+  }
+
+  async function refreshSummary() {
+    const payload = await apiGet("{% url 'restaurant:delivery_cart_summary' %}");
+    if (payload && payload.ok && payload.cart) renderCart(payload.cart);
+    return payload;
+  }
+
+  async function setQty(id, qty) {
+    await apiPost("{% url 'restaurant:delivery_cart_update' %}", { item_id: id, qty: qty });
+    await refreshSummary();
+  }
+
+  async function clearCart() {
+    const payload = await refreshSummary();
+    const lines = (payload && payload.ok && payload.cart && payload.cart.lines) ? payload.cart.lines : [];
+    for (const it of lines) {
+      await setQty(it.id, 0);
+    }
+    await refreshSummary();
+  }
+
+    // Coupon
+    const couponForm = document.getElementById("couponForm");
+      // Loyalty coupon quick-use (fills existing coupon input + submits)
+    const useLoyaltyBtn = document.getElementById("useLoyaltyCouponBtn");
+    const loyaltyCodeEl = document.getElementById("loyaltyCouponCode");
+
+    if (useLoyaltyBtn) {
+      useLoyaltyBtn.addEventListener("click", () => {
+        const code = loyaltyCodeEl ? (loyaltyCodeEl.textContent || "").trim() : "";
+        if (!code) return;
+
+        // If coupon input exists, fill it and submit the same apply flow
+        if (couponInput) couponInput.value = code;
+
+        // If coupon form is hidden because something already applied, remove first
+        const applied = document.getElementById("couponApplied");
+        const formEl = document.getElementById("couponForm");
+
+        // If already active coupon UI is showing, just try applying (backend will swap if you removed first)
+        // We keep it simple: just call applyCoupon()
+        applyCoupon(code);
+      });
+    }
+
+  const couponInput = document.getElementById("couponInput");
+  const couponRemove = document.getElementById("couponRemove");
+
+  async function applyCoupon(code) {
+    clearCouponError();
+    const clean = (code || "").trim();
+    if (!clean) { setCouponError("{% trans 'Please enter a coupon code.' %}"); return; }
+    const { ok, data } = await apiPost("{% url 'restaurant:delivery_apply_coupon' %}", { coupon_code: clean });
+    if (!ok || !data || !data.ok) {
+      setCouponError((data && data.error) ? data.error : "{% trans 'Invalid or expired coupon.' %}");
+      return;
+    }
+    renderCart(data.cart);
+  }
+
+  async function removeCoupon() {
+    clearCouponError();
+    const { ok, data } = await apiPost("{% url 'restaurant:delivery_remove_coupon' %}", {});
+    if (!ok || !data || !data.ok) { setCouponError("{% trans 'Could not remove coupon.' %}"); return; }
+    renderCart(data.cart);
+  }
+
+  if (couponForm) couponForm.addEventListener("submit", (e) => { e.preventDefault(); applyCoupon(couponInput ? couponInput.value : ""); });
+  if (couponRemove) couponRemove.addEventListener("click", removeCoupon);
+
+  // Qty controls (event delegation)
+  document.addEventListener("click", async (e) => {
+    const plus = e.target.closest("[data-plus]");
+    if (plus) {
+      const id = plus.getAttribute("data-plus");
+      const qtyEl = document.querySelector(`[data-qty="${id}"]`);
+      const cur = parseInt(qtyEl ? qtyEl.textContent : "0", 10) || 0;
+      await setQty(id, cur + 1);
+      return;
+    }
+
+    const minus = e.target.closest("[data-minus]");
+    if (minus) {
+      const id = minus.getAttribute("data-minus");
+      const qtyEl = document.querySelector(`[data-qty="${id}"]`);
+      const cur = parseInt(qtyEl ? qtyEl.textContent : "0", 10) || 0;
+      await setQty(id, cur - 1);
+      return;
+    }
+
+    const rem = e.target.closest("[data-remove]");
+    if (rem) {
+      const id = rem.getAttribute("data-remove");
+      await setQty(id, 0);
+      return;
+    }
+  });
+
+  if (clearCartBtn) clearCartBtn.addEventListener("click", clearCart);
+
+  // Order confirmed modal open/close
+  const modal = document.getElementById("orderModal");
+  const overlay = document.getElementById("orderModalOverlay");
+  const closeBtn = document.getElementById("orderModalClose");
+  const closeBtn2 = document.getElementById("orderModalClose2");
+
+  function openModal() {
+    if (!modal) return;
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.add("hidden");
+    document.body.style.overflow = "";
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("placed");
+      window.history.replaceState({}, "", url.toString());
+    } catch (e) {}
+  }
+
+  if (modal) {
+    document.addEventListener("DOMContentLoaded", openModal);
+    if (overlay) overlay.addEventListener("click", closeModal);
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+    if (closeBtn2) closeBtn2.addEventListener("click", closeModal);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+  }
+
+  // Init: refresh once
+  refreshSummary();
+})();
+</script>
 {% endblock %}

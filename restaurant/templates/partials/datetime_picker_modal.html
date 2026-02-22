@@ -1,0 +1,169 @@
+{% load static %}
+{% load i18n %}
+
+<div id="dtModal" class="fixed inset-0 z-[90] hidden" aria-hidden="true">
+  <!-- Backdrop -->
+  <div id="dtBackdrop" class="absolute inset-0 bg-black/45"></div>
+
+  <!-- Modal -->
+  <div class="absolute inset-0 flex items-center justify-center p-4">
+    <div class="w-full max-w-5xl rounded-3xl bg-[#f5f0e6] border border-[#3e2723]/10 shadow-[0_22px_60px_rgba(0,0,0,0.25)] overflow-hidden h-[92dvh] max-h-[92dvh] flex flex-col min-h-0">
+
+      <!-- Header -->
+      <div class="p-4 sm:p-5 flex items-center justify-between gap-3 border-b border-[#3e2723]/10 bg-white/60 backdrop-blur">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-white border border-[#3e2723]/10 flex items-center justify-center shadow-sm">
+            <span class="block w-5">
+              <span class="block h-[2px] bg-[#3e2723]/80 mb-1"></span>
+              <span class="block h-[2px] bg-[#3e2723]/80 mb-1"></span>
+              <span class="block h-[2px] bg-[#3e2723]/80"></span>
+            </span>
+          </div>
+
+          <div>
+            <div class="text-lg sm:text-xl font-semibold text-[#3e2723]">{% trans "Select Date & Time" %}</div>
+            <div class="text-xs text-[#3e2723]/55">{% trans "Choose your slot (30-minute intervals)." %}</div>
+          </div>
+        </div>
+
+        <button type="button" id="dtClose"
+                class="px-4 py-2 rounded-2xl bg-white text-[#3e2723] text-sm font-semibold border border-[#3e2723]/10 hover:bg-white/80 active:scale-[0.99] transition">
+          {% trans "Close" %}
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-4 sm:p-6 flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y"
+     style="-webkit-overflow-scrolling: touch; touch-action: pan-y;">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+
+          <!-- LEFT: Date -->
+          <div class="rounded-3xl bg-white/70 backdrop-blur border border-[#3e2723]/10 shadow-sm overflow-hidden">
+            <div class="p-4 sm:p-5 border-b border-[#3e2723]/10 bg-white/70">
+              <div class="flex items-center justify-between">
+                <div class="text-base font-semibold text-[#3e2723]">{% trans "Select Date" %}</div>
+                <div class="w-10 h-10 rounded-2xl border border-[#3e2723]/10 bg-[#f5f0e6] flex items-center justify-center">
+                  <div class="w-5 h-5 rounded bg-[#c0392b]"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-4 sm:p-5">
+              <!-- Month nav -->
+              <div class="flex items-center justify-between">
+                <button type="button" id="dtPrevMonth"
+                        class="w-10 h-10 rounded-2xl border border-[#3e2723]/10 bg-white hover:bg-white/80 active:scale-[0.99] transition flex items-center justify-center text-[#3e2723]/70">
+                  &#8249;
+                </button>
+
+                <div id="dtMonthLabel" class="text-sm font-semibold text-[#3e2723]/80">
+                  —
+                </div>
+
+                <button type="button" id="dtNextMonth"
+                        class="w-10 h-10 rounded-2xl border border-[#3e2723]/10 bg-white hover:bg-white/80 active:scale-[0.99] transition flex items-center justify-center text-[#3e2723]/70">
+                  &#8250;
+                </button>
+              </div>
+
+              <!-- Weekdays -->
+              <div class="grid grid-cols-7 gap-2 mt-4 text-[11px] text-[#3e2723]/55">
+                <div class="text-center">{% trans "Sun" %}</div>
+                <div class="text-center">{% trans "Mon" %}</div>
+                <div class="text-center">{% trans "Tue" %}</div>
+                <div class="text-center">{% trans "Wed" %}</div>
+                <div class="text-center">{% trans "Thu" %}</div>
+                <div class="text-center">{% trans "Fri" %}</div>
+                <div class="text-center">{% trans "Sat" %}</div>
+              </div>
+
+              <!-- Calendar grid -->
+              <div id="dtCalendar" class="grid grid-cols-7 gap-2 mt-3"></div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Time -->
+          <div class="rounded-3xl bg-white/70 backdrop-blur border border-[#3e2723]/10 shadow-sm overflow-hidden">
+            <div class="p-4 sm:p-5 border-b border-[#3e2723]/10 bg-white/70">
+              <div class="text-base font-semibold text-[#3e2723]">{% trans "Set Time" %}</div>
+            </div>
+
+            <div class="p-4 sm:p-5">
+              <!-- Clock -->
+              <div class="flex items-center justify-center">
+                <div class="w-[230px] h-[230px] rounded-full bg-white border-[6px] border-[#3e2723]/25 shadow-sm flex items-center justify-center">
+                  <svg viewBox="0 0 120 120" class="w-[205px] h-[205px]">
+                    <circle cx="60" cy="60" r="54" fill="#fff" stroke="rgba(62,39,35,.25)" stroke-width="6"/>
+                    <g stroke="rgba(62,39,35,.25)" stroke-width="2">
+                      <line x1="60" y1="10" x2="60" y2="16"/>
+                      <line x1="60" y1="104" x2="60" y2="110"/>
+                      <line x1="10" y1="60" x2="16" y2="60"/>
+                      <line x1="104" y1="60" x2="110" y2="60"/>
+                    </g>
+
+                    <line id="dtHandHour" x1="60" y1="60" x2="60" y2="34"
+                          stroke="rgba(62,39,35,.90)" stroke-width="4" stroke-linecap="round"/>
+                    <line id="dtHandMin" x1="60" y1="60" x2="60" y2="22"
+                          stroke="rgba(62,39,35,.90)" stroke-width="3" stroke-linecap="round"/>
+                    <line id="dtHandSec" x1="60" y1="62" x2="60" y2="18"
+                          stroke="#c0392b" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="60" cy="60" r="4" fill="#c0392b"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Pickers -->
+              <div class="grid grid-cols-3 gap-3 mt-6">
+                <div>
+                  <label class="block text-[11px] uppercase tracking-[0.28em] text-[#3e2723]/55 mb-2">{% trans "Hour" %}</label>
+                  <select id="dtHour"
+                          class="w-full rounded-2xl border border-[#3e2723]/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#bfa76f]/60"></select>
+                </div>
+
+                <div>
+                  <label class="block text-[11px] uppercase tracking-[0.28em] text-[#3e2723]/55 mb-2">{% trans "Minute" %}</label>
+                  <select id="dtMinute"
+                          class="w-full rounded-2xl border border-[#3e2723]/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#bfa76f]/60"></select>
+                </div>
+
+                <div>
+                  <label class="block text-[11px] uppercase tracking-[0.28em] text-[#3e2723]/55 mb-2">{% trans "AM/PM" %}</label>
+                  <select id="dtAmPm"
+                          class="w-full rounded-2xl border border-[#3e2723]/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#bfa76f]/60">
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="dtError" class="mt-3 text-sm font-semibold text-red-700 hidden"></div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mt-4 text-xs text-[#3e2723]/55">
+          {% trans "Open hours: 10:00 to 22:00 (last reservation start 21:30)." %}
+        </div>
+      </div>
+
+      <!-- Footer (single action area) -->
+      <div class="p-4 sm:p-5 border-t border-[#3e2723]/10 bg-white/60 backdrop-blur">
+        <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-end">
+          <button type="button" id="dtSetTime"
+                  class="w-full sm:w-auto px-8 py-3 rounded-2xl bg-[#3e2723] text-white font-semibold shadow-sm hover:opacity-95 active:scale-[0.99] transition">
+            {% trans "Set Time" %}
+          </button>
+
+          <button type="button" id="dtCancel"
+                  class="w-full sm:w-auto px-8 py-3 rounded-2xl bg-white text-[#3e2723] font-semibold border border-[#3e2723]/10 hover:bg-white/80 active:scale-[0.99] transition">
+            {% trans "Cancel" %}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

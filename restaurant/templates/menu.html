@@ -1,529 +1,567 @@
 {% extends "base.html" %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Menu – {{ settings.RESTAURANT_NAME }}{% endblock %}
+{% block title %}{% blocktrans with restaurant_name=settings.RESTAURANT_NAME %}Menu – {{ restaurant_name }}{% endblocktrans %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/menu.css' %}">
+{% endblock %}
 
 {% block content %}
-<section class="paper-bg">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+<section class="bg-[#f5f0e6] min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- ===== Top Promo Banner (CLEAN PREMIUM BOARD + PNG ICONS + MOBILE PERFECT) ===== -->
+    <div class="mb-6">
+      <div class="relative overflow-hidden rounded-[28px] border border-[#3e2723]/10 bg-white
+                  shadow-[0_22px_60px_rgba(0,0,0,0.14)]">
 
-      <!-- LEFT SIDEBAR (DESKTOP) -->
-      <aside class="hidden lg:block lg:col-span-3">
-        <div class="lg:sticky lg:top-24">
-          <div class="frame p-0 overflow-hidden">
+        <!-- HERO IMAGE -->
+        <div class="relative min-h-[260px] sm:min-h-[320px] lg:min-h-[380px]">
+          <img src="{% static 'images/menu_promo.jpg' %}"
+               alt="{% trans 'Ravintola Sinet Promo' %}"
+               class="absolute inset-0 h-full w-full object-cover" />
 
-            <!-- Header -->
-            <div class="px-6 py-5 border-b border-dark/10 bg-white/25">
-              <div class="brand-serif text-2xl font-semibold leading-tight">Menu</div>
+          <!-- soft shading -->
+          <div class="absolute inset-0 bg-gradient-to-b from-black/35 via-black/10 to-black/30"></div>
+
+          <!-- Header -->
+          <div class="relative px-4 pt-7 sm:pt-10 text-center">
+            <div class="brand-script text-4xl sm:text-6xl text-white leading-none"
+                 style="text-shadow:0 10px 26px rgba(0,0,0,.50);">
+              {% trans "Ravintola Sinet" %}
             </div>
 
-            <!-- Categories -->
-            <div class="px-3 py-3">
-              <a href="{% url 'restaurant:menu' %}{% if q %}?q={{ q|urlencode }}{% endif %}"
-                 class="group flex items-center gap-3 px-4 py-3 rounded-sm transition
-                        {% if not current_category %}bg-[#3e2723] text-beige{% else %}hover:bg-white/60 text-dark{% endif %}">
-                <span class="w-6 h-6 flex items-center justify-center {% if not current_category %}text-beige{% else %}text-dark/70{% endif %}">
-                  ☰
-                </span>
-                <span class="text-sm font-semibold tracking-wide">All Categories</span>
-              </a>
-
-              <div class="my-3 h-px bg-dark/10"></div>
-
-              <div class="space-y-1">
-                {% for cat in categories %}
-                  <a href="{% url 'restaurant:menu' %}?category={{ cat.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}"
-                     class="group flex items-center gap-3 px-4 py-3 rounded-sm transition
-                            {% if current_category and current_category.slug == cat.slug %}bg-[#3e2723] text-beige{% else %}hover:bg-white/60 text-dark{% endif %}">
-                    <span class="w-6 h-6 flex items-center justify-center {% if current_category and current_category.slug == cat.slug %}text-beige{% else %}text-dark/70{% endif %}">
-                      ❖
-                    </span>
-                    <span class="text-sm font-semibold tracking-wide">{{ cat.name }}</span>
-                  </a>
-                {% empty %}
-                  <div class="px-4 py-4 text-sm text-dark/60">No categories yet.</div>
-                {% endfor %}
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </aside>
-
-      <!-- MAIN CONTENT -->
-      <main class="lg:col-span-9">
-
-        <!-- MOBILE: Category Toggle + Current Category -->
-        <div class="lg:hidden mb-4">
-          <div class="frame bg-white/40 px-4 py-3 flex items-center justify-between gap-3">
-            <div class="min-w-0">
-              <div class="text-xs text-dark/60">Category</div>
-              <div class="brand-serif font-semibold truncate">
-                {% if current_category %}{{ current_category.name }}{% else %}All Categories{% endif %}
-              </div>
-            </div>
-
-            <button type="button"
-                    id="mobileCatsBtn"
-                    class="btn-wood text-white px-4 py-2 rounded-sm font-semibold text-xs">
-              Browse
-            </button>
-          </div>
-
-          <!-- Mobile categories dropdown -->
-          <div id="mobileCatsPanel" class="hidden mt-3 frame bg-white/50 overflow-hidden">
-            <div class="px-3 py-3">
-              <a href="{% url 'restaurant:menu' %}{% if q %}?q={{ q|urlencode }}{% endif %}"
-                 class="block px-4 py-3 rounded-sm transition
-                        {% if not current_category %}bg-[#3e2723] text-beige{% else %}hover:bg-white/60 text-dark{% endif %}">
-                ☰ <span class="ml-2 text-sm font-semibold">All Categories</span>
-              </a>
-
-              <div class="my-3 h-px bg-dark/10"></div>
-
-              <div class="space-y-1">
-                {% for cat in categories %}
-                  <a href="{% url 'restaurant:menu' %}?category={{ cat.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}"
-                     class="block px-4 py-3 rounded-sm transition
-                            {% if current_category and current_category.slug == cat.slug %}bg-[#3e2723] text-beige{% else %}hover:bg-white/60 text-dark{% endif %}">
-                    ❖ <span class="ml-2 text-sm font-semibold">{{ cat.name }}</span>
-                  </a>
-                {% endfor %}
-              </div>
-
+            <div class="mt-2 text-sm sm:text-lg text-white/85"
+                 style="text-shadow:0 8px 18px rgba(0,0,0,.45);">
+              {% trans "Pizza, Kebab, Burgers, Gluten Free, Steaks" %}
             </div>
           </div>
-        </div>
 
-        <!-- SEARCH + BOOK -->
-        <div class="flex flex-col md:flex-row gap-4 md:items-center md:justify-between mb-6">
-          <form method="get" class="flex-1" action="{% url 'restaurant:menu' %}">
-            <div class="frame flex items-center px-4 py-3">
-              <input
-                type="text"
-                name="q"
-                value="{{ q }}"
-                placeholder="Search menu..."
-                class="w-full bg-transparent outline-none text-sm"
-              />
-              {% if current_category %}
-                <input type="hidden" name="category" value="{{ current_category.slug }}">
-              {% endif %}
-              <button class="text-gold font-semibold text-sm px-3">Search</button>
-            </div>
-          </form>
+          <!-- ===== CENTER PREMIUM BOARD ===== -->
+          <!-- ✅ extra bottom padding so fixed mobile cart bar won't cover it -->
+          <div class="relative px-3 sm:px-6 lg:px-10 pb-24 sm:pb-8 mt-6 sm:mt-10">
+            <div class="mx-auto w-full max-w-5xl">
 
-          <a href="{% url 'restaurant:reservation' %}" class="btn-gold px-6 py-3 rounded-sm font-semibold w-fit">
-            Book for Dine In →
-          </a>
-        </div>
+              <div class="relative rounded-[22px] overflow-hidden
+                          border border-[#d7c3ad]
+                          bg-gradient-to-b from-[#f3eee7] to-[#e8ded3]
+                          shadow-[0_18px_45px_rgba(0,0,0,0.18)]">
 
-        <!-- MOST ORDERED -->
-        <div id="most-ordered" class="mb-10">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="brand-serif text-3xl font-semibold">Most Ordered</h3>
-            <div class="text-sm text-dark/60 hidden sm:block">Chef’s favorites</div>
-          </div>
+                <!-- inner border -->
+                <div class="pointer-events-none absolute inset-[10px] rounded-[18px] border border-[#3e2723]/12"></div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {% for item in most_ordered %}
-              <div class="frame p-3 bg-white/35 hover:bg-white/45 transition group">
-                <button type="button"
-                        class="w-full text-left"
-                        data-item-url="{% url 'restaurant:menu_item_detail' item.id %}?ctx=menu">
-                  <div class="relative overflow-hidden">
-                    {% if item.image %}
-                      <img src="{{ item.image.url }}" class="w-full h-44 object-cover transition duration-300 group-hover:scale-[1.02]" alt="{{ item.name }}">
-                    {% else %}
-                      <div class="w-full h-44 bg-lightbrown/30 flex items-center justify-center text-dark/60">No image</div>
-                    {% endif %}
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent pointer-events-none"></div>
+                <!-- soft highlight -->
+                <div class="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 h-56 w-[700px] rounded-full
+                            bg-white/40 blur-2xl opacity-70"></div>
+
+                <div class="relative px-4 sm:px-10 py-6 sm:py-7">
+                  <div class="text-center">
+                    <div class="text-lg sm:text-2xl font-semibold text-[#3e2723]">
+                      {% trans "Enjoy Special Coupons with Your Order" %}
+                    </div>
                   </div>
 
-                  <div class="mt-3">
-                    <div class="flex items-start justify-between gap-3">
-                      <div class="brand-serif text-lg font-semibold leading-tight group-hover:underline underline-offset-4">
-                        {{ item.name }}
+                  <!-- OFFERS -->
+                  <div class="relative mt-6 grid gap-4 sm:gap-0 sm:grid-cols-2 items-stretch">
+
+                    <!-- LEFT OFFER -->
+                    <div class="rounded-2xl sm:rounded-none bg-white/25 sm:bg-transparent
+                                border border-[#3e2723]/10 sm:border-0
+                                p-4 sm:p-0">
+                      <div class="flex items-center gap-4">
+                        <div class="shrink-0 rounded-[18px] border border-[#3e2723]/12 bg-white/70
+                                    shadow-[0_10px_22px_rgba(0,0,0,0.12)] overflow-hidden">
+                          <img src="{% static 'images/cupon/discount.jpg' %}"
+                               alt="{% trans '-10% off' %}"
+                               class="h-[74px] w-[104px] sm:h-[92px] sm:w-[128px] object-cover" />
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+                          <div class="text-lg sm:text-2xl font-semibold text-[#3e2723] leading-tight">
+                            {% trans "Ramadan Special – 10% Off" %}
+                          </div>
+                          <div class="text-sm sm:text-base text-[#3e2723]/70 -mt-0.5">
+                            {% trans "on Your First Order" %}
+                          </div>
+                        </div>
                       </div>
-                      <div class="brand-serif font-semibold whitespace-nowrap">€ {{ item.price }}</div>
+
+                      <button type="button"
+                              data-top-coupon="Ramadan10"
+                              class="mt-4 w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full
+                                     bg-[#2a1a14] text-white px-6 py-2.5 text-sm font-semibold
+                                     shadow-[0_12px_22px_rgba(0,0,0,0.22)]
+                                     hover:brightness-110 hover:-translate-y-[1px]
+                                     active:translate-y-0 active:scale-[0.99] transition">
+                        <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/15">✓</span>
+                        {% trans "Claim Coupon" %}
+                      </button>
                     </div>
 
-                    {% if item.description %}
-                      <div class="text-sm text-dark/70 mt-1">{{ item.description|truncatechars:70 }}</div>
-                    {% endif %}
+                    <div class="hidden sm:block absolute left-1/2 top-0 bottom-0 w-px bg-[#3e2723]/12"></div>
+
+                    <!-- RIGHT OFFER -->
+                    <div class="rounded-2xl sm:rounded-none bg-white/25 sm:bg-transparent
+                                border border-[#3e2723]/10 sm:border-0
+                                p-4 sm:p-0 sm:pl-10">
+                      <div class="flex items-center gap-4">
+                        <div class="shrink-0 rounded-[18px] border border-[#3e2723]/12 bg-white/70
+                                    shadow-[0_10px_22px_rgba(0,0,0,0.12)] overflow-hidden">
+                          <img src="{% static 'images/cupon/freedelivery.jpg' %}"
+                               alt="{% trans 'Free delivery' %}"
+                               class="h-[74px] w-[104px] sm:h-[92px] sm:w-[128px] object-cover" />
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+                          <div class="text-lg sm:text-2xl font-semibold text-[#3e2723] leading-tight">
+                            {% trans "Free Delivery" %}
+                          </div>
+                          <div class="text-sm sm:text-base text-[#3e2723]/70 -mt-0.5">
+                            {% trans "on Orders Over €30" %}
+                          </div>
+                        </div>
+                      </div>
+
+                      <button type="button"
+                              data-top-coupon="FREEDEL30"
+                              class="mt-4 w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full
+                                     bg-[#bfa76f] text-[#2a1a14] px-6 py-2.5 text-sm font-semibold
+                                     shadow-[0_12px_22px_rgba(0,0,0,0.18)]
+                                     hover:brightness-105 hover:-translate-y-[1px]
+                                     active:translate-y-0 active:scale-[0.99] transition">
+                        <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-black/10">✓</span>
+                        {% trans "Claim Coupon" %}
+                      </button>
+                    </div>
+
                   </div>
-                </button>
 
-                <div class="mt-4 grid grid-cols-2 gap-2">
-                  {% if '/delivery/order' not in request.path %}
-                    <button type="button"
-                            class="btn-wood text-white px-3 py-2 rounded-sm font-semibold text-xs
-                                   {% if item.status == 'sold_out' %}opacity-40 cursor-not-allowed{% endif %}"
-                            data-add-dinein="{{ item.id }}"
-                            data-name="{{ item.name }}"
-                            data-price="{{ item.price }}"
-                            {% if item.status == "sold_out" %}disabled{% endif %}>
-                      Add for Dine In
-                    </button>
-                  {% endif %}
+                  <div class="mt-5 text-center text-sm sm:text-base text-[#3e2723]/65 italic">
+                    {% trans "Save on your order with these great offers!" %}
+                  </div>
 
-                  {% if '/book' not in request.path %}
-                    <button type="button"
-                            class="btn-gold text-dark px-3 py-2 rounded-sm font-semibold text-xs
-                                   {% if item.status == 'sold_out' %}opacity-40 cursor-not-allowed{% endif %}"
-                            data-add-delivery="{{ item.id }}"
-                            {% if item.status == "sold_out" %}disabled{% endif %}>
-                      Add for Delivery
-                    </button>
-                  {% endif %}
+                  <!-- message your JS uses -->
+                  <div id="topPromoMessage"
+                       class="hidden mt-3 text-center text-sm font-semibold text-green-700">
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Sticky Category Rail ===== -->
+    <div class="sticky top-16 z-[60] bg-[#f5f0e6] pt-2 pb-4 border-b border-[#3e2723]/10 shadow-[0_10px_18px_rgba(0,0,0,0.04)]">
+      <div class="relative">
+        <div class="pointer-events-none absolute left-0 top-0 h-full w-10 bg-gradient-to-r from-[#f5f0e6] to-transparent"></div>
+        <div class="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-[#f5f0e6] to-transparent"></div>
+
+        <button type="button"
+                id="catPrev"
+                class="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 items-center justify-center rounded-full bg-white border border-[#3e2723]/15 shadow-sm hover:shadow-md active:scale-95 transition">
+          <span class="text-[#3e2723] text-xl leading-none">‹</span>
+        </button>
+
+        <button type="button"
+                id="catNext"
+                class="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 items-center justify-center rounded-full bg-white border border-[#3e2723]/15 shadow-sm hover:shadow-md active:scale-95 transition">
+          <span class="text-[#3e2723] text-xl leading-none">›</span>
+        </button>
+
+        <div id="catRail" class="overflow-x-auto no-scrollbar scroll-smooth px-10 sm:px-12">
+          <div class="flex gap-2.5 whitespace-nowrap items-center">
+
+            <a href="#top"
+               data-cat-pill="__all__"
+               class="cat-pill px-4 py-2 rounded-full border text-sm font-semibold transition bg-[#3e2723] text-white border-[#3e2723] shadow-sm">
+              {% trans "All" %}
+            </a>
+
+            {% for cat in categories %}
+              <a href="#cat-{{ cat.slug }}"
+                 data-cat-pill="{{ cat.slug }}"
+                 class="cat-pill px-4 py-2 rounded-full border text-sm font-semibold transition
+                        bg-white text-[#3e2723] border-[#3e2723]/20 hover:bg-[#3e2723] hover:text-white">
+                {{ cat.name }}
+              </a>
+            {% endfor %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="top" class="grid lg:grid-cols-12 gap-8 mt-6 scroll-mt-[140px]">
+
+      <!-- ===== Left: Items (ALL items grouped by category) ===== -->
+      <div class="lg:col-span-8">
+        <div class="flex items-end justify-between mb-4">
+          <div>
+            <div class="text-xs uppercase tracking-[0.35em] text-[#3e2723]/60">{% trans "Menu" %}</div>
+            <h1 class="text-2xl sm:text-3xl font-semibold text-[#3e2723]">
+              {% trans "All items" %}
+            </h1>
+          </div>
+
+          <div class="hidden sm:block text-xs text-[#3e2723]/55">
+            {% trans "Tap an item to preview • Use" %} <span class="font-semibold">+</span> {% trans "to add" %}
+          </div>
+        </div>
+
+        {% regroup items by category as grouped_items %}
+
+        {% for group in grouped_items %}
+          <div id="cat-{{ group.grouper.slug }}"
+               data-cat-section="{{ group.grouper.slug }}"
+               class="cat-section scroll-mt-[140px]">
+
+            <div class="flex items-center justify-between mt-8 mb-3">
+              <h2 class="text-lg sm:text-xl font-semibold text-[#3e2723]">
+                {{ group.grouper.name }}
+              </h2>
+              <div class="h-px flex-1 mx-4 bg-[#3e2723]/10"></div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-4 sm:gap-5">
+              {% for item in group.list %}
+                {% include "partials/_menu_card.html" with item=item %}
+              {% endfor %}
+            </div>
+          </div>
+        {% empty %}
+          <div class="bg-white/70 border border-[#3e2723]/10 rounded-2xl p-6 text-[#3e2723]/70">
+            {% trans "No items found." %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- ===== Right: Desktop Cart (premium + totals always visible) ===== -->
+      <div class="hidden lg:block lg:col-span-4">
+        <div class="sticky top-24">
+          <div class="space-y-4">
+
+            <div class="bg-white/90 rounded-2xl border border-[#3e2723]/10 shadow-sm overflow-hidden">
+              <div class="p-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-green-500/10 text-green-700">✓</span>
+                    <div>
+                      <div class="text-sm font-semibold text-[#3e2723]">{% trans "Now open" %}</div>
+                      <div class="text-xs text-[#3e2723]/60">{% trans "Order & pickup / delivery" %}</div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-semibold text-[#3e2723]">21:00</div>
+                    <div class="text-xs text-[#3e2723]/60">{% trans "until" %}</div>
+                  </div>
                 </div>
 
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <span id="freeDeliveryBadge"
+                        class="hidden inline-flex items-center rounded-full bg-red-600 text-white text-[11px] font-bold px-3 py-1">
+                    {% trans "FREE DELIVERY APPLIED" %}
+                  </span>
+
+                  <span class="inline-flex items-center rounded-full bg-[#3e2723]/5 text-[#3e2723] text-[11px] font-semibold px-3 py-1 border border-[#3e2723]/10">
+                    {% trans "Delivery fee auto-calculated" %}
+                  </span>
+                </div>
               </div>
-            {% empty %}
-              <div class="text-sm text-dark/60">
-                No “popular” items yet. Add tag <b>popular</b> from staff panel.
+            </div>
+
+            <div id="desktopCart"
+                 class="bg-white/90 rounded-2xl shadow-xl border border-[#3e2723]/10 overflow-hidden">
+
+              <div class="p-5 border-b border-[#3e2723]/10 flex items-center justify-between gap-3">
+                <h3 class="text-xl font-semibold text-[#3e2723]">{% trans "Your Order" %}</h3>
+
+                <button type="button"
+                        id="clearCartBtn"
+                        class="hidden text-xs font-semibold px-3 py-2 rounded-xl border border-red-200 bg-red-50 text-red-700
+                               hover:bg-red-100 active:scale-[0.99] transition">
+                  {% trans "Clear" %}
+                </button>
               </div>
-            {% endfor %}
-          </div>
-        </div>
 
-        <!-- MENU ITEMS -->
-        <div id="menu-items" class="mb-6">
-          <h3 class="brand-serif text-3xl font-semibold mb-4">
-            {% if current_category %}{{ current_category.name }}{% else %}All Items{% endif %}
-          </h3>
+              <div class="px-5 pt-4">
+                <div id="cartEmptyHint"
+                     class="hidden text-sm text-[#3e2723]/60 py-8 text-center">
+                  {% trans "Your cart is empty. Tap" %} <b>+</b> {% trans "to add items." %}
+                </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {% for item in items %}
-              <div class="frame p-4 bg-white/35 hover:bg-white/45 transition">
-                <div class="flex gap-4">
+                <div id="cartItems"
+                     class="space-y-4 text-sm max-h-[38vh] overflow-auto no-scrollbar pr-1">
+                </div>
+              </div>
 
-                  <button type="button"
-                          class="shrink-0"
-                          data-item-url="{% url 'restaurant:menu_item_detail' item.id %}?ctx=menu">
-                    <div class="w-24 h-24 rounded-sm overflow-hidden border border-dark/10 bg-white/60">
-                      {% if item.image %}
-                        <img src="{{ item.image.url }}" class="w-full h-full object-cover" alt="{{ item.name }}">
-                      {% else %}
-                        <div class="w-full h-full bg-lightbrown/30 flex items-center justify-center text-[11px] text-dark/60">
-                          No image
-                        </div>
-                      {% endif %}
-                    </div>
+              <div class="p-5 border-t border-[#3e2723]/10 bg-white/70">
+                <div class="text-xs uppercase tracking-wider text-[#3e2723]/60 mb-2">{% trans "Coupon" %}</div>
+                <div class="flex gap-2">
+                  <input type="text" id="couponInput"
+                        placeholder="{% trans 'Enter code' %}"
+                        class="flex-1 border border-[#3e2723]/15 rounded-xl px-3 py-2 text-sm bg-white/90 outline-none focus:border-[#bfa76f]">
+
+                  <button id="applyCouponBtn"
+                          class="bg-[#3e2723] text-white px-4 rounded-xl text-sm font-semibold hover:opacity-95 active:scale-[0.99] transition">
+                    {% trans "Apply" %}
                   </button>
 
-                  <div class="min-w-0 flex-1">
-                    <button type="button"
-                            class="w-full text-left"
-                            data-item-url="{% url 'restaurant:menu_item_detail' item.id %}?ctx=menu">
-                      <div class="flex items-start justify-between gap-3">
-                        <div class="brand-serif text-lg font-semibold leading-tight hover:underline underline-offset-4 truncate">
-                          {{ item.name }}
-                        </div>
-                        <div class="brand-serif font-semibold whitespace-nowrap">€ {{ item.price }}</div>
-                      </div>
+                  <button id="removeCouponBtn"
+                          type="button"
+                          class="hidden px-4 rounded-xl text-sm font-semibold border border-[#3e2723]/15 text-[#3e2723]
+                                hover:bg-[#f5f0e6] active:scale-[0.99] transition">
+                    {% trans "Remove" %}
+                  </button>
+                </div>
 
-                      {% if item.description %}
-                        <div class="mt-1 text-sm text-dark/70">
-                          {{ item.description|truncatechars:90 }}
-                        </div>
-                      {% endif %}
-                    </button>
+                <div id="couponMessage" class="text-xs mt-2 text-green-700 hidden"></div>
 
-                    <div class="mt-2 flex items-center gap-2">
-                      {% if item.status == 'sold_out' %}
-                        <span class="inline-flex text-[11px] font-semibold px-2 py-1 rounded-sm bg-red-500/15 text-red-700 border border-red-500/20">
-                          Sold out
-                        </span>
-                      {% else %}
-                        <span class="inline-flex text-[11px] font-semibold px-2 py-1 rounded-sm bg-white/60 border border-dark/10 text-dark/70">
-                          Available
-                        </span>
-                      {% endif %}
-                    </div>
+                <div class="border-t border-[#3e2723]/10 mt-4 pt-4 space-y-2">
+                  <div class="flex justify-between text-sm text-[#3e2723]/80">
+                    <span>{% trans "Subtotal" %}</span>
+                    <span id="cartSubtotal">€ 0.00</span>
+                  </div>
 
-                    <div class="mt-3 grid grid-cols-2 gap-2">
-                      {% if '/delivery/order' not in request.path %}
-                        <button type="button"
-                                class="btn-wood text-white px-3 py-2 rounded-sm font-semibold text-xs
-                                       {% if item.status == 'sold_out' %}opacity-40 cursor-not-allowed{% endif %}"
-                                data-add-dinein="{{ item.id }}"
-                                data-name="{{ item.name }}"
-                                data-price="{{ item.price }}"
-                                {% if item.status == "sold_out" %}disabled{% endif %}>
-                          Add for Dine In
-                        </button>
-                      {% endif %}
+                  <div class="flex justify-between text-sm text-red-600 hidden" id="discountRow">
+                    <span>{% trans "Discount" %}</span>
+                    <span id="cartDiscount">- € 0.00</span>
+                  </div>
 
-                      {% if '/book' not in request.path %}
-                        <button type="button"
-                                class="btn-gold text-dark px-3 py-2 rounded-sm font-semibold text-xs
-                                       {% if item.status == 'sold_out' %}opacity-40 cursor-not-allowed{% endif %}"
-                                data-add-delivery="{{ item.id }}"
-                                {% if item.status == "sold_out" %}disabled{% endif %}>
-                          Add for Delivery
-                        </button>
-                      {% endif %}
-                    </div>
+                  <div class="flex justify-between text-sm text-[#3e2723]/80">
+                    <span>{% trans "Delivery" %}</span>
+                    <span id="cartDelivery">€ 0.00</span>
+                  </div>
 
+                  <div class="flex justify-between font-semibold text-lg text-[#3e2723] pt-1">
+                    <span>{% trans "Total" %}</span>
+                    <span id="cartTotal">€ 0.00</span>
+                  </div>
+
+                  <button type="button"
+                          id="checkoutBtnDesktop"
+                          class="block w-full mt-3 bg-[#bfa76f] text-[#2a1a14] text-center py-3 rounded-xl font-semibold
+                                 hover:brightness-95 active:scale-[0.99] transition shadow-sm">
+                    {% trans "Proceed to Checkout" %}
+                  </button>
+
+                  <div class="mt-2 text-[11px] text-[#3e2723]/55">
+                    {% trans "You’ll choose the delivery point on the next step." %}
                   </div>
                 </div>
               </div>
-            {% empty %}
-              <div class="text-sm text-dark/60">
-                No items found. Add items from staff panel.
-              </div>
-            {% endfor %}
+
+            </div><!-- /cart -->
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== Mobile: Bottom cart bar ===== -->
+  <div id="mobileCartBar" class="lg:hidden fixed bottom-0 left-0 right-0 z-[70]">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 pb-3">
+      <button type="button"
+              id="openMobileCartBarBtn"
+              class="w-full rounded-2xl bg-[#3e2723] text-white shadow-2xl border border-white/10
+                     flex items-center justify-between gap-4 px-4 sm:px-5 py-3 active:scale-[0.99] transition">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white font-bold"
+                id="mobileCartCount">0</span>
+          <div class="min-w-0">
+            <div class="text-sm font-semibold truncate">{% trans "Your cart" %}</div>
+            <div class="text-xs text-white/70 truncate">{% trans "Tap to review & checkout" %}</div>
           </div>
         </div>
 
-      </main>
+        <div class="text-right">
+          <div class="text-sm font-semibold" id="mobileCartTotalBar">€ 0.00</div>
+          <div class="text-xs text-white/70">{% trans "Total" %}</div>
+        </div>
+      </button>
     </div>
   </div>
 
-  <!-- Modal (mobile safe) -->
-  <div id="itemModal" class="hidden fixed inset-0 z-50">
-    <div id="itemModalBackdrop" class="absolute inset-0 bg-black/60"></div>
+  <!-- ===== Mobile cart drawer ===== -->
+  <div id="mobileCart" class="fixed inset-0 z-[80] hidden">
+    <div id="mobileCartBackdrop" class="absolute inset-0 bg-black/60"></div>
 
-    <div class="relative max-w-3xl mx-auto bg-beige rounded-sm overflow-hidden shadow-lg
-                mt-6 sm:mt-10
-                max-h-[85vh] sm:max-h-none
-                flex flex-col">
-      <div class="flex items-center justify-between px-5 py-4 border-b border-dark/10">
-        <div class="font-semibold">Item Details</div>
-        <button id="itemModalClose" class="text-dark/70 hover:text-dark text-2xl leading-none">&times;</button>
-      </div>
-      <div id="itemModalBody" class="overflow-y-auto">
-        <div class="p-6 text-sm text-dark/70">Loading...</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bottom Cart Bar (mobile checkout preview) -->
-  <div id="bottomCartBar" class="hidden fixed bottom-0 left-0 right-0 z-[70] md:hidden">
-    <div class="mx-auto max-w-7xl px-4 pb-3">
-      <div class="frame bg-white/95 backdrop-blur border border-dark/10 rounded-sm px-4 py-3 flex items-center justify-between gap-3">
-        <div class="min-w-0">
-          <div id="cartBarTitle" class="text-sm font-semibold text-dark truncate">Cart</div>
-          <div id="cartBarMeta" class="text-xs text-dark/70 truncate">0 items</div>
+    <div id="mobileCartPanel"
+         class="absolute right-0 top-0 h-full w-full max-w-sm bg-white shadow-2xl
+                transform translate-x-full transition duration-300">
+      <div class="h-full flex flex-col">
+        <div class="p-5 border-b border-[#3e2723]/10 flex items-center justify-between">
+          <div>
+            <div class="text-xs uppercase tracking-[0.35em] text-[#3e2723]/60">{% trans "Cart" %}</div>
+            <h3 class="text-lg font-semibold text-[#3e2723]">{% trans "Your Order" %}</h3>
+          </div>
+          <button id="closeMobileCart"
+                  class="h-10 w-10 rounded-full border border-[#3e2723]/15 bg-white hover:bg-[#f5f0e6]
+                         flex items-center justify-center text-2xl leading-none text-[#3e2723] active:scale-95 transition">
+            &times;
+          </button>
         </div>
 
-        <div class="flex items-center gap-2 shrink-0">
+        <div id="mobileCartItems" class="flex-1 overflow-y-auto p-5 space-y-4"></div>
+        <div id="mobileCartEmptyHint" class="hidden flex-1 p-6 text-center text-[#3e2723]/60">
+          {% trans "Your cart is empty." %}
+        </div>
+
+        <div class="border-t border-[#3e2723]/10 p-5 space-y-4 bg-white">
+
+          <!-- Coupon (mobile) -->
+          <div>
+            <div class="text-xs uppercase tracking-wider text-[#3e2723]/60 mb-2">{% trans "Coupon" %}</div>
+
+            <div class="flex gap-2">
+              <input type="text"
+                    id="mobileCouponInput"
+                    placeholder="{% trans 'Enter code' %}"
+                    class="flex-1 border border-[#3e2723]/15 rounded-xl px-3 py-2 text-sm bg-white/90 outline-none focus:border-[#bfa76f]">
+
+              <button id="mobileApplyCouponBtn"
+                      type="button"
+                      class="bg-[#3e2723] text-white px-4 rounded-xl text-sm font-semibold hover:opacity-95 active:scale-[0.99] transition">
+                {% trans "Apply" %}
+              </button>
+
+              <button id="mobileRemoveCouponBtn"
+                      type="button"
+                      class="hidden px-4 rounded-xl text-sm font-semibold border border-[#3e2723]/15 text-[#3e2723]
+                            hover:bg-[#f5f0e6] active:scale-[0.99] transition">
+                {% trans "Remove" %}
+              </button>
+            </div>
+
+            <div id="mobileCouponMessage" class="text-xs mt-2 text-green-700 hidden"></div>
+          </div>
+
+          <!-- Breakdown (mobile) -->
+          <div class="border-t border-[#3e2723]/10 pt-4 space-y-2">
+            <div class="flex justify-between text-sm text-[#3e2723]/80">
+              <span>{% trans "Subtotal" %}</span>
+              <span id="mobileCartSubtotal">€ 0.00</span>
+            </div>
+
+            <div class="flex justify-between text-sm text-red-600 hidden" id="mobileDiscountRow">
+              <span>{% trans "Discount" %}</span>
+              <span id="mobileCartDiscount">- € 0.00</span>
+            </div>
+
+            <div class="flex justify-between text-sm text-[#3e2723]/80">
+              <span>{% trans "Delivery" %}</span>
+              <span id="mobileCartDelivery">€ 0.00</span>
+            </div>
+
+            <div class="flex justify-between font-semibold text-lg text-[#3e2723] pt-1">
+              <span>{% trans "Total" %}</span>
+              <span id="mobileCartTotal">€ 0.00</span>
+            </div>
+          </div>
+
           <button type="button"
-                  id="cartBarClose"
-                  class="px-3 py-2 rounded-sm border border-dark/15 text-xs font-semibold text-dark/70 hover:text-dark hover:border-dark/30">
-            ✕
+                  id="checkoutBtnMobile"
+                  class="block w-full bg-[#bfa76f] text-[#2a1a14] text-center py-3 rounded-xl font-semibold
+                        hover:brightness-95 active:scale-[0.99] transition">
+            {% trans "Checkout" %}
           </button>
 
-          <a id="cartBarAction"
-             href="#"
-             class="btn-gold px-4 py-2 rounded-sm text-xs font-semibold text-dark shadow">
-            Review
-          </a>
+          <button type="button"
+                  id="clearCartBtnMobile"
+                  class="hidden w-full rounded-xl border border-red-200 bg-red-50 text-red-700 font-semibold py-2.5
+                        hover:bg-red-100 active:scale-[0.99] transition">
+            {% trans "Clear cart" %}
+          </button>
+
+          <div class="text-[11px] text-[#3e2723]/55">
+            {% trans "Delivery fee is calculated after you set the location." %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Item modal (SCROLL FIXED: desktop + mobile) ===== -->
+  <div id="itemModal" class="hidden fixed inset-0 z-[90]">
+    <div id="itemModalBackdrop" class="absolute inset-0 bg-black/60"></div>
+
+    <div class="relative h-full w-full flex items-start sm:items-center justify-center p-3 sm:p-6">
+      <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-[#3e2723]/10 overflow-hidden
+                  max-h-[92vh] sm:max-h-[85vh] flex flex-col">
+
+        <div class="flex items-center justify-between px-5 py-4 border-b border-[#3e2723]/10 bg-[#f5f0e6]/60">
+          <div class="text-sm font-semibold text-[#3e2723]">{% trans "Item details" %}</div>
+
+          <button id="itemModalClose"
+                  class="h-9 w-9 rounded-full border border-[#3e2723]/15 bg-white hover:bg-[#f5f0e6]
+                         flex items-center justify-center text-xl leading-none text-[#3e2723] active:scale-95 transition">
+            &times;
+          </button>
+        </div>
+
+        <div id="itemModalBody"
+             class="flex-1 overflow-y-auto p-5 sm:p-6 text-[#3e2723]/70">
+          {% trans "Loading..." %}
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Spacer so bar doesn't cover last items -->
-  <div id="bottomCartSpacer" class="hidden h-24 md:hidden"></div>
+  <!-- ===== Location modal (loads delivery_location inside) ===== -->
+  <div id="locationModal" class="hidden fixed inset-0 z-[95]">
+    <div id="locationModalBackdrop" class="absolute inset-0 bg-black/60"></div>
 
-  <!-- Toast -->
-  <div id="toastAdded"
-       class="hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-[60]
-              px-4 py-3 rounded-sm shadow-lg border border-dark/10
-              bg-white/90 text-dark text-sm font-semibold">
-    Added.
+    <div class="relative max-w-5xl mx-auto mt-6 sm:mt-10 w-[94%]">
+      <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-[#3e2723]/10
+                  flex flex-col max-h-[85vh]">
+
+        <div class="sticky top-0 z-10 flex items-center justify-between px-5 py-4 border-b border-[#3e2723]/10 bg-[#f5f0e6]/80 backdrop-blur">
+          <div class="text-sm font-semibold text-[#3e2723]">{% trans "Confirm delivery location" %}</div>
+          <button id="locationModalClose"
+                  class="h-9 w-9 rounded-full border border-[#3e2723]/15 bg-white hover:bg-[#f5f0e6]
+                         flex items-center justify-center text-xl leading-none text-[#3e2723] active:scale-95 transition">
+            &times;
+          </button>
+        </div>
+
+        <div id="locationModalBody" class="p-0 overflow-y-auto">
+          <div class="p-6 text-[#3e2723]/70">{% trans "Loading..." %}</div>
+        </div>
+
+      </div>
+    </div>
   </div>
 
-<script>
-(function () {
-  // Mobile categories toggle
-  const mobileCatsBtn = document.getElementById("mobileCatsBtn");
-  const mobileCatsPanel = document.getElementById("mobileCatsPanel");
-  if (mobileCatsBtn && mobileCatsPanel) {
-    mobileCatsBtn.addEventListener("click", () => {
-      mobileCatsPanel.classList.toggle("hidden");
-    });
-  }
 
-  const modal = document.getElementById("itemModal");
-  const body = document.getElementById("itemModalBody");
-  const closeBtn = document.getElementById("itemModalClose");
-  const backdrop = document.getElementById("itemModalBackdrop");
-  const toast = document.getElementById("toastAdded");
 
-  // Bottom bar refs
-  const bottomBar = document.getElementById("bottomCartBar");
-  const barTitle = document.getElementById("cartBarTitle");
-  const barMeta = document.getElementById("cartBarMeta");
-  const barAction = document.getElementById("cartBarAction");
-  const barClose = document.getElementById("cartBarClose");
-  const bottomSpacer = document.getElementById("bottomCartSpacer");
+    <div id="menuData" class="hidden"
+      data-cart-summary="{% url 'restaurant:delivery_cart_summary' %}"
+      data-cart-update="{% url 'restaurant:delivery_cart_update' %}"
+      data-cart-add="{% url 'restaurant:delivery_cart_add' %}"
+      data-apply-coupon="{% url 'restaurant:delivery_apply_coupon' %}"
+      data-remove-coupon="{% url 'restaurant:delivery_remove_coupon' %}"
+      data-calc="{% url 'restaurant:delivery_calc' %}"
+      data-location-partial="{% url 'restaurant:delivery_location_partial' %}"
+      data-set-location="{% url 'restaurant:delivery_set_location' %}"
+      data-checkout="{% url 'restaurant:delivery_checkout' %}"
+      data-gmaps-key="{{ GOOGLE_MAPS_API_KEY|default:'' }}">
+    </div>
 
-  function showToast(text) {
-    if (!toast) return;
-    toast.textContent = text || "Added.";
-    toast.classList.remove("hidden");
-    clearTimeout(window.__toastTimer);
-    window.__toastTimer = setTimeout(() => toast.classList.add("hidden"), 2000);
-  }
 
-  function openModal() {
-    modal.classList.remove("hidden");
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeModal() {
-    modal.classList.add("hidden");
-    body.innerHTML = '<div class="p-6 text-sm text-dark/70">Loading...</div>';
-    document.body.style.overflow = "";
-  }
-
-  if (closeBtn) closeBtn.addEventListener("click", closeModal);
-  if (backdrop) backdrop.addEventListener("click", closeModal);
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
-
-  // ---- Dine-in localStorage cart ----
-  const STORAGE_KEY = "reservation_preorder";
-
-  function storePreorderItem(id, name, price, qtyToAdd = 1) {
-    id = String(id);
-    let cart = {};
-    try { cart = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch (e) { cart = {}; }
-
-    if (!cart[id]) cart[id] = { name: name, price: String(price), qty: 0 };
-    cart[id].qty = (parseInt(cart[id].qty || 0, 10) || 0) + (parseInt(qtyToAdd, 10) || 1);
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
-  }
-
-  function getDineInSummary() {
-    let cart = {};
-    try { cart = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch (e) { cart = {}; }
-
-    let totalQty = 0;
-    let totalPrice = 0;
-
-    for (const id in cart) {
-      const row = cart[id];
-      const qty = parseInt(row.qty || 0, 10) || 0;
-      const price = parseFloat(row.price || 0) || 0;
-      totalQty += qty;
-      totalPrice += qty * price;
-    }
-    return { totalQty, totalPrice };
-  }
-
-  function showBottomBar({ mode, qty, totalPrice }) {
-    if (!bottomBar || !barTitle || !barMeta || !barAction) return;
-
-    if (mode === "dinein") {
-      barTitle.textContent = "Dine-in cart";
-      barMeta.textContent = `${qty} item${qty === 1 ? "" : "s"} • € ${Number(totalPrice || 0).toFixed(2)}`;
-      barAction.textContent = "Review";
-      barAction.href = "{% url 'restaurant:reservation' %}";
-    } else {
-      barTitle.textContent = "Delivery cart";
-      barMeta.textContent = `${qty} item${qty === 1 ? "" : "s"} added`;
-      barAction.textContent = "Checkout";
-      barAction.href = "{% url 'restaurant:delivery_location' %}";
-    }
-
-    bottomBar.classList.remove("hidden");
-    if (bottomSpacer) bottomSpacer.classList.remove("hidden");
-  }
-
-  function hideBottomBar() {
-    if (!bottomBar) return;
-    bottomBar.classList.add("hidden");
-    if (bottomSpacer) bottomSpacer.classList.add("hidden");
-  }
-
-  if (barClose) barClose.addEventListener("click", hideBottomBar);
-
-  // ---- Delivery session cart ----
-  function csrfToken() {
-    const m = document.cookie.match(/csrftoken=([^;]+)/);
-    return m ? m[1] : "";
-  }
-
-  async function deliveryAdd(itemId) {
-    const fd = new FormData();
-    fd.append("item_id", itemId);
-    fd.append("qty", 1);
-
-    const res = await fetch("{% url 'restaurant:delivery_cart_add' %}", {
-      method: "POST",
-      headers: { "X-CSRFToken": csrfToken() },
-      body: fd
-    });
-
-    return res.ok ? res.json() : null;
-  }
-
-  async function loadItem(url) {
-    openModal();
-    try {
-      const res = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
-      if (!res.ok) throw new Error("Failed");
-      body.innerHTML = await res.text();
-    } catch (err) {
-      body.innerHTML = '<div class="p-6 text-sm text-dark/70">Could not load item.</div>';
-    }
-  }
-
-  document.addEventListener("click", async (e) => {
-    // 1) Add for dine-in
-    const dineBtn = e.target.closest("[data-add-dinein]");
-    if (dineBtn) {
-      const id = dineBtn.getAttribute("data-add-dinein");
-      const name = dineBtn.getAttribute("data-name") || "Item";
-      const price = dineBtn.getAttribute("data-price") || "0";
-      storePreorderItem(id, name, price, 1);
-      showToast(`Added for dine-in: ${name}`);
-
-      const s = getDineInSummary();
-      showBottomBar({ mode: "dinein", qty: s.totalQty, totalPrice: s.totalPrice });
-      return;
-    }
-
-    // 2) Add for delivery
-    const delBtn = e.target.closest("[data-add-delivery]");
-    if (delBtn) {
-      const id = delBtn.getAttribute("data-add-delivery");
-      delBtn.disabled = true;
-      delBtn.classList.add("opacity-70");
-
-      const payload = await deliveryAdd(id);
-
-      delBtn.disabled = false;
-      delBtn.classList.remove("opacity-70");
-
-      if (payload && payload.ok) {
-        showToast("Added for delivery cart");
-        // If backend returns qty/total, use it. Otherwise show basic.
-        const qty = (payload.qty !== undefined) ? payload.qty : 1;
-        showBottomBar({ mode: "delivery", qty: qty, totalPrice: 0 });
-      } else {
-        showToast("Could not add to delivery cart");
-      }
-      return;
-    }
-
-    // 3) Open modal preview
-    const preview = e.target.closest("[data-item-url]");
-    if (!preview) return;
-
-    const url = preview.getAttribute("data-item-url");
-    if (!url) return;
-    loadItem(url);
-  });
-
-})();
-</script>
-
+  <div class="lg:hidden h-24"></div>
 </section>
 {% endblock %}
+
+{% block extra_body %}
+<script src="{% url 'javascript-catalog' %}"></script>
+<script src="{% static 'js/menu.js' %}" defer></script>
+{% endblock %}
+

@@ -1,0 +1,21 @@
+/* menu.css */
+
+/* keep your existing no-scrollbar helper */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* keep your clamp helper */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* keep your active pill state exactly */
+.cat-pill.is-active{
+  background:#3e2723 !important;
+  color:#fff !important;
+  border-color:#3e2723 !important;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+}

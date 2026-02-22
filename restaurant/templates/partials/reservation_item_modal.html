@@ -1,0 +1,150 @@
+{# templates/partials/reservation_item_modal.html #}
+{% load static %}
+{% with ctx=ctx|default:"reservation" %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+
+  <!-- Image -->
+  <div class="relative">
+    <div class="absolute -inset-3 bg-[#bfa76f]/10 blur-2xl rounded-[22px]"></div>
+
+    <div class="relative overflow-hidden rounded-2xl border border-[#3e2723]/10 bg-white shadow-sm">
+      <div class="relative">
+        {% if item.image %}
+          <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-72 md:h-[360px] object-cover">
+        {% else %}
+          <div class="w-full h-72 md:h-[360px] bg-[#f5f0e6] flex items-center justify-center text-[#3e2723]/60 text-sm">
+            No image
+          </div>
+        {% endif %}
+
+        <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-black/10 to-transparent"></div>
+
+        {% if item.status == "sold_out" %}
+          <div class="absolute left-4 top-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full
+                      bg-red-600/15 text-red-800 border border-red-600/25 backdrop-blur text-[11px] font-semibold uppercase tracking-[0.22em]">
+            Sold out
+          </div>
+        {% else %}
+          <div class="absolute left-4 top-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full
+                      bg-white/15 text-white border border-white/20 backdrop-blur text-[11px] font-semibold uppercase tracking-[0.22em]">
+            Available
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Details -->
+  <div class="flex flex-col">
+
+    <div class="min-w-0">
+      <h2 class="text-2xl md:text-3xl font-semibold text-[#3e2723] leading-tight">
+        {{ item.name }}
+      </h2>
+
+      {% if item.category %}
+        <div class="mt-2 flex items-center gap-3">
+          <div class="h-px w-10 bg-[#bfa76f]/70"></div>
+          <div class="text-[11px] uppercase tracking-[0.28em] text-[#3e2723]/60">
+            {{ item.category.name }}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Price -->
+    <div class="mt-4 rounded-2xl border border-[#3e2723]/10 bg-white/70 p-4">
+      <div class="text-[11px] uppercase tracking-[0.25em] text-[#3e2723]/55 mb-1">Price</div>
+
+      {% if item.discount_price %}
+        <div class="flex items-end gap-3 flex-wrap">
+          <div class="text-[#3e2723]/45 line-through font-semibold">€ {{ item.price }}</div>
+          <div class="text-red-600 text-2xl font-bold">€ {{ item.discount_price }}</div>
+        </div>
+        <div class="mt-1 text-[11px] text-[#3e2723]/55">Discount applied on this item.</div>
+      {% else %}
+        <div class="text-[#3e2723] text-2xl font-bold">€ {{ item.price }}</div>
+        <div class="mt-1 text-[11px] text-[#3e2723]/55">This will update your reservation pre-order.</div>
+      {% endif %}
+    </div>
+
+    {% if item.description %}
+      <div class="mt-4 text-sm text-[#3e2723]/75 leading-relaxed">
+        {{ item.description }}
+      </div>
+    {% endif %}
+
+    <div class="mt-6 h-px bg-[#3e2723]/10"></div>
+
+    <!-- Reservation actions -->
+    <div class="mt-5 space-y-3">
+
+      <div class="rounded-2xl border border-[#3e2723]/10 bg-white/70 p-4">
+        <div class="flex items-center justify-between gap-3">
+          <div class="text-[11px] uppercase tracking-[0.25em] text-[#3e2723]/55">Quantity</div>
+          <div class="text-xs text-[#3e2723]/55">Updates reservation cart</div>
+        </div>
+
+                <div class="mt-3 grid grid-cols-1 md:grid-cols-12 gap-3" onclick="event.stopPropagation();">
+
+                <!-- Qty row -->
+                <div class="md:col-span-4">
+                    <div class="flex items-center gap-3">
+                    <button type="button"
+                            class="h-10 w-10 rounded-2xl border border-[#3e2723]/10 bg-white text-[#3e2723] font-bold active:scale-95 transition"
+                            data-res-minus>
+                        −
+                    </button>
+
+                    <input type="number" min="0" value="0"
+                            class="w-16 h-10 text-center rounded-2xl border border-[#3e2723]/10 bg-white text-sm outline-none"
+                            data-res-qty />
+
+                    <button type="button"
+                            class="h-10 w-10 rounded-2xl border border-[#3e2723]/10 bg-white text-[#3e2723] font-bold active:scale-95 transition"
+                            data-res-plus>
+                        +
+                    </button>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="md:col-span-8">
+                    <div class="flex flex-col sm:flex-row sm:justify-end gap-2">
+                    <button type="button"
+                            class="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-[#bfa76f] text-[#2a1a14] font-semibold border border-[#3e2723]/10 hover:brightness-95 active:scale-[0.99] transition
+                                    {% if item.status == 'sold_out' %}opacity-40 cursor-not-allowed hover:brightness-100 active:scale-100{% endif %}"
+                            data-res-apply
+                            {% if item.status == "sold_out" %}disabled{% endif %}>
+                        Add to reservation
+                    </button>
+
+                    <button type="button"
+                            class="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-white text-[#3e2723] font-semibold border border-[#3e2723]/10 hover:bg-white/80 active:scale-[0.99] transition"
+                            data-res-remove>
+                        Remove
+                    </button>
+                    </div>
+                </div>
+
+                </div>
+
+
+        <div class="mt-3 text-[11px] text-[#3e2723]/55">
+          The preview buttons update your reservation pre-order (not delivery cart).
+        </div>
+      </div>
+
+    </div>
+
+<!-- Meta for JS (must be detectable even if hidden visually) -->
+<div class="sr-only"
+     data-res-item
+     data-item-id="{{ item.id }}"
+     data-item-name="{{ item.name|escape }}"
+     data-item-price="{% if item.discount_price %}{{ item.discount_price }}{% else %}{{ item.price }}{% endif %}">
+</div>
+
+  </div>
+</div>
+{% endwith %}

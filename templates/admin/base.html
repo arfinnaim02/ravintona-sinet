@@ -223,7 +223,12 @@
                 class="inline-block px-6 py-3 bg-dark text-beige rounded hover:bg-gold hover:text-dark transition">
                 Manage Hero Banners →
               </a>
-
+              <div>
+                  <a href="{% url 'restaurant:loyalty_settings' %}"
+                class="side-link {% if '/admin/loyalty' in request.path %}side-link-active{% endif %}">
+                Loyalty Program
+              </a>
+              </div>
               <div class="mt-5 hairline mx-3"></div>
 
               {% if request.user.is_authenticated %}

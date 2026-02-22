@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}My Reservations | {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<section class="bg-[#f5f0e6]">
+  <div class="max-w-6xl mx-auto px-4 py-10">
+
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-3xl font-semibold text-[#3e2723]">My Reservations</h1>
+        <p class="text-sm text-[#3e2723]/70 mt-1">Your booking history and upcoming tables</p>
+      </div>
+      <a href="{% url 'accounts:dashboard' %}" class="underline text-[#3e2723]/70 hover:text-[#3e2723]">Back</a>
+    </div>
+
+    {% if reservations %}
+      <div class="space-y-4">
+        {% for r in reservations %}
+          <div class="rounded-2xl bg-white border border-[#3e2723]/10 p-6 shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+              <div class="font-semibold text-[#3e2723]">
+                {{ r.start_datetime|date:"M d, Y" }} — {{ r.start_datetime|date:"H:i" }}
+              </div>
+              <div class="text-sm text-[#3e2723]/70">
+                Status: <span class="font-semibold text-[#3e2723]">{{ r.get_status_display }}</span>
+              </div>
+            </div>
+
+            <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+              <div class="text-[#3e2723]/70">Guests: <span class="font-semibold text-[#3e2723]">{{ r.party_size }}</span></div>
+              <div class="text-[#3e2723]/70">Baby seats: <span class="font-semibold text-[#3e2723]">{{ r.baby_seats }}</span></div>
+              <div class="text-[#3e2723]/70">Preorder total: <span class="font-semibold text-[#3e2723]">€ {{ r.preorder_total|floatformat:2 }}</span></div>
+            </div>
+
+            {% if r.items.all %}
+              <div class="mt-4 border-t border-[#3e2723]/10 pt-4">
+                <div class="text-sm font-semibold text-[#3e2723] mb-2">Pre-ordered items</div>
+                <ul class="space-y-1 text-sm text-[#3e2723]/80">
+                  {% for it in r.items.all %}
+                    <li class="flex items-center justify-between">
+                      <span>{{ it.menu_item.name }} × {{ it.qty }}</span>
+                      <span>€ {{ it.line_total|floatformat:2 }}</span>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="rounded-2xl bg-white border border-[#3e2723]/10 p-6 shadow-sm">
+        <p class="text-[#3e2723]/70">No reservations found.</p>
+        <a href="{% url 'restaurant:reservation' %}" class="inline-block mt-3 px-5 py-2 rounded-sm bg-gold text-dark font-semibold">
+          Make Reservation
+        </a>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}

@@ -26,7 +26,9 @@ from django.utils import timezone
 from .models import DeliveryPromotion
 
 from .models import DeliveryCoupon
-
+from .models import Review
+from datetime import datetime
+from .models import Reservation
 
 def _csv_to_list(value: str) -> list[str]:
     if not value:
@@ -213,69 +215,182 @@ class AdminLoginForm(AuthenticationForm):
         super().__init__(request=request, *args, **kwargs)
         self.fields["remember_me"].widget.attrs.update({"class": "h-4 w-4"})
 
+# =========================
+# ✅ REPLACE your ReservationForm with this FULL UPDATED VERSION
+# - Keeps your premium Tailwind UI classes
+# - Adds preferred_table support (matches your model + template block)
+# - Fixes timezone datetime combine (uses datetime from stdlib, not timezone.datetime)
+# - Calls obj.full_clean() before save so model capacity rules run
+# - Keeps 30-min slot + opening hours validation
+# =========================
+
+
 
 class ReservationForm(forms.ModelForm):
     """
-    Uses a datetime-local input with step=1800 (30 minutes).
-    Validation also enforced server-side.
+    Premium UI form:
+    - Shows separate date + time fields for the frontend
+    - Combines them into start_datetime in clean()
+    - Runs model-level capacity validation via full_clean() on save
     """
+
+    # -------------------------
+    # Frontend-only fields
+    # -------------------------
+    date = forms.DateField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "id": "id_date",
+                "autocomplete": "off",
+                "placeholder": "Select date",
+                "class": "w-full rounded-2xl border border-[#3e2723]/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#bfa76f]/60",
+            }
+        ),
+    )
+
+    time = forms.TimeField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "id": "id_time",
+                "autocomplete": "off",
+                "placeholder": "Select time",
+                "class": "w-full rounded-2xl border border-[#3e2723]/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#bfa76f]/60",
+            }
+        ),
+    )
 
     class Meta:
         model = Reservation
-        fields = ["start_datetime", "name", "phone", "email", "party_size", "baby_seats", "notes"]
+
+        # ✅ include preferred_table (model field) so template can render it
+        fields = [
+            "name",
+            "phone",
+            "email",
+            "party_size",
+            "baby_seats",
+            "preferred_table",
+            "notes",
+        ]
+
         widgets = {
-            "start_datetime": forms.DateTimeInput(attrs={"type": "datetime-local", "step": "1800"}),
-            "notes": forms.Textarea(attrs={"rows": 4}),
+            "name": forms.TextInput(
+                attrs={
+                    "id": "id_name",
+                    "class": "w-full rounded-2xl border border-[#3e2723]/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#bfa76f]/60",
+                    "placeholder": "Your name",
+                }
+            ),
+            "phone": forms.TextInput(
+                attrs={
+                    "id": "id_phone",
+                    "class": "w-full rounded-2xl border border-[#3e2723]/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#bfa76f]/60",
+                    "placeholder": "+358...",
+                }
+            ),
+            "email": forms.EmailInput(
+                attrs={
+                    "id": "id_email",
+                    "class": "w-full rounded-2xl border border-[#3e2723]/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#bfa76f]/60",
+                    "placeholder": "Optional",
+                }
+            ),
+            "party_size": forms.NumberInput(
+                attrs={
+                    "id": "id_party_size",
+                    "class": "w-full rounded-2xl border border-[#3e2723]/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#bfa76f]/60",
+                    "min": "1",
+                    "max": "55",
+                }
+            ),
+            "baby_seats": forms.NumberInput(
+                attrs={
+                    "id": "id_baby_seats",
+                    "class": "w-full rounded-2xl border border-[#3e2723]/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#bfa76f]/60",
+                    "min": "0",
+                    "max": "2",
+                }
+            ),
+            # ✅ matches your template's "table preference" block
+            "preferred_table": forms.NumberInput(
+                attrs={
+                    "id": "id_table_preference",
+                    "class": "w-full rounded-2xl border border-[#3e2723]/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#bfa76f]/60",
+                    "min": "1",
+                    "max": "14",
+                    "placeholder": "Optional",
+                }
+            ),
+            "notes": forms.Textarea(
+                attrs={
+                    "id": "id_notes",
+                    "rows": 4,
+                    "class": "w-full rounded-2xl border border-[#3e2723]/10 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#bfa76f]/60",
+                    "placeholder": "Allergies, wheelchair, special request (optional)",
+                }
+            ),
         }
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    # -------------------------
+    # Validation
+    # -------------------------
+    def clean(self):
+        cleaned = super().clean()
 
-        base = (
-            "w-full px-4 py-3 bg-white/50 border border-dark/20 "
-            "focus:border-gold focus:outline-none rounded-sm"
-        )
-        textarea = (
-            "w-full px-4 py-3 bg-white/50 border border-dark/20 "
-            "focus:border-gold focus:outline-none rounded-sm min-h-[120px]"
-        )
+        d = cleaned.get("date")
+        t = cleaned.get("time")
 
-        self.fields["start_datetime"].widget.attrs.update({"class": base})
-        self.fields["name"].widget.attrs.update({"class": base, "placeholder": "Your name"})
-        self.fields["phone"].widget.attrs.update({"class": base, "placeholder": "+358..."})
-        self.fields["email"].widget.attrs.update({"class": base, "placeholder": "Optional"})
-        self.fields["party_size"].widget.attrs.update({"class": base, "min": "1", "max": "55"})
-        self.fields["baby_seats"].widget.attrs.update({"class": base, "min": "0", "max": "2"})
-        self.fields["notes"].widget.attrs.update({"class": textarea, "placeholder": "Allergies, wheelchair, special request (optional)"})
+        if not d or not t:
+            return cleaned
 
-    def clean_start_datetime(self):
-        dt = self.cleaned_data.get("start_datetime")
-        if not dt:
-            return dt
+        # Combine date+time -> timezone-aware start_datetime
+        naive_dt = datetime.combine(d, t)
 
-        # Normalize seconds
-        dt = dt.replace(second=0, microsecond=0)
+        # If project uses timezones, make aware using current timezone
+        if timezone.is_naive(naive_dt):
+            aware_dt = timezone.make_aware(naive_dt, timezone.get_current_timezone())
+        else:
+            aware_dt = naive_dt
 
-        # Must be 30-min boundary
-        if dt.minute not in (0, 30):
+        aware_dt = aware_dt.replace(second=0, microsecond=0)
+
+        # 30-min interval validation
+        if aware_dt.minute not in (0, 30):
             raise forms.ValidationError("Bookings are available only in 30-minute intervals.")
 
-        # Opening hours: 10:00–22:00 daily
-        # last booking start allowed at 21:30 (because slot lasts 30 min)
-        local_dt = timezone.localtime(dt)
-        if local_dt.hour < 10 or (local_dt.hour == 22 and local_dt.minute > 0) or local_dt.hour > 22:
-            raise forms.ValidationError("Please choose a time between 10:00 and 22:00.")
+        # Opening hours: 10:00–22:00, last booking start 21:30
+        local_dt = timezone.localtime(aware_dt)
 
-        if local_dt.hour == 21 and local_dt.minute == 30:
-            return dt  # OK
-        if local_dt.hour == 22:
+        if local_dt.hour < 10:
+            raise forms.ValidationError("Please choose a time between 10:00 and 22:00.")
+        if local_dt.hour > 21 or (local_dt.hour == 21 and local_dt.minute > 30):
             raise forms.ValidationError("Last booking start time is 21:30.")
 
-        if dt < timezone.now():
+        if aware_dt < timezone.now():
             raise forms.ValidationError("Please choose a future time.")
 
-        return dt
+        # Store for save()
+        cleaned["start_datetime"] = aware_dt
+        return cleaned
 
+    # -------------------------
+    # Save (runs model capacity rules)
+    # -------------------------
+    def save(self, commit=True):
+        obj: Reservation = super().save(commit=False)
+
+        # start_datetime is created in clean()
+        obj.start_datetime = self.cleaned_data["start_datetime"]
+
+        # ✅ very important: runs Reservation.clean() capacity checks
+        obj.full_clean()
+
+        if commit:
+            obj.save()
+
+        return obj
 
 
 
@@ -345,3 +460,34 @@ class HeroBannerForm(forms.ModelForm):
 
         self.fields["order"].widget.attrs.update({"class": base})
         self.fields["is_active"].widget.attrs.update({"class": "h-4 w-4"})
+
+
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ["name", "rating", "comment"]
+        widgets = {
+            "rating": forms.Select(choices=[(i, i) for i in range(1, 6)]),
+            "comment": forms.Textarea(attrs={"rows": 4}),
+        }
+
+
+def clean(self):
+    cleaned = super().clean()
+
+    start_at = cleaned.get("start_at")
+    end_at = cleaned.get("end_at")
+    if start_at and end_at and end_at <= start_at:
+        self.add_error("end_at", "End must be after start.")
+
+    # Optional: default start_at if empty
+    if not start_at:
+        cleaned["start_at"] = timezone.now()
+
+    # ✅ If free delivery, discount_value is irrelevant
+    if cleaned.get("discount_type") == DeliveryCoupon.DISCOUNT_FREE_DELIVERY:
+        cleaned["discount_value"] = 0
+
+    return cleaned

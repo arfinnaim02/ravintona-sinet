@@ -248,5 +248,10 @@
     {% endif %}
   </div>
 </div>
-
+<div>
+    <a href="{% url 'restaurant:loyalty_settings' %}"
+   class="side-link {% if '/admin/loyalty' in request.path %}side-link-active{% endif %}">
+   Loyalty Program
+</a>
+</div>
 {% endblock %}

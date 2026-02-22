@@ -6,6 +6,7 @@ from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 
+
 app_name = "restaurant"
 
 urlpatterns = [
@@ -14,10 +15,13 @@ urlpatterns = [
     path("menu/", views.menu, name="menu"),
     path("menu/item/<int:pk>/", views.menu_item_detail, name="menu_item_detail"),
     path("about/", views.about, name="about"),
-    path("book/", views.reservation, name="reservation"),
     path("contact/", views.contact, name="contact"),
+    path("reviews/", views.reviews_page, name="reviews"),
 
-    # Custom admin UI (NOT Django admin)
+    # reservation (KEEP only if you still use it)
+    path("book/", views.reservation, name="reservation"),
+
+    # admin urls (same as yours)
     path("admin/login/", views.admin_login, name="admin_login"),
     path("admin/logout/", views.admin_logout, name="admin_logout"),
     path("admin/dashboard/", views.dashboard, name="dashboard"),
@@ -61,9 +65,9 @@ urlpatterns = [
     path("delivery/location/", views.delivery_location, name="delivery_location"),
     path("delivery/calc/", views.delivery_calc, name="delivery_calc"),
     path("delivery/set-location/", views.delivery_set_location, name="delivery_set_location"),
-    path("delivery/order/", views.delivery_order, name="delivery_order"),
     path("delivery/checkout/", views.delivery_checkout, name="delivery_checkout"),
     path("delivery/place-order/", views.delivery_place_order, name="delivery_place_order"),
+    path("delivery/location/partial/", views.delivery_location_partial, name="delivery_location_partial"),
 
     # Delivery: coupon apply/remove (NEW)
     path("delivery/coupon/apply/", views.delivery_apply_coupon, name="delivery_apply_coupon"),
@@ -83,6 +87,17 @@ urlpatterns = [
     path("admin/delivery-orders/<int:pk>/", views.delivery_order_detail_admin, name="delivery_order_detail_admin"),
     path("admin/delivery-orders/<int:pk>/status/", views.delivery_order_update_status, name="delivery_order_update_status"),
 
+    path("delivery/remove-coupon/", views.delivery_remove_coupon, name="delivery_remove_coupon"),
 
+    path("admin/delivery-orders/bulk-update/", views.delivery_orders_bulk_update, name="delivery_orders_bulk_update"),
+    path("admin/delivery-orders/bulk-delete/", views.delivery_orders_bulk_delete, name="delivery_orders_bulk_delete"),
 
+    path("admin/reservations/bulk-update/", views.reservations_bulk_update, name="reservations_bulk_update"),
+    path("admin/reservations/bulk-delete/", views.reservations_bulk_delete, name="reservations_bulk_delete"),
+
+    path("admin/menu/bulk-update/", views.menu_items_bulk_update, name="menu_items_bulk_update"),
+    path("admin/menu/bulk-delete/", views.menu_items_bulk_delete, name="menu_items_bulk_delete"),
+
+    path("admin/loyalty/", views.loyalty_settings, name="loyalty_settings"),
+    
 ]

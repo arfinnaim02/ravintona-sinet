@@ -1,0 +1,44 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold mb-6">Loyalty Program Settings</h1>
+
+<form method="post" class="space-y-6 bg-white p-6 rounded border">
+  {% csrf_token %}
+
+  <div>
+    <label class="block text-sm font-semibold mb-1">
+      Target Delivered Orders
+    </label>
+    <input type="number"
+           name="target_orders"
+           value="{{ obj.target_orders|default:10 }}"
+           min="1"
+           class="w-full border px-4 py-2 rounded">
+  </div>
+
+  <div>
+    <label class="block text-sm font-semibold mb-1">
+      Reward Discount Percentage
+    </label>
+    <input type="number"
+           name="reward_percent"
+           value="{{ obj.reward_percent|default:30 }}"
+           min="1"
+           max="100"
+           class="w-full border px-4 py-2 rounded">
+  </div>
+
+  <div class="flex items-center gap-2">
+    <input type="checkbox"
+           name="is_active"
+           {% if obj and obj.is_active %}checked{% endif %}>
+    <label>Enable Loyalty Program</label>
+  </div>
+
+  <button type="submit"
+          class="px-6 py-2 bg-dark text-white rounded hover:bg-gold">
+    Save Settings
+  </button>
+</form>
+{% endblock %}

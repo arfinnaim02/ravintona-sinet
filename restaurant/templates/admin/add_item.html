@@ -4,6 +4,7 @@
 {% block title %}Add Menu Item – {{ settings.RESTAURANT_NAME }}{% endblock %}
 
 {% block content %}
+  {{ form.media }}
   <!-- Breadcrumb -->
   <div class="text-xs text-dark/70 mb-4">
     Dashboard <span class="mx-1">/</span> Menu <span class="mx-1">/</span>
@@ -114,10 +115,19 @@
           <div class="p-4 rounded-xl bg-white/60 border border-dark/15">
             <div class="text-xs uppercase tracking-wider text-dark/60 mb-2">Tags</div>
             <div class="chk bg-white/40 border border-dark/15 rounded-xl p-4">
-              {{ form.tags }}
+              {# supports either tags_multi or tags field name #}
+              {% if form.tags_multi %}{{ form.tags_multi }}{% else %}{{ form.tags }}{% endif %}
             </div>
-            {% if form.tags.errors %}
-              <div class="text-xs text-red-700 mt-2">{{ form.tags.errors }}</div>
+
+            {# show errors for whichever field exists #}
+            {% if form.tags_multi %}
+              {% if form.tags_multi.errors %}
+                <div class="text-xs text-red-700 mt-2">{{ form.tags_multi.errors }}</div>
+              {% endif %}
+            {% else %}
+              {% if form.tags.errors %}
+                <div class="text-xs text-red-700 mt-2">{{ form.tags.errors }}</div>
+              {% endif %}
             {% endif %}
           </div>
 
@@ -125,11 +135,20 @@
           <div class="p-4 rounded-xl bg-white/60 border border-dark/15">
             <div class="text-xs uppercase tracking-wider text-dark/60 mb-2">Allergens</div>
             <div class="chk bg-white/40 border border-dark/15 rounded-xl p-4">
-              {{ form.allergens }}
-            </div>
-            {% if form.allergens.errors %}
-              <div class="text-xs text-red-700 mt-2">{{ form.allergens.errors }}</div>
-            {% endif %}
+                {# supports either allergens_multi or allergens field name #}
+                {% if form.allergens_multi %}{{ form.allergens_multi }}{% else %}{{ form.allergens }}{% endif %}
+              </div>
+
+              {# show errors for whichever field exists #}
+              {% if form.allergens_multi %}
+                {% if form.allergens_multi.errors %}
+                  <div class="text-xs text-red-700 mt-2">{{ form.allergens_multi.errors }}</div>
+                {% endif %}
+              {% else %}
+                {% if form.allergens.errors %}
+                  <div class="text-xs text-red-700 mt-2">{{ form.allergens.errors }}</div>
+                {% endif %}
+              {% endif %}
           </div>
 
           <!-- Status -->
