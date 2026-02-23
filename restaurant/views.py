@@ -38,6 +38,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models.deletion import ProtectedError
 import re
 
@@ -106,6 +107,7 @@ def home(request: HttpRequest) -> HttpResponse:
     )
 
 
+@ensure_csrf_cookie
 def menu(request: HttpRequest) -> HttpResponse:
     """Display the menu (category + search only)."""
     categories = Category.objects.filter(is_active=True).order_by("order", "name")
@@ -1391,6 +1393,7 @@ def delete_promotion(request: HttpRequest, pk: int) -> HttpResponse:
 # -------------------------
 
 
+@ensure_csrf_cookie
 def delivery_checkout(request: HttpRequest) -> HttpResponse:
     # Must have location
     if not request.session.get("delivery_lat") or not request.session.get(
