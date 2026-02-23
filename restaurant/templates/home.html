@@ -419,9 +419,14 @@
     if (!url) return;
     openModal();
     try {
-      const res = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
+      const joiner = url.includes("?") ? "&" : "?";
+      const res = await fetch(url + joiner + "ctx=delivery", {
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      });
       if (!res.ok) throw new Error("Failed");
       if (body) body.innerHTML = await res.text();
+      // sync modal buttons based on current cart
+syncModalUIFromCart(window.__HOME_LAST_CART__ || {});
     } catch {
       if (body) body.innerHTML = '<div class="p-6 text-sm text-dark/70">Could not load item.</div>';
     }
@@ -645,7 +650,81 @@ if (drawerClose) drawerClose.addEventListener("click", closeDrawer);
 // Bar click => open drawer
 if (barBtn) barBtn.addEventListener("click", openDrawer);
   // Delegated click handler
+
+function getModalItemId() {
+  const meta = document.getElementById("modalItemMeta");
+  return meta ? meta.getAttribute("data-item-id") : "";
+}
+
+function getCartQty(cart, id) {
+  const lines = cart && Array.isArray(cart.lines) ? cart.lines : [];
+  const line = lines.find(x => String(x.id) === String(id));
+  return line ? (parseInt(line.qty || 0, 10) || 0) : 0;
+}
+
+function syncModalUIFromCart(cart) {
+  const id = getModalItemId();
+  if (!id) return;
+
+  const qty = getCartQty(cart, id);
+
+  const addBtn = document.getElementById("modalAddBtn");
+  const qtyBox = document.getElementById("modalQtyControls");
+  const qtyVal = document.getElementById("modalQtyValue");
+
+  if (qtyVal) qtyVal.textContent = String(qty);
+
+  // show qty controls only if qty > 0
+  if (qtyBox) qtyBox.classList.toggle("hidden", qty <= 0);
+  if (addBtn) addBtn.classList.toggle("hidden", qty > 0);
+}
+
   document.addEventListener("click", async (e) => {
+    // ✅ Modal qty controls
+const plusBtn = e.target.closest("#modalPlusBtn");
+const minusBtn = e.target.closest("#modalMinusBtn");
+const removeBtn = e.target.closest("#modalRemoveBtn");
+
+if (plusBtn || minusBtn || removeBtn) {
+  const id = getModalItemId();
+  if (!id) return;
+
+  const cart = window.__HOME_LAST_CART__ || {};
+  const current = getCartQty(cart, id);
+
+  try {
+    if (plusBtn) {
+      await updateQty(id, current + 1);
+      syncModalUIFromCart(window.__HOME_LAST_CART__ || {});
+      return;
+    }
+
+    if (minusBtn) {
+      await updateQty(id, Math.max(0, current - 1));
+      syncModalUIFromCart(window.__HOME_LAST_CART__ || {});
+      return;
+    }
+
+    if (removeBtn) {
+      await updateQty(id, 0);
+      syncModalUIFromCart(window.__HOME_LAST_CART__ || {});
+      return;
+    }
+  } catch {
+    showToast("Could not update quantity.");
+  }
+
+  return;
+}
+
+// ✅ Modal checkout -> Menu page
+const openCheckout = e.target.closest("[data-open-checkout]");
+if (openCheckout) {
+  e.preventDefault();
+  e.stopPropagation();
+  window.location.href = MENU_URL + "?open_cart=1";
+  return;
+}
       // ===== Drawer qty controls (+ / - / remove) =====
   const qtyBtn = e.target.closest("[data-home-qty]");
   if (qtyBtn) {
@@ -725,22 +804,24 @@ if (barBtn) barBtn.addEventListener("click", openDrawer);
       return;
     }
 
-    // Add Delivery from modal: add + keep modal (or close - your choice)
-    const delBtn = e.target.closest("[data-add-delivery]");
-    if (delBtn) {
-      try {
-        delBtn.disabled = true;
-        const id = delBtn.getAttribute("data-add-delivery");
-        await addToDeliveryCart(id, 1);
-        showToast("Added to cart ✅");
-        closeModal();
-      } catch {
-        showToast("Could not add to cart.");
-      } finally {
-        delBtn.disabled = false;
-      }
-      return;
+      // Add Delivery from modal: add + keep modal open + show qty controls
+  const delBtn = e.target.closest("[data-add-delivery]");
+  if (delBtn) {
+    try {
+      delBtn.disabled = true;
+      const id = delBtn.getAttribute("data-add-delivery");
+      await addToDeliveryCart(id, 1);
+      showToast("Added to cart ✅");
+
+      // ✅ reflect in modal (uses latest cart snapshot)
+      syncModalUIFromCart(window.__HOME_LAST_CART__ || {});
+    } catch {
+      showToast("Could not add to cart.");
+    } finally {
+      delBtn.disabled = false;
     }
+    return;
+  }
 
     // Open modal when clicking a card
     const card = e.target.closest("[data-item-url]");
