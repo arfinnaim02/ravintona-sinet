@@ -67,7 +67,7 @@
                     </div>
                   </div>
 
-                  {% if promo and promo.active %}
+                  {% if promo.active %}
                     <div id="addrPromo" class="mt-4 inline-flex flex-wrap items-center gap-2 px-3 py-2 rounded-xl bg-gold/15 border border-gold/20 text-sm text-dark">
                       <span class="font-semibold">{% trans "Offer:" %}</span>
                       <span class="break-words">{{ promo.title }}</span>
@@ -214,63 +214,45 @@
               </div>
 
               <div class="rounded-2xl bg-black/20 border border-white/10 p-4 sm:p-5 shadow-sm">
+<div class="text-xs text-white/70">auth={{ user.is_authenticated }} | loyalty={{ loyalty.enabled }}</div>
+              <!-- Loyalty (Monthly) -->
+{% if loyalty.enabled and user.is_authenticated %}
+  {# ✅ Logged-in users (loyalty info shown normally) #}
+  <div class="p-4 rounded-2xl bg-black/20 border border-white/10 mb-4">
+    ... (KEEP your existing loyalty UI exactly as it is) ...
+  </div>
 
-                <!-- Loyalty (Monthly) -->
+{% else %}
+  {# ✅ Not logged in OR loyalty disabled (show CTA) #}
+  <div class="p-4 rounded-2xl bg-black/20 border border-white/10 mb-4">
+    <div class="text-xs uppercase tracking-wider text-beige/70">
+      {% trans "Loyalty bonus" %}
+    </div>
 
-            {% if loyalty and loyalty.enabled %}
-            
-                {% if request.user.is_authenticated %}
-                    {# ================= LOGGED IN USER ================= #}
-                    <div class="p-4 rounded-2xl bg-black/20 border border-white/10 mb-4">
-                        <div class="text-xs uppercase tracking-wider text-beige/70">
-                            {% trans "Loyalty reward" %}
-                        </div>
-            
-                        {% if loyalty.earned %}
-                            <div class="mt-2 text-sm text-white font-semibold">
-                                {% blocktrans with p=loyalty.percent %}
-                                    You unlocked {{ p }}% OFF this month!
-                                {% endblocktrans %}
-                            </div>
-                        {% else %}
-                            <div class="mt-2 text-sm text-white font-semibold">
-                                {% blocktrans with t=loyalty.target p=loyalty.percent %}
-                                    Complete {{ t }} delivered orders to get {{ p }}% OFF
-                                {% endblocktrans %}
-                            </div>
-                        {% endif %}
-                    </div>
-            
-                {% else %}
-                    {# ================= LOGGED OUT USER ================= #}
-                    <div class="p-4 rounded-2xl bg-black/20 border border-white/10 mb-4">
-                        <div class="text-xs uppercase tracking-wider text-beige/70">
-                            {% trans "Loyalty bonus" %}
-                        </div>
-            
-                        <div class="mt-2 text-sm text-white font-semibold">
-                            {% trans "Register to get Loyalty Bonus & Get Discount!" %}
-                        </div>
-            
-                        <div class="mt-2 text-[11px] text-beige/75">
-                            {% trans "Log in to track delivered orders and unlock rewards automatically." %}
-                        </div>
-            
-                        <div class="mt-3 flex gap-2">
-                            <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}"
-                               class="btn-gold px-4 py-2 rounded-xl font-semibold text-dark text-center">
-                                {% trans "Log in" %}
-                            </a>
-            
-                            <a href="{% url 'signup' %}?next={{ request.get_full_path|urlencode }}"
-                               class="px-4 py-2 rounded-xl font-semibold text-white text-center bg-white/10 border border-white/10 hover:bg-white/15">
-                                {% trans "Register" %}
-                            </a>
-                        </div>
-                    </div>
-                {% endif %}
-            
-            {% endif %}
+    <div class="mt-2 text-sm text-white font-semibold">
+      {% trans "Register to get Loyalty Bonus & Get Discount!" %}
+    </div>
+
+    <div class="mt-2 text-[11px] text-beige/75 leading-relaxed">
+      {% trans "Log in to track delivered orders and unlock monthly rewards automatically." %}
+    </div>
+
+    <div class="mt-3 flex flex-col sm:flex-row gap-2">
+      <a href="{% url 'login' %}?next={{ request.path|urlencode }}"
+         class="btn-gold px-4 py-2 rounded-xl font-semibold text-dark text-center">
+        {% trans "Log in" %}
+      </a>
+
+      <a href="/accounts/signup/?next={{ request.path|urlencode }}"
+         class="px-4 py-2 rounded-xl font-semibold text-white text-center
+                bg-white/10 border border-white/10 hover:bg-white/15">
+        {% trans "Register" %}
+      </a>
+    </div>
+  </div>
+{% endif %}
+
+
                 <!-- Coupon -->
                 <div class="p-4 rounded-2xl bg-black/20 border border-white/10 mb-4">
                   <div class="text-xs uppercase tracking-wider text-beige/70 mb-2">{% trans "Coupon" %}</div>
@@ -392,8 +374,8 @@
                   <div class="flex justify-between items-start gap-3">
                     <div class="text-beige/75">
                       {% trans "Delivery" %}
-                      <div id="sumPromo" class="text-[11px] text-beige/70 mt-1 {% if not promo or not promo.active %}hidden{% endif %}">
-                        {% if promo %}{{ promo.title }}{% if promo.free_delivery %} • {% trans "Free delivery applied" %}{% endif %}{% endif %}
+                      <div id="sumPromo" class="text-[11px] text-beige/70 mt-1 {% if not promo.active %}hidden{% endif %}">
+                        {{ promo.title }}{% if promo.free_delivery %} • {% trans "Free delivery applied" %}{% endif %}
                       </div>
                     </div>
                     <div class="font-semibold text-white" id="sumFee">€ {{ cart.delivery_fee|unlocalize|floatformat:2 }}</div>
