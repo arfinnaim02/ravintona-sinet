@@ -215,45 +215,55 @@
               <div class="rounded-2xl bg-black/20 border border-white/10 p-4 sm:p-5 shadow-sm">
 
                 <!-- Loyalty (Monthly) -->
-{% if loyalty.enabled %}
+<!-- Loyalty (Monthly) -->
+
+{# ✅ Fix 1: Guests always see CTA (even if loyalty.enabled is false) #}
+{% if not request.user.is_authenticated %}
   <div class="p-4 rounded-2xl bg-black/20 border border-white/10 mb-4">
-    <div class="flex items-start justify-between gap-3">
-      <div class="text-xs uppercase tracking-wider text-beige/70">
-        {% trans "Loyalty reward" %}
-      </div>
-      <div class="text-[11px] text-beige/60">
-        {{ loyalty.month }}
-      </div>
+    <div class="text-xs uppercase tracking-wider text-beige/70">
+      {% trans "Loyalty reward" %}
     </div>
 
-    {# ✅ Fix 1: guests CTA (no {% url %} to avoid 500) #}
-    {% if not request.user.is_authenticated %}
-      <div class="mt-3 text-sm font-semibold text-white">
-        {% trans "Register to get Loyalty Bonus & Get Discount!" %}
+    <div class="mt-2 text-sm font-semibold text-white">
+      {% trans "Register to get Loyalty Bonus & Get Discount!" %}
+    </div>
+
+    <div class="mt-2 text-[11px] text-beige/75 leading-relaxed">
+      {% trans "Create an account to start collecting delivered orders and unlock monthly rewards." %}
+    </div>
+
+    <div class="mt-3 grid grid-cols-2 gap-2">
+      <a href="/accounts/login/?next={{ request.path|urlencode }}"
+         class="px-4 py-2 rounded-xl font-semibold text-white text-center bg-white/10 border border-white/10 hover:bg-white/15">
+        {% trans "Log in" %}
+      </a>
+
+      <a href="/accounts/signup/?next={{ request.path|urlencode }}"
+         class="btn-gold px-4 py-2 rounded-xl font-semibold text-dark text-center">
+        {% trans "Register" %}
+      </a>
+    </div>
+  </div>
+
+{% else %}
+
+  {# Logged-in users see loyalty only if enabled #}
+  {% if loyalty and loyalty.enabled %}
+    <div class="p-4 rounded-2xl bg-black/20 border border-white/10 mb-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="text-xs uppercase tracking-wider text-beige/70">
+          {% trans "Loyalty reward" %}
+        </div>
+        <div class="text-[11px] text-beige/60">
+          {{ loyalty.month }}
+        </div>
       </div>
-
-      <div class="mt-2 text-[11px] text-beige/75 leading-relaxed">
-        {% trans "Create an account to start collecting delivered orders and unlock monthly rewards." %}
-      </div>
-
-      <div class="mt-3 grid grid-cols-2 gap-2">
-        <a href="/accounts/login/?next={{ request.path|urlencode }}"
-           class="px-4 py-2 rounded-xl font-semibold text-white text-center bg-white/10 border border-white/10 hover:bg-white/15">
-          {% trans "Log in" %}
-        </a>
-
-        <a href="/accounts/signup/?next={{ request.path|urlencode }}"
-           class="btn-gold px-4 py-2 rounded-xl font-semibold text-dark text-center">
-          {% trans "Register" %}
-        </a>
-      </div>
-
-    {% else %}
 
       {% if loyalty.earned %}
         <div class="mt-2 text-sm text-white font-semibold">
           {% blocktrans with p=loyalty.percent %}You unlocked {{ p }}% OFF this month!{% endblocktrans %}
         </div>
+
         <div class="mt-2 text-[11px] text-beige/75">
           {% trans "Use this coupon on your next order:" %}
         </div>
@@ -288,11 +298,10 @@
           {% endif %}
         </div>
       {% endif %}
+    </div>
+  {% endif %}
 
-    {% endif %}
-  </div>
 {% endif %}
-
                 <!-- Coupon -->
                 <div class="p-4 rounded-2xl bg-black/20 border border-white/10 mb-4">
                   <div class="text-xs uppercase tracking-wider text-beige/70 mb-2">{% trans "Coupon" %}</div>
