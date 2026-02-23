@@ -84,6 +84,7 @@ from django.shortcuts import redirect
 # -------------------------
 
 
+@ensure_csrf_cookie
 def home(request: HttpRequest) -> HttpResponse:
     popular_items = (
         MenuItem.objects.filter(status=MenuItem.STATUS_ACTIVE)
