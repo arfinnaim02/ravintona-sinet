@@ -1841,6 +1841,30 @@ def delivery_orders_bulk_update(request: HttpRequest) -> HttpResponse:
     messages.success(request, f"Updated {updated} order(s).")
     return redirect("restaurant:delivery_orders_list")
 
+@require_POST
+@login_required
+def customer_mark_order_received(request: HttpRequest, order_id: int) -> HttpResponse:
+    """
+    Customer confirms the order is received.
+    Only allowed if:
+    - order belongs to logged-in user
+    - status is out_for_delivery
+    """
+    o = get_object_or_404(DeliveryOrder, id=order_id, user=request.user)
+
+    if o.status != DeliveryOrder.STATUS_OUT_FOR_DELIVERY:
+        messages.error(request, _("This order cannot be marked as received right now."))
+        return redirect("accounts:my_orders")  # ✅ change if your url name is different
+
+    o.status = DeliveryOrder.STATUS_DELIVERED
+    o.save(update_fields=["status"])
+
+    # loyalty coupon logic stays consistent
+    _ensure_loyalty_coupon_for_user(request.user)
+
+    messages.success(request, _("Thanks! Your order is marked as delivered."))
+    return redirect("accounts:my_orders")  # ✅ change if needed
+
 
 @require_POST
 @login_required
