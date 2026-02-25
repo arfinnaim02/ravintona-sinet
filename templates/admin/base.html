@@ -200,7 +200,10 @@
      class="side-link {% if '/admin/loyalty' in request.path %}side-link-active{% endif %}">
     Manage Loyalty Program
   </a>
-
+  <a href="{% url 'restaurant:delivery_pricing_settings' %}"
+     class="side-link {% if '/admin/loyalty' in request.path %}side-link-active{% endif %}">
+    Delivery Pricing Settings
+  </a>
   <div class="mt-4 mb-2 px-3 text-[11px] uppercase tracking-wider text-beige/60">
     Menu
   </div>
