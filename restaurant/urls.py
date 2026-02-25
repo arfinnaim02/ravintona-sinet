@@ -100,4 +100,10 @@ urlpatterns = [
 
     path("admin/loyalty/", views.loyalty_settings, name="loyalty_settings"),
     path("admin/delivery-pricing/", views.delivery_pricing_settings, name="delivery_pricing_settings"),
+
+    path(
+    "account/orders/<int:order_id>/received/",
+    views.customer_mark_order_received,
+    name="customer_mark_order_received",
+),
 ]
