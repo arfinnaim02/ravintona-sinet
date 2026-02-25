@@ -99,5 +99,5 @@ urlpatterns = [
     path("admin/menu/bulk-delete/", views.menu_items_bulk_delete, name="menu_items_bulk_delete"),
 
     path("admin/loyalty/", views.loyalty_settings, name="loyalty_settings"),
-    
+    path("admin/delivery-pricing/", views.delivery_pricing_settings, name="delivery_pricing_settings"),
 ]
