@@ -2,46 +2,193 @@
 {% load i18n %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto px-4 py-8">
-  <h1 class="text-2xl font-semibold mb-6">Delivery Pricing Settings</h1>
+<div class="max-w-4xl mx-auto px-4 py-10">
 
-  <form method="post" class="space-y-6 bg-white p-6 rounded-2xl border">
-    {% csrf_token %}
+  <!-- Top toast area (messages already handled in base usually, but keeping layout clean) -->
+  <div class="mb-6">
+    <div class="inline-flex items-center gap-2 rounded-full border border-[#3e2723]/15 bg-white/80 px-4 py-2 shadow-sm">
+      <span class="inline-block h-2 w-2 rounded-full bg-[#bfa76f]"></span>
+      <span class="text-sm font-semibold text-[#3e2723]">Delivery Pricing Settings</span>
+      <span class="text-xs text-[#3e2723]/60">Control delivery fee rules from dashboard</span>
+    </div>
+  </div>
 
-    <div class="flex items-center gap-3">
-      <input type="checkbox" name="is_active" {% if obj and obj.is_active %}checked{% endif %}>
-      <label class="text-sm font-semibold">Enable DB-based delivery pricing</label>
+  <!-- Card -->
+  <div class="rounded-3xl border border-[#3e2723]/10 bg-white/80 backdrop-blur shadow-sm overflow-hidden">
+    <div class="px-6 sm:px-8 py-6 border-b border-[#3e2723]/10">
+      <h1 class="text-2xl sm:text-3xl font-semibold text-[#3e2723]">Delivery Pricing Settings</h1>
+      <p class="mt-2 text-sm text-[#3e2723]/65">
+        Update Base KM, Base Fee, Per KM fee and Max Fee. Changes will affect new calculations immediately.
+      </p>
     </div>
 
-    <div class="grid md:grid-cols-2 gap-4">
-      <div>
-        <label class="block text-sm font-semibold mb-1">Base KM</label>
-        <input class="w-full border rounded-lg px-3 py-2" name="base_km" value="{{ obj.base_km|default:'2.00' }}">
+    <form method="post" class="px-6 sm:px-8 py-6 space-y-6">
+      {% csrf_token %}
+
+      <!-- Toggle -->
+      <div class="flex items-center justify-between gap-4 rounded-2xl border border-[#3e2723]/10 bg-[#f5f0e6]/55 p-4">
+        <div>
+          <div class="text-sm font-semibold text-[#3e2723]">Enable DB-based delivery pricing</div>
+          <div class="text-xs text-[#3e2723]/65 mt-1">
+            If disabled, the system will use default fallback values in code.
+          </div>
+        </div>
+
+        <label class="inline-flex items-center cursor-pointer select-none">
+          <input
+            type="checkbox"
+            name="is_active"
+            class="sr-only"
+            {% if obj and obj.is_active %}checked{% endif %}
+          >
+          <span class="toggle-track"></span>
+        </label>
       </div>
 
-      <div>
-        <label class="block text-sm font-semibold mb-1">Base Fee (€)</label>
-        <input class="w-full border rounded-lg px-3 py-2" name="base_fee" value="{{ obj.base_fee|default:'1.99' }}">
+      <!-- Inputs -->
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="field">
+          <label class="label">Base KM</label>
+          <div class="hint">Distance covered by base fee.</div>
+          <input name="base_km" inputmode="decimal" value="{{ obj.base_km|default:'2.00' }}" placeholder="2.00">
+        </div>
+
+        <div class="field">
+          <label class="label">Base Fee (€)</label>
+          <div class="hint">Fixed fee for the first Base KM.</div>
+          <input name="base_fee" inputmode="decimal" value="{{ obj.base_fee|default:'1.99' }}" placeholder="1.99">
+        </div>
+
+        <div class="field">
+          <label class="label">Per KM Fee (€)</label>
+          <div class="hint">Added for each KM after Base KM.</div>
+          <input name="per_km_fee" inputmode="decimal" value="{{ obj.per_km_fee|default:'0.99' }}" placeholder="0.99">
+        </div>
+
+        <div class="field">
+          <label class="label">Max Fee (€)</label>
+          <div class="hint">Delivery fee will never exceed this cap.</div>
+          <input name="max_fee" inputmode="decimal" value="{{ obj.max_fee|default:'8.99' }}" placeholder="8.99">
+        </div>
       </div>
 
-      <div>
-        <label class="block text-sm font-semibold mb-1">Per KM Fee (€)</label>
-        <input class="w-full border rounded-lg px-3 py-2" name="per_km_fee" value="{{ obj.per_km_fee|default:'0.99' }}">
+      <!-- Note -->
+      <div class="rounded-2xl border border-[#3e2723]/10 bg-white p-4">
+        <div class="text-sm font-semibold text-[#3e2723]">Important</div>
+        <ul class="mt-2 text-sm text-[#3e2723]/70 list-disc pl-5 space-y-1">
+          <li>Customers may need to re-set their delivery location to re-calculate the fee.</li>
+          <li>If you changed pricing and want instant effect for an open cart, ask them to refresh and set location again.</li>
+        </ul>
       </div>
 
-      <div>
-        <label class="block text-sm font-semibold mb-1">Max Fee (€)</label>
-        <input class="w-full border rounded-lg px-3 py-2" name="max_fee" value="{{ obj.max_fee|default:'8.99' }}">
+      <!-- Sticky footer actions -->
+      <div class="sticky-actions">
+        <div class="flex items-center justify-between gap-3">
+          <a href="{% url 'restaurant:dashboard' %}" class="btn btn-ghost">
+            ← Back to dashboard
+          </a>
+
+          <button type="submit" class="btn btn-primary">
+            Save changes
+          </button>
+        </div>
       </div>
-    </div>
-
-    <button class="btn-wood px-5 py-3 rounded-lg font-semibold text-white">
-      Save changes
-    </button>
-
-    <p class="text-sm text-gray-600">
-      Note: after changing values, customers may need to re-set their delivery location to recalculate the fee.
-    </p>
-  </form>
+    </form>
+  </div>
 </div>
+
+<style>
+  /* Premium self-contained UI (no dependency on site CSS) */
+  .field input{
+    width:100%;
+    border:1px solid rgba(62,39,35,.14);
+    border-radius:14px;
+    padding:.85rem .95rem;
+    background:rgba(255,255,255,.9);
+    outline:none;
+    color:#3e2723;
+  }
+  .field input:focus{
+    border-color: rgba(191,167,111,.9);
+    box-shadow: 0 0 0 4px rgba(191,167,111,.18);
+  }
+  .label{
+    display:block;
+    font-size:.9rem;
+    font-weight:700;
+    color:#3e2723;
+    margin-bottom:.25rem;
+  }
+  .hint{
+    font-size:.75rem;
+    color: rgba(62,39,35,.65);
+    margin-bottom:.5rem;
+  }
+
+  /* Toggle */
+  .toggle-track{
+    width:52px; height:30px;
+    border-radius:999px;
+    background: rgba(62,39,35,.18);
+    position:relative;
+    transition:.2s ease;
+    border:1px solid rgba(62,39,35,.15);
+    display:inline-block;
+  }
+  .toggle-track::after{
+    content:"";
+    position:absolute;
+    top:3px; left:3px;
+    width:24px; height:24px;
+    background:#fff;
+    border-radius:999px;
+    box-shadow: 0 6px 16px rgba(0,0,0,.12);
+    transition:.2s ease;
+  }
+  input[type="checkbox"]:checked + .toggle-track{
+    background: rgba(191,167,111,.95);
+  }
+  input[type="checkbox"]:checked + .toggle-track::after{
+    transform: translateX(22px);
+  }
+
+  /* Buttons */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    border-radius:14px;
+    padding:.85rem 1.05rem;
+    font-weight:800;
+    font-size:.95rem;
+    border:1px solid transparent;
+    text-decoration:none;
+    user-select:none;
+  }
+  .btn-primary{
+    background:#3e2723;
+    color:#fff;
+    box-shadow: 0 10px 24px rgba(62,39,35,.22);
+  }
+  .btn-primary:hover{ filter: brightness(1.05); }
+  .btn-ghost{
+    background: rgba(255,255,255,.85);
+    color:#3e2723;
+    border-color: rgba(62,39,35,.12);
+  }
+  .btn-ghost:hover{ background:#fff; }
+
+  /* Sticky bar so Save is always visible */
+  .sticky-actions{
+    position: sticky;
+    bottom: 14px;
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 18px;
+    border: 1px solid rgba(62,39,35,.10);
+    background: rgba(245,240,230,.75);
+    backdrop-filter: blur(10px);
+  }
+</style>
 {% endblock %}
