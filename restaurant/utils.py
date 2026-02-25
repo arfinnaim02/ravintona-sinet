@@ -25,7 +25,7 @@ def delivery_fee_for_distance(distance_km: float) -> float:
 
     # fallback defaults (same as your current hardcoded values)
     BASE_KM = Decimal("2.00")
-    BASE_FEE = Decimal("1.99")
+    BASE_FEE = Decimal("0.00")
     PER_KM_FEE = Decimal("0.99")
     MAX_FEE = Decimal("8.99")
 
