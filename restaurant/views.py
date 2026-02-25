@@ -41,6 +41,7 @@ from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models.deletion import ProtectedError
 import re
+from .models import DeliveryPricing
 
 from .models import Review
 from .forms import ReviewForm
@@ -2076,6 +2077,48 @@ def loyalty_settings(request):
 
 
 
+
+
+@login_required
+def delivery_pricing_settings(request):
+    obj = DeliveryPricing.objects.order_by("-updated_at").first()
+
+    if request.method == "POST":
+        # read inputs safely
+        is_active = bool(request.POST.get("is_active"))
+
+        def to_dec(name, default):
+            v = (request.POST.get(name) or "").strip()
+            try:
+                return Decimal(v)
+            except Exception:
+                return Decimal(default)
+
+        base_km = to_dec("base_km", "2.00")
+        base_fee = to_dec("base_fee", "1.99")
+        per_km_fee = to_dec("per_km_fee", "0.99")
+        max_fee = to_dec("max_fee", "8.99")
+
+        if not obj:
+            obj = DeliveryPricing.objects.create(
+                is_active=is_active,
+                base_km=base_km,
+                base_fee=base_fee,
+                per_km_fee=per_km_fee,
+                max_fee=max_fee,
+            )
+        else:
+            obj.is_active = is_active
+            obj.base_km = base_km
+            obj.base_fee = base_fee
+            obj.per_km_fee = per_km_fee
+            obj.max_fee = max_fee
+            obj.save()
+
+        messages.success(request, "Delivery pricing updated.")
+        return redirect("restaurant:delivery_pricing_settings")
+
+    return render(request, "admin/delivery_pricing_settings.html", {"obj": obj})
 
 
 def reviews_page(request):
