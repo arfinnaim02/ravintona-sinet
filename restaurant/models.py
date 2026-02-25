@@ -548,3 +548,18 @@ class LoyaltyProgram(models.Model):
     def __str__(self):
         status = "Active" if self.is_active else "Inactive"
         return f"Loyalty ({self.target_orders} orders → {self.reward_percent}% | {status})"
+
+
+
+class DeliveryPricing(models.Model):
+    is_active = models.BooleanField(default=True)
+
+    base_km = models.DecimalField(max_digits=6, decimal_places=2, default=Decimal("2.00"))
+    base_fee = models.DecimalField(max_digits=6, decimal_places=2, default=Decimal("1.99"))
+    per_km_fee = models.DecimalField(max_digits=6, decimal_places=2, default=Decimal("0.99"))
+    max_fee = models.DecimalField(max_digits=6, decimal_places=2, default=Decimal("8.99"))
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"DeliveryPricing(active={self.is_active})"
