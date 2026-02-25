@@ -50,25 +50,45 @@
         <div class="field">
           <label class="label">Base KM</label>
           <div class="hint">Distance covered by base fee.</div>
-          <input name="base_km" inputmode="decimal" value="{{ obj.base_km|default:'2.00' }}" placeholder="2.00">
+          <input
+            name="base_km"
+            inputmode="decimal"
+            value="{{ obj.base_km|default_if_none:'2.00' }}"
+            placeholder="2.00"
+          >
         </div>
 
         <div class="field">
           <label class="label">Base Fee (€)</label>
           <div class="hint">Fixed fee for the first Base KM.</div>
-          <input name="base_fee" inputmode="decimal" value="{{ obj.base_fee|default:'1.99' }}" placeholder="1.99">
+          <input
+            name="base_fee"
+            inputmode="decimal"
+            value="{{ obj.base_fee|default_if_none:'1.99' }}"
+            placeholder="1.99"
+          >
         </div>
 
         <div class="field">
           <label class="label">Per KM Fee (€)</label>
           <div class="hint">Added for each KM after Base KM.</div>
-          <input name="per_km_fee" inputmode="decimal" value="{{ obj.per_km_fee|default:'0.99' }}" placeholder="0.99">
+          <input
+            name="per_km_fee"
+            inputmode="decimal"
+            value="{{ obj.per_km_fee|default_if_none:'0.99' }}"
+            placeholder="0.99"
+          >
         </div>
 
         <div class="field">
           <label class="label">Max Fee (€)</label>
           <div class="hint">Delivery fee will never exceed this cap.</div>
-          <input name="max_fee" inputmode="decimal" value="{{ obj.max_fee|default:'8.99' }}" placeholder="8.99">
+          <input
+            name="max_fee"
+            inputmode="decimal"
+            value="{{ obj.max_fee|default_if_none:'8.99' }}"
+            placeholder="8.99"
+          >
         </div>
       </div>
 
