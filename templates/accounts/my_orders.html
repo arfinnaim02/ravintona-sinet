@@ -72,6 +72,24 @@
                   <div class="mt-1 font-semibold text-[#3e2723]">€ {{ o.total|floatformat:2 }}</div>
                 </div>
               </div>
+             
+
+              {% if request.user.is_authenticated and o.user_id == request.user.id %}
+                {% if o.status == "out_for_delivery" %}
+                  <div class="mt-4">
+                    <form method="post"
+                          action="{% url 'restaurant:customer_mark_order_received' o.id %}">
+                      {% csrf_token %}
+                      <button type="submit"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl 
+                               bg-[#3e2723] text-white font-semibold shadow-sm
+                               hover:brightness-110 active:scale-[0.98] transition">
+                        Mark as Received
+                      </button>
+                    </form>
+                  </div>
+                {% endif %}
+              {% endif %}
             </div>
 
             {% if o.items.all %}
