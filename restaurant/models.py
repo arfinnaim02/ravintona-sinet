@@ -102,6 +102,152 @@ class MenuItem(models.Model):
     def is_popular(self) -> bool:
         return "popular" in self.get_tags_list()
 
+class AddonGroup(models.Model):
+    """
+    Reusable addon group.
+    Examples:
+    - Extra Toppings
+    - Sauce Choice
+    - Crust Type
+    - Drink Add-on
+    """
+
+    SELECTION_SINGLE = "single"
+    SELECTION_MULTIPLE = "multiple"
+    SELECTION_TYPE_CHOICES = [
+        (SELECTION_SINGLE, "Single Choice"),
+        (SELECTION_MULTIPLE, "Multiple Choice"),
+    ]
+
+    name = models.CharField(max_length=120, unique=True)
+    slug = models.SlugField(max_length=140, unique=True)
+    selection_type = models.CharField(
+        max_length=20,
+        choices=SELECTION_TYPE_CHOICES,
+        default=SELECTION_SINGLE,
+    )
+
+    is_active = models.BooleanField(default=True)
+
+    # default rules for this group
+    is_required = models.BooleanField(default=False)
+    min_select = models.PositiveIntegerField(default=0)
+    max_select = models.PositiveIntegerField(null=True, blank=True)
+
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "name"]
+
+    def __str__(self) -> str:
+        return self.name
+
+    def clean(self):
+        if self.selection_type == self.SELECTION_SINGLE:
+            if self.max_select is None:
+                self.max_select = 1
+            if self.max_select != 1:
+                raise ValidationError({"max_select": "Single choice group must have max_select = 1."})
+            if self.min_select > 1:
+                raise ValidationError({"min_select": "Single choice group cannot require more than 1 selection."})
+
+        if self.max_select is not None and self.max_select < self.min_select:
+            raise ValidationError({"max_select": "max_select cannot be smaller than min_select."})
+
+        if self.is_required and self.min_select < 1:
+            self.min_select = 1
+
+
+class AddonOption(models.Model):
+    """
+    Options inside an addon group.
+    Examples:
+    - Extra Cheese (+1.00)
+    - Garlic Sauce (+0.50)
+    - Stuffed Crust (+2.00)
+    """
+
+    group = models.ForeignKey(
+        AddonGroup,
+        related_name="options",
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(max_length=120)
+    price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["group__order", "order", "name"]
+        unique_together = [("group", "name")]
+
+    def __str__(self) -> str:
+        return f"{self.group.name} → {self.name}"
+
+
+class MenuItemAddonGroup(models.Model):
+    """
+    Links addon groups to specific menu items.
+    Allows per-item overrides without changing the reusable global addon group.
+    Example:
+    Chicken Pizza -> Extra Toppings, Sauce Choice, Crust Type
+    """
+
+    menu_item = models.ForeignKey(
+        MenuItem,
+        related_name="addon_group_links",
+        on_delete=models.CASCADE,
+    )
+    addon_group = models.ForeignKey(
+        AddonGroup,
+        related_name="menu_item_links",
+        on_delete=models.CASCADE,
+    )
+
+    # display order for this item
+    order = models.PositiveIntegerField(default=0)
+
+    # optional overrides
+    is_required_override = models.BooleanField(null=True, blank=True)
+    min_select_override = models.PositiveIntegerField(null=True, blank=True)
+    max_select_override = models.PositiveIntegerField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "id"]
+        unique_together = [("menu_item", "addon_group")]
+
+    def __str__(self) -> str:
+        return f"{self.menu_item.name} → {self.addon_group.name}"
+
+    @property
+    def effective_is_required(self) -> bool:
+        if self.is_required_override is not None:
+            return self.is_required_override
+        return self.addon_group.is_required
+
+    @property
+    def effective_min_select(self) -> int:
+        if self.min_select_override is not None:
+            return self.min_select_override
+        return self.addon_group.min_select
+
+    @property
+    def effective_max_select(self):
+        if self.max_select_override is not None:
+            return self.max_select_override
+        return self.addon_group.max_select
+
+    def clean(self):
+        min_select = self.effective_min_select
+        max_select = self.effective_max_select
+
+        if max_select is not None and max_select < min_select:
+            raise ValidationError("max_select cannot be smaller than min_select.")
+
 
 class ContactMessage(models.Model):
     """A simple contact form submission."""
@@ -366,20 +512,58 @@ class DeliveryOrder(models.Model):
 
 
 
-
 class DeliveryOrderItem(models.Model):
     order = models.ForeignKey("DeliveryOrder", related_name="items", on_delete=models.CASCADE)
+
+    # optional reference to original menu item
+    # keep nullable for backward compatibility and safe migration
+    menu_item = models.ForeignKey(
+        MenuItem,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="delivery_order_items",
+    )
+
     name = models.CharField(max_length=200)
     qty = models.PositiveIntegerField(default=1)
+
+    # final unit price for this line (base item + selected addons)
     unit_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+
+    # total addon amount included inside unit_price
+    addons_total = models.DecimalField(max_digits=8, decimal_places=2, default=0)
 
     @property
     def line_total(self):
         return (self.unit_price or Decimal("0.00")) * Decimal(self.qty or 0)
 
+    def __str__(self):
+        return f"{self.name} x {self.qty}"
+    
+ 
+class DeliveryOrderItemAddon(models.Model):
+    """
+    Snapshot of selected addons for a placed delivery order item.
+    We store names/prices as snapshot so future menu/addon edits do not affect old orders.
+    """
 
+    order_item = models.ForeignKey(
+        DeliveryOrderItem,
+        related_name="addon_snapshots",
+        on_delete=models.CASCADE,
+    )
 
+    group_name = models.CharField(max_length=120)
+    option_name = models.CharField(max_length=120)
+    option_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
 
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return f"{self.group_name}: {self.option_name}"   
+    
 #cupon state
 class DeliveryCoupon(models.Model):
     DISCOUNT_PERCENT = "percent"
