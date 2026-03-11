@@ -209,13 +209,32 @@
   </div>
 
   <a href="{% url 'restaurant:menu_items_list' %}"
-     class="side-link {% if '/admin/menu' in request.path %}side-link-active{% endif %}">
+     class="side-link {% if '/admin/menu' in request.path and '/admin/menu-item-addon-links' not in request.path %}side-link-active{% endif %}">
     Manage Items
   </a>
 
   <a href="{% url 'restaurant:categories_list' %}"
      class="side-link {% if '/admin/categories' in request.path %}side-link-active{% endif %}">
     Manage Categories
+  </a>
+
+  <div class="mt-4 mb-2 px-3 text-[11px] uppercase tracking-wider text-beige/60">
+    Addons
+  </div>
+
+  <a href="{% url 'restaurant:addon_groups_list' %}"
+     class="side-link {% if '/admin/addon-groups' in request.path %}side-link-active{% endif %}">
+    Addon Groups
+  </a>
+
+  <a href="{% url 'restaurant:addon_options_list' %}"
+     class="side-link {% if '/admin/addon-options' in request.path %}side-link-active{% endif %}">
+    Addon Options
+  </a>
+
+  <a href="{% url 'restaurant:menu_item_addon_links_list' %}"
+     class="side-link {% if '/admin/menu-item-addon-links' in request.path %}side-link-active{% endif %}">
+    Item Addon Mapping
   </a>
 
   <div class="mt-5 hairline mx-3"></div>
