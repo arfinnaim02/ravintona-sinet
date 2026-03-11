@@ -138,10 +138,29 @@
             {% for it in o.items.all %}
               <div class="p-4 rounded-2xl bg-white/80 border border-dark/10 flex items-start justify-between gap-4">
                 <div class="min-w-0">
-                  <div class="font-semibold text-dark truncate">{{ it.name }}</div>
+                  <div class="font-semibold text-dark">{{ it.name }}</div>
+
                   <div class="mt-1 text-[12px] text-dark/65">
                     € {{ it.unit_price|floatformat:2 }} × {{ it.qty }}
+                    {% if it.addons_total %}
+                      <span class="text-dark/50">
+                        • addons included: € {{ it.addons_total|floatformat:2 }}
+                      </span>
+                    {% endif %}
                   </div>
+
+                  {% if it.addon_snapshots.all %}
+                    <div class="mt-2 space-y-1">
+                      {% for addon in it.addon_snapshots.all %}
+                        <div class="text-[12px] text-dark/70">
+                          + {{ addon.group_name }}: {{ addon.option_name }}
+                          {% if addon.option_price %}
+                            <span class="text-dark/55">(€ {{ addon.option_price|floatformat:2 }})</span>
+                          {% endif %}
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                 </div>
 
                 <div class="text-right shrink-0">
@@ -263,6 +282,17 @@
           <div>{{ it.qty }}× {{ it.name|truncatechars:26 }}</div>
           <div>€{{ it.line_total|floatformat:2 }}</div>
         </div>
+
+        {% for addon in it.addon_snapshots.all %}
+          <div class="pos-row pos-small">
+            <div>+ {{ addon.group_name|truncatechars:14 }}: {{ addon.option_name|truncatechars:18 }}</div>
+            <div>
+              {% if addon.option_price %}
+                €{{ addon.option_price|floatformat:2 }}
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
       {% endfor %}
 
       <div class="pos-line"></div>
