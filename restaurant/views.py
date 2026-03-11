@@ -26,7 +26,7 @@ import json
 from decimal import Decimal
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
-
+from .utils import haversine_km, delivery_fee_for_distance
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
@@ -38,7 +38,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.db.models.deletion import ProtectedError
 import re
 from .models import DeliveryPricing
@@ -72,19 +72,28 @@ from .models import (
     AddonGroup,
     AddonOption,
     MenuItemAddonGroup,
+    TelegramLog,
 )
-
 from django.db.models import Avg, Count
 from django.core.paginator import Paginator
 
-from .utils import haversine_km, delivery_fee_for_distance
+from .telegram_utils import (
+    answer_callback_query,
+    build_delivery_order_message,
+    build_delivery_status_keyboard,
+    delivery_status_label,
+    edit_telegram_message_text,
+    send_telegram_message_full,
+    telegram_user_is_allowed,
+)
 
 from django.utils.translation import gettext as _
 
-from django.views.decorators.http import require_POST
+
 
 from django.core.cache import cache
 from django.shortcuts import redirect
+
 # -------------------------
 # Public pages
 # -------------------------
@@ -1096,7 +1105,39 @@ def reservation(request: HttpRequest) -> HttpResponse:
             "reservation_obj": reservation_obj,
         },
     )
+    
+    
+    
 
+# -------------------------
+# Telegram delivery order controls
+# -------------------------
+
+def _allowed_delivery_status_targets(current_status: str) -> set[str]:
+    current_status = str(current_status or "").strip()
+
+    mapping = {
+        DeliveryOrder.STATUS_PENDING: {
+            DeliveryOrder.STATUS_ACCEPTED,
+            DeliveryOrder.STATUS_CANCELLED,
+        },
+        DeliveryOrder.STATUS_ACCEPTED: {
+            DeliveryOrder.STATUS_PREPARING,
+        },
+        DeliveryOrder.STATUS_PREPARING: {
+            DeliveryOrder.STATUS_OUT_FOR_DELIVERY,
+        },
+        DeliveryOrder.STATUS_OUT_FOR_DELIVERY: {
+            DeliveryOrder.STATUS_DELIVERED,
+        },
+        DeliveryOrder.STATUS_DELIVERED: set(),
+        DeliveryOrder.STATUS_CANCELLED: set(),
+    }
+    return mapping.get(current_status, set())
+
+
+def _telegram_status_change_is_valid(current_status: str, target_status: str) -> bool:
+    return target_status in _allowed_delivery_status_targets(current_status)
 # -------------------------
 # Delivery (location + calc + order + checkout)
 # -------------------------
@@ -2386,46 +2427,50 @@ def delivery_place_order(request: HttpRequest) -> HttpResponse:
     )
     request.session.modified = True
 
-       # --- Telegram notify (safe: never breaks order) ---
+    # --- Telegram notify with inline buttons (safe: never breaks order) ---
     try:
-        from restaurant.telegram_utils import send_telegram_message, maps_link, safe
+        order = DeliveryOrder.objects.prefetch_related("items__addon_snapshots").get(id=order.id)
 
-        items_lines = []
-        for it in order.items.prefetch_related("addon_snapshots").all():
-            items_lines.append(
-                f"• {safe(it.name)} × {it.qty} = € {(it.unit_price * it.qty):.2f}"
+        msg = build_delivery_order_message(order)
+        keyboard = build_delivery_status_keyboard(order.id, order.status)
+
+        tg_result = send_telegram_message_full(
+            text=msg,
+            reply_markup=keyboard,
+        )
+
+        tg_message = (tg_result.get("result") or {})
+        tg_chat = (tg_message.get("chat") or {})
+        tg_message_id = tg_message.get("message_id")
+        tg_chat_id = tg_chat.get("id")
+
+        updates = []
+        if tg_chat_id is not None:
+            order.telegram_chat_id = str(tg_chat_id)
+            updates.append("telegram_chat_id")
+
+        if tg_message_id is not None:
+            order.telegram_message_id = int(tg_message_id)
+            updates.append("telegram_message_id")
+
+        order.telegram_last_status_sent = order.status
+        updates.append("telegram_last_status_sent")
+
+        if updates:
+            order.save(update_fields=updates)
+
+        try:
+            from restaurant.models import TelegramLog
+            TelegramLog.objects.create(
+                ok=True,
+                kind="delivery",
+                chat_id=str(order.telegram_chat_id or ""),
+                message_preview=f"delivery order #{order.id} sent with buttons",
+                response_text=str(tg_result)[:1500],
             )
+        except Exception:
+            pass
 
-            addon_rows = list(it.addon_snapshots.all())
-            for addon in addon_rows:
-                addon_label = f"   - {safe(addon.group_name)}: {safe(addon.option_name)}"
-                if Decimal(str(addon.option_price or 0)) > 0:
-                    addon_label += f" (+€ {Decimal(str(addon.option_price or 0)):.2f})"
-                items_lines.append(addon_label)
-
-        items_text = "\n".join(items_lines) if items_lines else "—"
-
-        gmaps = maps_link(order.lat, order.lng)
-
-        msg = (
-                f"🛵 NEW DELIVERY ORDER\n\n"
-                f"Order: #{order.id}\n"
-                f"Name: {order.customer_name}\n"
-                f"Phone: {order.customer_phone}\n"
-                f"Payment: {order.get_payment_method_display()}\n"
-                f"Address: {order.address_label}\n"
-                f"Extra: {order.address_extra}\n"
-                f"Distance: {order.distance_km:.2f} km\n"
-                f"Subtotal: € {order.subtotal:.2f}\n"
-                f"Delivery fee: € {order.delivery_fee:.2f}\n"
-                f"Total: € {order.total:.2f}\n"
-                f"Coupon: {order.coupon_code or '-'} (-€ {order.coupon_discount:.2f})\n"
-                f"Note: {order.customer_note or '-'}\n\n"
-                f"Items:\n{items_text}\n\n"
-                f"Map: {gmaps}"
-            )
-
-        send_telegram_message(msg, kind="delivery")
     except Exception as e:
         try:
             from restaurant.models import TelegramLog
@@ -2876,3 +2921,186 @@ def delivery_location_partial(request: HttpRequest) -> HttpResponse:
         "promo_free_delivery": bool(promo.free_delivery) if promo else False,
     }
     return render(request, "partials/delivery_location_modal.html", ctx)
+
+
+
+@csrf_exempt
+@require_POST
+def telegram_webhook(request: HttpRequest) -> JsonResponse:
+    """
+    Telegram webhook endpoint.
+    Handles inline button callback queries for delivery order status updates.
+    """
+
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except Exception:
+        return JsonResponse({"ok": False, "error": "invalid json"}, status=400)
+
+    callback_query = payload.get("callback_query") or {}
+    if not callback_query:
+        return JsonResponse({"ok": True})
+
+    callback_id = str(callback_query.get("id") or "").strip()
+    from_user = callback_query.get("from") or {}
+    tg_user_id = from_user.get("id")
+    tg_name = (
+        from_user.get("username")
+        or " ".join(
+            x for x in [
+                str(from_user.get("first_name") or "").strip(),
+                str(from_user.get("last_name") or "").strip(),
+            ] if x
+        )
+        or str(tg_user_id or "")
+    )
+
+    if not telegram_user_is_allowed(tg_user_id):
+        try:
+            answer_callback_query(
+                callback_id,
+                "You are not allowed to manage orders.",
+                show_alert=True,
+            )
+        except Exception:
+            pass
+        return JsonResponse({"ok": True})
+
+    data = str(callback_query.get("data") or "").strip()
+    parts = data.split(":")
+
+    if len(parts) != 3 or parts[0] != "do":
+        try:
+            answer_callback_query(
+                callback_id,
+                "Invalid action.",
+                show_alert=True,
+            )
+        except Exception:
+            pass
+        return JsonResponse({"ok": True})
+
+    _, raw_order_id, target_status = parts
+
+    if not str(raw_order_id).isdigit():
+        try:
+            answer_callback_query(
+                callback_id,
+                "Invalid order id.",
+                show_alert=True,
+            )
+        except Exception:
+            pass
+        return JsonResponse({"ok": True})
+
+    valid_statuses = {k for k, _ in DeliveryOrder.STATUS_CHOICES}
+    if target_status not in valid_statuses:
+        try:
+            answer_callback_query(
+                callback_id,
+                "Invalid status.",
+                show_alert=True,
+            )
+        except Exception:
+            pass
+        return JsonResponse({"ok": True})
+
+    order = (
+        DeliveryOrder.objects
+        .prefetch_related("items__addon_snapshots")
+        .filter(id=int(raw_order_id))
+        .first()
+    )
+
+    if not order:
+        try:
+            answer_callback_query(
+                callback_id,
+                "Order not found.",
+                show_alert=True,
+            )
+        except Exception:
+            pass
+        return JsonResponse({"ok": True})
+
+    current_status = str(order.status or "").strip()
+
+    if current_status == target_status:
+        try:
+            answer_callback_query(
+                callback_id,
+                f"Order already {delivery_status_label(current_status)}.",
+                show_alert=False,
+            )
+        except Exception:
+            pass
+        return JsonResponse({"ok": True})
+
+    if not _telegram_status_change_is_valid(current_status, target_status):
+        try:
+            answer_callback_query(
+                callback_id,
+                f"Invalid transition: {delivery_status_label(current_status)} → {delivery_status_label(target_status)}",
+                show_alert=True,
+            )
+        except Exception:
+            pass
+        return JsonResponse({"ok": True})
+
+    order.status = target_status
+    order.telegram_last_action_by = str(tg_name)[:120]
+    order.telegram_last_action_at = timezone.now()
+    order.telegram_last_status_sent = target_status
+    order.save(
+        update_fields=[
+            "status",
+            "telegram_last_action_by",
+            "telegram_last_action_at",
+            "telegram_last_status_sent",
+        ]
+    )
+
+    if target_status == DeliveryOrder.STATUS_DELIVERED and order.user:
+        try:
+            _ensure_loyalty_coupon_for_user(order.user)
+        except Exception:
+            pass
+
+    message_text = build_delivery_order_message(order)
+    keyboard = build_delivery_status_keyboard(order.id, order.status)
+
+    chat_id = str(order.telegram_chat_id or "").strip()
+    message_id = order.telegram_message_id
+
+    try:
+        if chat_id and message_id:
+            edit_telegram_message_text(
+                chat_id=chat_id,
+                message_id=message_id,
+                text=message_text,
+                reply_markup=keyboard,
+            )
+    except Exception:
+        pass
+
+    try:
+        answer_callback_query(
+            callback_id,
+            f"Order #{order.id} updated to {delivery_status_label(order.status)}",
+            show_alert=False,
+        )
+    except Exception:
+        pass
+
+    try:
+        TelegramLog.objects.create(
+            ok=True,
+            kind="delivery_status_telegram",
+            chat_id=chat_id,
+            message_preview=f"Order #{order.id} -> {order.status} by {tg_name}",
+            response_text="telegram callback handled",
+        )
+    except Exception:
+        pass
+
+    return JsonResponse({"ok": True})
