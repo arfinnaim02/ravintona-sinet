@@ -1,0 +1,145 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Menu Addon Assignments – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="text-xs text-dark/70 mb-4">
+  Dashboard <span class="mx-1">/</span>
+  <span class="text-dark font-semibold">Menu Addon Assignments</span>
+</div>
+
+<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-4xl font-semibold">Menu Addon Assignments</h1>
+    <div class="mt-2 text-sm text-dark/60">
+      Connect addon groups to specific menu items like pizza and kebab.
+    </div>
+  </div>
+
+  <a href="{% url 'restaurant:menu_item_addon_link_add' %}"
+     class="btn-gold px-6 py-3 rounded-xl font-semibold text-dark text-center">
+    + Assign Group to Item
+  </a>
+</div>
+
+<form method="get" class="rounded-2xl border border-dark/10 bg-white/70 p-4 mb-6">
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+    <div class="md:col-span-4">
+      <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Search</label>
+      <input type="text"
+             name="q"
+             value="{{ q }}"
+             placeholder="Search item, group, or category"
+             class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white/70 outline-none focus:border-gold">
+    </div>
+
+    <div class="md:col-span-4">
+      <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Menu Item</label>
+      <select name="item"
+              class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white/70 outline-none focus:border-gold">
+        <option value="">All items</option>
+        {% for item in menu_items %}
+          <option value="{{ item.id }}" {% if item_id == item.id|stringformat:"s" %}selected{% endif %}>
+            {{ item.name }}{% if item.category %} — {{ item.category.name }}{% endif %}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="md:col-span-3">
+      <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Addon Group</label>
+      <select name="group"
+              class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white/70 outline-none focus:border-gold">
+        <option value="">All groups</option>
+        {% for g in groups %}
+          <option value="{{ g.id }}" {% if group_id == g.id|stringformat:"s" %}selected{% endif %}>{{ g.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="md:col-span-1 flex items-end">
+      <button type="submit"
+              class="w-full px-5 py-3 rounded-xl font-semibold border border-dark/20 hover:bg-white/60">
+        Go
+      </button>
+    </div>
+  </div>
+</form>
+
+<div class="rounded-2xl border border-dark/10 bg-white/70 overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-dark/5">
+        <tr class="text-left">
+          <th class="px-5 py-4 font-semibold text-dark">Menu Item</th>
+          <th class="px-5 py-4 font-semibold text-dark">Addon Group</th>
+          <th class="px-5 py-4 font-semibold text-dark">Overrides</th>
+          <th class="px-5 py-4 font-semibold text-dark text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for link in links %}
+          <tr class="border-t border-dark/10">
+            <td class="px-5 py-4 align-top">
+              <div class="font-semibold text-dark">{{ link.menu_item.name }}</div>
+              <div class="text-xs text-dark/55 mt-1">
+                {% if link.menu_item.category %}{{ link.menu_item.category.name }}{% endif %}
+              </div>
+            </td>
+
+            <td class="px-5 py-4 align-top">
+              <div class="font-semibold text-dark">{{ link.addon_group.name }}</div>
+              <div class="text-xs text-dark/55 mt-1">{{ link.addon_group.get_selection_type_display }}</div>
+            </td>
+
+            <td class="px-5 py-4 align-top text-dark/80">
+              Required:
+              {% if link.is_required_override is None %}
+                Default
+              {% elif link.is_required_override %}
+                Yes
+              {% else %}
+                No
+              {% endif %}
+              <br>
+              Min:
+              {% if link.min_select_override is not None %}
+                {{ link.min_select_override }}
+              {% else %}
+                Default
+              {% endif %}
+              <br>
+              Max:
+              {% if link.max_select_override is not None %}
+                {{ link.max_select_override }}
+              {% else %}
+                Default
+              {% endif %}
+            </td>
+
+            <td class="px-5 py-4 align-top">
+              <div class="flex items-center justify-end gap-2">
+                <a href="{% url 'restaurant:menu_item_addon_link_edit' link.id %}"
+                   class="px-3 py-2 rounded-lg border border-dark/15 text-dark/80 hover:bg-white/60 text-xs font-semibold">
+                  Edit
+                </a>
+                <a href="{% url 'restaurant:menu_item_addon_link_delete' link.id %}"
+                   class="px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 text-xs font-semibold">
+                  Remove
+                </a>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4" class="px-5 py-10 text-center text-dark/60">
+              No menu item addon assignments found.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

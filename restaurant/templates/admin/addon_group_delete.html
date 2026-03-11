@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Delete Addon Group – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+  <div class="text-xs text-dark/70 mb-4">
+    Dashboard <span class="mx-1">/</span>
+    <a href="{% url 'restaurant:addon_groups_list' %}" class="hover:underline">Addon Groups</a>
+    <span class="mx-1">/</span>
+    <span class="text-dark font-semibold">Delete</span>
+  </div>
+
+  <div class="rounded-2xl border border-red-200 bg-white/80 p-8">
+    <h1 class="text-3xl font-semibold text-dark">Delete Addon Group</h1>
+
+    <div class="mt-4 text-dark/75 leading-relaxed">
+      Are you sure you want to delete <b>{{ obj.name }}</b>?
+    </div>
+
+    <div class="mt-5 space-y-2 text-sm text-dark/70">
+      <div>Linked menu items: <b>{{ linked_items_count }}</b></div>
+      <div>Options inside this group: <b>{{ options_count }}</b></div>
+    </div>
+
+    <div class="mt-6 rounded-xl bg-red-50 border border-red-200 p-4 text-sm text-red-800">
+      This will also remove the related addon options and menu item assignments for this group.
+    </div>
+
+    <form method="post" class="mt-8 flex flex-col sm:flex-row gap-3">
+      {% csrf_token %}
+      <button type="submit"
+              class="px-7 py-3 rounded-xl font-semibold border border-red-200 bg-red-50 text-red-800 hover:bg-red-100">
+        Yes, Delete
+      </button>
+
+      <a href="{% url 'restaurant:addon_groups_list' %}"
+         class="px-7 py-3 rounded-xl font-semibold border border-dark/20 hover:bg-white/50 text-center">
+        Cancel
+      </a>
+    </form>
+  </div>
+</div>
+{% endblock %}

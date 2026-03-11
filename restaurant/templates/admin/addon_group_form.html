@@ -1,0 +1,143 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}
+  {% if mode == "edit" %}Edit Addon Group{% else %}Add Addon Group{% endif %} – {{ settings.RESTAURANT_NAME }}
+{% endblock %}
+
+{% block content %}
+<div class="text-xs text-dark/70 mb-4">
+  Dashboard <span class="mx-1">/</span>
+  <a href="{% url 'restaurant:addon_groups_list' %}" class="hover:underline">Addon Groups</a>
+  <span class="mx-1">/</span>
+  <span class="text-dark font-semibold">
+    {% if mode == "edit" %}Edit{% else %}Add{% endif %}
+  </span>
+</div>
+
+<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-4xl font-semibold">
+      {% if mode == "edit" %}Edit Addon Group{% else %}Add Addon Group{% endif %}
+    </h1>
+    <div class="mt-2 text-sm text-dark/60">
+      Define reusable selection groups for pizza, kebab, and other customizable items.
+    </div>
+  </div>
+
+  <a href="{% url 'restaurant:addon_groups_list' %}"
+     class="text-sm font-semibold text-dark/70 hover:text-dark underline underline-offset-4">
+    ← Back to Addon Groups
+  </a>
+</div>
+
+{% if form.errors %}
+  <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 p-5 text-red-900">
+    <div class="font-semibold mb-2">Please fix the errors:</div>
+    <ul class="list-disc pl-5 space-y-1 text-sm">
+      {% for field in form %}
+        {% for error in field.errors %}
+          <li><b>{{ field.label }}:</b> {{ error }}</li>
+        {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+<form method="post" class="space-y-6">
+  {% csrf_token %}
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-7 space-y-6">
+      <div class="rounded-2xl border border-dark/10 bg-white/70 p-6">
+        <div class="brand-serif text-xl font-semibold text-dark">Group Details</div>
+        <div class="text-xs uppercase tracking-[0.30em] text-dark/60 mt-1">
+          Name, slug, type, sorting
+        </div>
+
+        <div class="mt-6 space-y-5">
+          <div class="p-4 rounded-xl bg-white/60 border border-dark/15">
+            <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Name</label>
+            {{ form.name }}
+          </div>
+
+          <div class="p-4 rounded-xl bg-white/60 border border-dark/15">
+            <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Slug</label>
+            {{ form.slug }}
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-xl bg-white/60 border border-dark/15">
+              <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Selection Type</label>
+              {{ form.selection_type }}
+            </div>
+
+            <div class="p-4 rounded-xl bg-white/60 border border-dark/15">
+              <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Display Order</label>
+              {{ form.order }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-dark/10 bg-white/70 p-6">
+        <div class="brand-serif text-xl font-semibold text-dark">Selection Rules</div>
+        <div class="text-xs uppercase tracking-[0.30em] text-dark/60 mt-1">
+          Required / optional and quantity rules
+        </div>
+
+        <div class="mt-6 space-y-5">
+          <div class="p-4 rounded-xl bg-white/60 border border-dark/15 flex items-center gap-3">
+            {{ form.is_active }}
+            <label class="text-sm font-semibold text-dark">Active</label>
+          </div>
+
+          <div class="p-4 rounded-xl bg-white/60 border border-dark/15 flex items-center gap-3">
+            {{ form.is_required }}
+            <label class="text-sm font-semibold text-dark">Required</label>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-xl bg-white/60 border border-dark/15">
+              <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Min Select</label>
+              {{ form.min_select }}
+            </div>
+
+            <div class="p-4 rounded-xl bg-white/60 border border-dark/15">
+              <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Max Select</label>
+              {{ form.max_select }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="lg:col-span-5">
+      <div class="sticky top-24 rounded-2xl border border-dark/10 bg-white/70 p-6">
+        <div class="brand-serif text-xl font-semibold text-dark">Usage Tips</div>
+        <div class="mt-4 text-sm text-dark/70 space-y-3">
+          <p><b>Single Choice</b> is best for sauce, crust, or size.</p>
+          <p><b>Multiple Choice</b> is best for extra toppings or extras.</p>
+          <p>Use <b>Required</b> when the customer must choose before adding to cart.</p>
+          <p>Set display order to control how groups appear in the item modal.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="flex flex-col sm:flex-row gap-3">
+    <button type="submit"
+            class="btn-gold px-7 py-3 rounded-xl font-semibold text-dark w-full sm:w-auto">
+      {% if mode == "edit" %}Save Changes →{% else %}Create Group →{% endif %}
+    </button>
+
+    <a href="{% url 'restaurant:addon_groups_list' %}"
+       class="px-7 py-3 rounded-xl font-semibold border border-dark/20 hover:bg-white/50 w-full sm:w-auto text-center">
+      Cancel
+    </a>
+  </div>
+</form>
+{% endblock %}

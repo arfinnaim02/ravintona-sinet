@@ -1,0 +1,131 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Addon Options – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="text-xs text-dark/70 mb-4">
+  Dashboard <span class="mx-1">/</span>
+  <span class="text-dark font-semibold">Addon Options</span>
+</div>
+
+<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-4xl font-semibold">Addon Options</h1>
+    <div class="mt-2 text-sm text-dark/60">
+      Manage individual selectable options inside each addon group.
+    </div>
+  </div>
+
+  <a href="{% url 'restaurant:addon_option_add' %}"
+     class="btn-gold px-6 py-3 rounded-xl font-semibold text-dark text-center">
+    + Add Addon Option
+  </a>
+</div>
+
+<form method="get" class="rounded-2xl border border-dark/10 bg-white/70 p-4 mb-6">
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+    <div class="md:col-span-5">
+      <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Search</label>
+      <input type="text"
+             name="q"
+             value="{{ q }}"
+             placeholder="Search option or group"
+             class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white/70 outline-none focus:border-gold">
+    </div>
+
+    <div class="md:col-span-4">
+      <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Group</label>
+      <select name="group"
+              class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white/70 outline-none focus:border-gold">
+        <option value="">All groups</option>
+        {% for g in groups %}
+          <option value="{{ g.id }}" {% if group_id == g.id|stringformat:"s" %}selected{% endif %}>{{ g.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="md:col-span-2">
+      <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Status</label>
+      <select name="status"
+              class="w-full px-4 py-3 rounded-xl border border-dark/15 bg-white/70 outline-none focus:border-gold">
+        <option value="">All</option>
+        <option value="active" {% if status == "active" %}selected{% endif %}>Active</option>
+        <option value="inactive" {% if status == "inactive" %}selected{% endif %}>Inactive</option>
+      </select>
+    </div>
+
+    <div class="md:col-span-1 flex items-end">
+      <button type="submit"
+              class="w-full px-5 py-3 rounded-xl font-semibold border border-dark/20 hover:bg-white/60">
+        Go
+      </button>
+    </div>
+  </div>
+</form>
+
+<div class="rounded-2xl border border-dark/10 bg-white/70 overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-dark/5">
+        <tr class="text-left">
+          <th class="px-5 py-4 font-semibold text-dark">Option</th>
+          <th class="px-5 py-4 font-semibold text-dark">Group</th>
+          <th class="px-5 py-4 font-semibold text-dark">Price</th>
+          <th class="px-5 py-4 font-semibold text-dark">Status</th>
+          <th class="px-5 py-4 font-semibold text-dark text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for opt in options %}
+          <tr class="border-t border-dark/10">
+            <td class="px-5 py-4 align-top">
+              <div class="font-semibold text-dark">{{ opt.name }}</div>
+              <div class="text-xs text-dark/55 mt-1">Order: {{ opt.order }}</div>
+            </td>
+
+            <td class="px-5 py-4 align-top text-dark/80">
+              {{ opt.group.name }}
+            </td>
+
+            <td class="px-5 py-4 align-top text-dark/80">
+              € {{ opt.price|floatformat:2 }}
+            </td>
+
+            <td class="px-5 py-4 align-top">
+              {% if opt.is_active %}
+                <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
+                  Active
+                </span>
+              {% else %}
+                <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                  Inactive
+                </span>
+              {% endif %}
+            </td>
+
+            <td class="px-5 py-4 align-top">
+              <div class="flex items-center justify-end gap-2">
+                <a href="{% url 'restaurant:addon_option_edit' opt.id %}"
+                   class="px-3 py-2 rounded-lg border border-dark/15 text-dark/80 hover:bg-white/60 text-xs font-semibold">
+                  Edit
+                </a>
+                <a href="{% url 'restaurant:addon_option_delete' opt.id %}"
+                   class="px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 text-xs font-semibold">
+                  Delete
+                </a>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="px-5 py-10 text-center text-dark/60">
+              No addon options found.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

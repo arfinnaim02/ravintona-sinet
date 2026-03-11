@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Remove Menu Addon Assignment – {{ settings.RESTAURANT_NAME }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+  <div class="text-xs text-dark/70 mb-4">
+    Dashboard <span class="mx-1">/</span>
+    <a href="{% url 'restaurant:menu_item_addon_links_list' %}" class="hover:underline">Menu Addon Assignments</a>
+    <span class="mx-1">/</span>
+    <span class="text-dark font-semibold">Remove</span>
+  </div>
+
+  <div class="rounded-2xl border border-red-200 bg-white/80 p-8">
+    <h1 class="text-3xl font-semibold text-dark">Remove Addon Assignment</h1>
+
+    <div class="mt-4 text-dark/75 leading-relaxed">
+      Remove <b>{{ obj.addon_group.name }}</b> from <b>{{ obj.menu_item.name }}</b>?
+    </div>
+
+    <form method="post" class="mt-8 flex flex-col sm:flex-row gap-3">
+      {% csrf_token %}
+      <button type="submit"
+              class="px-7 py-3 rounded-xl font-semibold border border-red-200 bg-red-50 text-red-800 hover:bg-red-100">
+        Yes, Remove
+      </button>
+
+      <a href="{% url 'restaurant:menu_item_addon_links_list' %}"
+         class="px-7 py-3 rounded-xl font-semibold border border-dark/20 hover:bg-white/50 text-center">
+        Cancel
+      </a>
+    </form>
+  </div>
+</div>
+{% endblock %}
