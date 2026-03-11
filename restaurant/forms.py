@@ -19,7 +19,15 @@ from django.conf import settings
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.text import slugify
 
-from .models import MenuItem, Category, ContactMessage, Reservation
+from .models import (
+    MenuItem,
+    Category,
+    ContactMessage,
+    Reservation,
+    AddonGroup,
+    AddonOption,
+    MenuItemAddonGroup,
+)
 
 from django.utils import timezone
 
@@ -113,6 +121,214 @@ class MenuItemForm(forms.ModelForm):
             obj.save()
         return obj
 
+
+class AddonGroupForm(forms.ModelForm):
+    class Meta:
+        model = AddonGroup
+        fields = [
+            "name",
+            "slug",
+            "selection_type",
+            "is_active",
+            "is_required",
+            "min_select",
+            "max_select",
+            "order",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        base = (
+            "w-full px-4 py-3 bg-white/50 border border-dark/20 "
+            "focus:border-gold focus:outline-none rounded-sm"
+        )
+
+        self.fields["name"].widget.attrs.update({
+            "class": base,
+            "placeholder": "e.g. Extra Toppings",
+        })
+        self.fields["slug"].widget.attrs.update({
+            "class": base,
+            "placeholder": "e.g. extra-toppings",
+        })
+        self.fields["selection_type"].widget.attrs.update({"class": base})
+        self.fields["min_select"].widget.attrs.update({
+            "class": base,
+            "placeholder": "0",
+        })
+        self.fields["max_select"].widget.attrs.update({
+            "class": base,
+            "placeholder": "1",
+        })
+        self.fields["order"].widget.attrs.update({
+            "class": base,
+            "placeholder": "0",
+        })
+
+        self.fields["is_active"].widget.attrs.update({"class": "h-4 w-4"})
+        self.fields["is_required"].widget.attrs.update({"class": "h-4 w-4"})
+
+    def clean_slug(self):
+        slug = (self.cleaned_data.get("slug") or "").strip()
+        name = (self.cleaned_data.get("name") or "").strip()
+
+        if not slug:
+            slug = slugify(name)
+
+        if not slug:
+            raise forms.ValidationError("Please enter a name or a valid slug.")
+
+        qs = AddonGroup.objects.filter(slug=slug)
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise forms.ValidationError("Slug already exists. Choose a different slug.")
+
+        return slug
+
+    def clean(self):
+        cleaned = super().clean()
+
+        selection_type = cleaned.get("selection_type")
+        is_required = cleaned.get("is_required")
+        min_select = cleaned.get("min_select")
+        max_select = cleaned.get("max_select")
+
+        if min_select is None:
+            min_select = 0
+
+        if selection_type == AddonGroup.SELECTION_SINGLE:
+            if max_select in (None, 0):
+                cleaned["max_select"] = 1
+                max_select = 1
+
+            if max_select != 1:
+                self.add_error("max_select", "Single choice group must have max_select = 1.")
+
+            if min_select > 1:
+                self.add_error("min_select", "Single choice group cannot require more than 1 selection.")
+
+        if is_required and min_select < 1:
+            cleaned["min_select"] = 1
+            min_select = 1
+
+        if max_select is not None and max_select < min_select:
+            self.add_error("max_select", "Max select cannot be smaller than min select.")
+
+        return cleaned
+
+
+class AddonOptionForm(forms.ModelForm):
+    class Meta:
+        model = AddonOption
+        fields = [
+            "group",
+            "name",
+            "price",
+            "is_active",
+            "order",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        base = (
+            "w-full px-4 py-3 bg-white/50 border border-dark/20 "
+            "focus:border-gold focus:outline-none rounded-sm"
+        )
+
+        self.fields["group"].queryset = AddonGroup.objects.filter(is_active=True).order_by("order", "name")
+
+        self.fields["group"].widget.attrs.update({"class": base})
+        self.fields["name"].widget.attrs.update({
+            "class": base,
+            "placeholder": "e.g. Extra Cheese",
+        })
+        self.fields["price"].widget.attrs.update({
+            "class": base,
+            "placeholder": "1.00",
+        })
+        self.fields["order"].widget.attrs.update({
+            "class": base,
+            "placeholder": "0",
+        })
+        self.fields["is_active"].widget.attrs.update({"class": "h-4 w-4"})
+
+
+class MenuItemAddonGroupForm(forms.ModelForm):
+    class Meta:
+        model = MenuItemAddonGroup
+        fields = [
+            "menu_item",
+            "addon_group",
+            "order",
+            "is_required_override",
+            "min_select_override",
+            "max_select_override",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        base = (
+            "w-full px-4 py-3 bg-white/50 border border-dark/20 "
+            "focus:border-gold focus:outline-none rounded-sm"
+        )
+
+        self.fields["menu_item"].queryset = (
+            MenuItem.objects.exclude(status=MenuItem.STATUS_HIDDEN)
+            .select_related("category")
+            .order_by("category__order", "category__name", "name")
+        )
+        self.fields["addon_group"].queryset = AddonGroup.objects.filter(is_active=True).order_by("order", "name")
+
+        self.fields["menu_item"].widget.attrs.update({"class": base})
+        self.fields["addon_group"].widget.attrs.update({"class": base})
+        self.fields["order"].widget.attrs.update({
+            "class": base,
+            "placeholder": "0",
+        })
+        self.fields["min_select_override"].widget.attrs.update({
+            "class": base,
+            "placeholder": "Leave blank to use group default",
+        })
+        self.fields["max_select_override"].widget.attrs.update({
+            "class": base,
+            "placeholder": "Leave blank to use group default",
+        })
+
+        self.fields["is_required_override"].widget.attrs.update({"class": "h-4 w-4"})
+
+    def clean(self):
+        cleaned = super().clean()
+
+        addon_group = cleaned.get("addon_group")
+        is_required_override = cleaned.get("is_required_override")
+        min_override = cleaned.get("min_select_override")
+        max_override = cleaned.get("max_select_override")
+
+        effective_min = min_override if min_override is not None else (
+            addon_group.min_select if addon_group else 0
+        )
+        effective_max = max_override if max_override is not None else (
+            addon_group.max_select if addon_group else None
+        )
+
+        if addon_group and addon_group.selection_type == AddonGroup.SELECTION_SINGLE:
+            if effective_max is not None and effective_max != 1:
+                self.add_error("max_select_override", "Single choice group must have max select = 1.")
+            if effective_min is not None and effective_min > 1:
+                self.add_error("min_select_override", "Single choice group cannot require more than 1 selection.")
+
+        if effective_max is not None and effective_max < effective_min:
+            self.add_error("max_select_override", "Max select cannot be smaller than min select.")
+
+        if is_required_override is True and effective_min < 1:
+            cleaned["min_select_override"] = 1
+
+        return cleaned
 
 class CategoryForm(forms.ModelForm):
     """Form for creating/updating categories in custom admin."""
