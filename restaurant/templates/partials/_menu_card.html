@@ -81,6 +81,8 @@
         <button type="button"
                 aria-label="Add"
                 data-add-delivery="{{ item.id }}"
+                data-item-url="{% url 'restaurant:menu_item_detail' item.id %}?ctx=delivery"
+                data-has-addons="{% if item.addon_group_links.count %}1{% else %}0{% endif %}"
                 class="absolute -right-2 -bottom-2 h-10 w-10 rounded-full
                        bg-[#1f6feb] text-white text-2xl leading-none
                        flex items-center justify-center shadow-lg
