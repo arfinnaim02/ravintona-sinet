@@ -226,6 +226,7 @@ GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY", "")
 # --- Telegram notifications ---
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_GROUP_CHAT_ID = os.environ.get("TELEGRAM_GROUP_CHAT_ID", "")
+ADMIN_TELEGRAM_USER_IDS = os.environ.get("ADMIN_TELEGRAM_USER_IDS", "")
 
 
 # --- Customer auth (accounts) ---
