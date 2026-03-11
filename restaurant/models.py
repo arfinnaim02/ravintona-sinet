@@ -506,10 +506,15 @@ class DeliveryOrder(models.Model):
         related_name="delivery_orders",
     )
 
+    # Telegram sync fields
+    telegram_chat_id = models.CharField(max_length=64, blank=True, default="")
+    telegram_message_id = models.BigIntegerField(null=True, blank=True)
+    telegram_last_status_sent = models.CharField(max_length=32, blank=True, default="")
+    telegram_last_action_by = models.CharField(max_length=120, blank=True, default="")
+    telegram_last_action_at = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return f"Order #{self.id} ({self.get_status_display()})"
-
-
 
 
 class DeliveryOrderItem(models.Model):
