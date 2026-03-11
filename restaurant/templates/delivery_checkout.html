@@ -363,12 +363,29 @@
                               <div class="min-w-0">
                                 <div class="font-semibold text-white truncate">{{ line.name }}</div>
                                 <div class="text-xs text-beige/70 mt-0.5">
-                                  € {{ line.unit_price|floatformat:2 }} × <span data-qty-text="{{ line.id }}">{{ line.qty }}</span>
+                                  € {{ line.unit_price|floatformat:2 }} ×
+                                  <span data-qty-text="{{ line.key }}">{{ line.qty }}</span>
                                 </div>
+
+                                {% if line.addons %}
+                                  <div class="mt-2 space-y-1">
+                                    {% for addon in line.addons %}
+                                      <div class="text-[11px] text-beige/70 leading-relaxed">
+                                        + {{ addon.group_name }}: {{ addon.option_name }}
+                                        {% if addon.price %}
+                                          <span class="text-beige/55">(€ {{ addon.price|floatformat:2 }})</span>
+                                        {% endif %}
+                                      </div>
+                                    {% endfor %}
+                                  </div>
+                                {% endif %}
                               </div>
+
                               <div class="text-right">
                                 <div class="text-[11px] text-beige/70 uppercase tracking-wider">{% trans "Total" %}</div>
-                                <div class="font-semibold text-white">€ <span data-line-total="{{ line.id }}">{{ line.line_total|floatformat:2 }}</span></div>
+                                <div class="font-semibold text-white">
+                                  € <span data-line-total="{{ line.key }}">{{ line.line_total|floatformat:2 }}</span>
+                                </div>
                               </div>
                             </div>
 
@@ -376,16 +393,16 @@
                               <div class="inline-flex items-center gap-2">
                                 <button type="button"
                                         class="w-9 h-9 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 font-semibold"
-                                        data-minus="{{ line.id }}">−</button>
-                                <div class="w-10 text-center font-semibold text-white" data-qty="{{ line.id }}">{{ line.qty }}</div>
+                                        data-minus="{{ line.key }}">−</button>
+                                <div class="w-10 text-center font-semibold text-white" data-qty="{{ line.key }}">{{ line.qty }}</div>
                                 <button type="button"
                                         class="w-9 h-9 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 font-semibold"
-                                        data-plus="{{ line.id }}">+</button>
+                                        data-plus="{{ line.key }}">+</button>
                               </div>
 
                               <button type="button"
                                       class="text-xs font-semibold text-red-200 hover:text-red-100 underline underline-offset-4"
-                                      data-remove="{{ line.id }}">
+                                      data-remove="{{ line.key }}">
                                 {% trans "Remove" %}
                               </button>
                             </div>
@@ -532,11 +549,25 @@
               {% for it in order_obj.items.all %}
                 <div class="p-3 rounded-xl bg-white/70 border border-dark/10 flex items-start justify-between gap-3">
                   <div class="min-w-0">
-                    <div class="font-semibold text-dark truncate">{{ it.name }}</div>
+                    <div class="font-semibold text-dark">{{ it.name }}</div>
                     <div class="text-xs text-dark/70">
                       € {{ it.unit_price|floatformat:2 }} × {{ it.qty }}
                     </div>
+
+                    {% if it.addon_snapshots.all %}
+                      <div class="mt-2 space-y-1">
+                        {% for addon in it.addon_snapshots.all %}
+                          <div class="text-[11px] text-dark/70 leading-relaxed">
+                            + {{ addon.group_name }}: {{ addon.option_name }}
+                            {% if addon.option_price %}
+                              <span class="text-dark/55">(€ {{ addon.option_price|floatformat:2 }})</span>
+                            {% endif %}
+                          </div>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
                   </div>
+
                   <div class="font-semibold text-dark whitespace-nowrap">
                     € {{ it.line_total|floatformat:2 }}
                   </div>
@@ -814,8 +845,17 @@
 
     orderLines.innerHTML = lines.map(line => {
       const id = line.id;
+      const cartKey = line.key;
       const safeName = (line.name || "").replaceAll('"','&quot;');
       const firstLetter = (line.name || "").slice(0, 1);
+
+      const addonsHtml = (line.addons || []).map(addon => `
+        <div class="text-[11px] text-beige/70 leading-relaxed">
+          + ${addon.group_name}: ${addon.option_name}
+          ${Number(addon.price || 0) > 0 ? `<span class="text-beige/55">(€ ${Number(addon.price || 0).toFixed(2)})</span>` : ""}
+        </div>
+      `).join("");
+
       return `
         <div class="rounded-2xl bg-black/20 border border-white/10 p-3">
           <div class="flex items-start gap-3">
@@ -830,23 +870,24 @@
                 <div class="min-w-0">
                   <div class="font-semibold text-white truncate">${line.name}</div>
                   <div class="text-xs text-beige/70 mt-0.5">
-                    € ${parseFloat(line.unit_price||0).toFixed(2)} × <span data-qty-text="${id}">${line.qty}</span>
+                    € ${parseFloat(line.unit_price || 0).toFixed(2)} × <span data-qty-text="${cartKey}">${line.qty}</span>
                   </div>
+                  ${addonsHtml ? `<div class="mt-2 space-y-1">${addonsHtml}</div>` : ""}
                 </div>
                 <div class="text-right">
                   <div class="text-[11px] text-beige/70 uppercase tracking-wider">{% trans "Total" %}</div>
-                  <div class="font-semibold text-white">€ <span data-line-total="${id}">${parseFloat(line.line_total||0).toFixed(2)}</span></div>
+                  <div class="font-semibold text-white">€ <span data-line-total="${cartKey}">${parseFloat(line.line_total || 0).toFixed(2)}</span></div>
                 </div>
               </div>
 
               <div class="mt-3 flex items-center justify-between gap-3">
                 <div class="inline-flex items-center gap-2">
-                  <button type="button" class="w-9 h-9 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 font-semibold" data-minus="${id}">−</button>
-                  <div class="w-10 text-center font-semibold text-white" data-qty="${id}">${line.qty}</div>
-                  <button type="button" class="w-9 h-9 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 font-semibold" data-plus="${id}">+</button>
+                  <button type="button" class="w-9 h-9 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 font-semibold" data-minus="${cartKey}">−</button>
+                  <div class="w-10 text-center font-semibold text-white" data-qty="${cartKey}">${line.qty}</div>
+                  <button type="button" class="w-9 h-9 rounded-xl bg-white/10 border border-white/10 hover:bg-white/15 font-semibold" data-plus="${cartKey}">+</button>
                 </div>
 
-                <button type="button" class="text-xs font-semibold text-red-200 hover:text-red-100 underline underline-offset-4" data-remove="${id}">
+                <button type="button" class="text-xs font-semibold text-red-200 hover:text-red-100 underline underline-offset-4" data-remove="${cartKey}">
                   {% trans "Remove" %}
                 </button>
               </div>
@@ -865,8 +906,8 @@
     return payload;
   }
 
-  async function setQty(id, qty) {
-    await apiPost("{% url 'restaurant:delivery_cart_update' %}", { item_id: id, qty: qty });
+  async function setQty(cartKey, qty) {
+    await apiPost("{% url 'restaurant:delivery_cart_update' %}", { cart_key: cartKey, qty: qty });
     await refreshSummary();
   }
 
@@ -874,11 +915,10 @@
     const payload = await refreshSummary();
     const lines = (payload && payload.ok && payload.cart && payload.cart.lines) ? payload.cart.lines : [];
     for (const it of lines) {
-      await setQty(it.id, 0);
+      await setQty(it.key, 0);
     }
     await refreshSummary();
   }
-
     // Coupon
     const couponForm = document.getElementById("couponForm");
       // Loyalty coupon quick-use (fills existing coupon input + submits)
