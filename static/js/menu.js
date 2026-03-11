@@ -44,6 +44,94 @@
     );
   }
 
+
+
+    function getModalAddonInputs() {
+    return Array.from(document.querySelectorAll("[data-addon-option]"));
+  }
+
+  function getSelectedAddonOptions() {
+    return getModalAddonInputs()
+      .filter((el) => el.checked)
+      .map((el) => ({
+        optionId: String(el.value),
+        groupId: String(el.dataset.addonGroupId || ""),
+        groupName: String(el.dataset.addonGroupName || ""),
+        optionName: String(el.dataset.addonOptionName || ""),
+        price: Number(el.dataset.addonPrice || 0),
+      }));
+  }
+
+  function clearAddonErrors() {
+    document.querySelectorAll("[data-addon-error]").forEach((el) => {
+      el.classList.add("hidden");
+      el.textContent = "";
+    });
+  }
+
+  function showAddonError(groupId, message) {
+    const el = document.querySelector(`[data-addon-error-for="${groupId}"]`);
+    if (!el) return;
+    el.textContent = message;
+    el.classList.remove("hidden");
+  }
+
+  function validateModalAddonSelection() {
+    clearAddonErrors();
+
+    const groups = Array.from(document.querySelectorAll("[data-addon-group]"));
+    let ok = true;
+
+    groups.forEach((groupEl) => {
+      const groupId = String(groupEl.dataset.groupId || "");
+      const selectionType = String(groupEl.dataset.selectionType || "");
+      const isRequired = String(groupEl.dataset.required || "0") === "1";
+      const minSelect = Number(groupEl.dataset.minSelect || 0);
+      const rawMax = groupEl.dataset.maxSelect;
+      const maxSelect = rawMax === "" || rawMax == null ? null : Number(rawMax);
+
+      const selected = Array.from(
+        groupEl.querySelectorAll("[data-addon-option]:checked")
+      );
+
+      if (isRequired && selected.length === 0) {
+        showAddonError(groupId, _("Please choose at least one option."));
+        ok = false;
+        return;
+      }
+
+      if (selectionType === "multiple") {
+        if (selected.length < minSelect) {
+          showAddonError(
+            groupId,
+            _("Please select at least ") + minSelect + _(" option(s).")
+          );
+          ok = false;
+          return;
+        }
+
+        if (maxSelect !== null && selected.length > maxSelect) {
+          showAddonError(
+            groupId,
+            _("Please select no more than ") + maxSelect + _(" option(s).")
+          );
+          ok = false;
+          return;
+        }
+      }
+
+      if (selectionType === "single") {
+        if (isRequired && selected.length !== 1) {
+          showAddonError(groupId, _("Please choose one option."));
+          ok = false;
+          return;
+        }
+      }
+    });
+
+    return ok;
+  }
+
     // ✅ ✅ PUT IT RIGHT HERE (after helpers)
   const AUTO_OPEN_KEY = "delivery_cart_drawer_opened_once";
   function hasAutoOpenedOnce() {
@@ -174,10 +262,16 @@
   // =========================
   // Cart state helpers
   // =========================
-  function getQtyFromLastCartSnapshot(itemId) {
+  function getQtyFromLastCartSnapshot(itemId, cartKey) {
     try {
       const cart = window.__LAST_CART__;
       if (!cart || !Array.isArray(cart.lines)) return 0;
+
+      if (cartKey) {
+        const lineByKey = cart.lines.find((l) => String(l.key) === String(cartKey));
+        return lineByKey ? Number(lineByKey.qty || 0) : 0;
+      }
+
       const line = cart.lines.find((l) => String(l.id) === String(itemId));
       return line ? Number(line.qty || 0) : 0;
     } catch (e) {
@@ -185,6 +279,27 @@
     }
   }
 
+    function getCurrentModalSelectedOptionIds() {
+    return getModalAddonInputs()
+      .filter((el) => el.checked)
+      .map((el) => String(el.value))
+      .sort();
+  }
+
+  function buildCartKey(itemId, optionIds) {
+    const sorted = (optionIds || []).map(String).sort();
+    if (!sorted.length) return String(itemId);
+    return String(itemId) + ":" + sorted.join("-");
+  }
+
+  function getModalCartKey() {
+    const meta = document.getElementById("modalItemMeta");
+    if (!meta) return "";
+    const itemId = meta.getAttribute("data-item-id");
+    if (!itemId) return "";
+    const optionIds = getCurrentModalSelectedOptionIds();
+    return buildCartKey(itemId, optionIds);
+  }
   function syncModalQtyUI(itemId) {
     const meta = document.getElementById("modalItemMeta");
     if (!meta) return;
@@ -192,7 +307,8 @@
     const openItemId = meta.getAttribute("data-item-id");
     if (String(openItemId) !== String(itemId)) return;
 
-    const qty = getQtyFromLastCartSnapshot(itemId);
+    const cartKey = getModalCartKey();
+    const qty = getQtyFromLastCartSnapshot(itemId, cartKey);
 
     const addBtn = document.getElementById("modalAddBtn");
     const controls = document.getElementById("modalQtyControls");
@@ -403,14 +519,41 @@
     if (countEl) countEl.textContent = totalCount;
     if (totalBarEl) totalBarEl.textContent = money(cart.total);
 
-    (cart.lines || []).forEach((line) => {
-      qtyMap[String(line.id)] = line.qty;
+     (cart.lines || []).forEach((line) => {
+      qtyMap[String(line.id)] = (qtyMap[String(line.id)] || 0) + Number(line.qty || 0);
+
+      const addonHtml = Array.isArray(line.addons) && line.addons.length
+        ? `
+          <div class="mt-1 space-y-1">
+            ${line.addons.map((a) => `
+              <div class="text-[12px] text-[#3e2723]/65">
+                + ${a.group_name}: ${a.option_name}${Number(a.price || 0) > 0 ? ` (${money(a.price)})` : ``}
+              </div>
+            `).join("")}
+          </div>
+        `
+        : "";
+
+      const unitMeta = Number(line.addons_total || 0) > 0
+        ? `
+          <div class="mt-1 text-[12px] text-[#3e2723]/65">
+            ${_("Base")} ${money(line.base_price)} + ${_("Addons")} ${money(line.addons_total)}
+          </div>
+        `
+        : `
+          <div class="mt-1 text-[12px] text-[#3e2723]/65">
+            ${money(line.unit_price)} × ${line.qty}
+          </div>
+        `;
 
       const row = `
-        <div class="border-b border-[#3e2723]/10 pb-3" data-cart-row data-item-id="${line.id}">
+        <div class="border-b border-[#3e2723]/10 pb-3" data-cart-row data-item-id="${line.id}" data-cart-key="${line.key}">
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <div class="font-semibold text-[#3e2723] truncate">${line.name}</div>
+              <div class="font-semibold text-[#3e2723]">${line.name}</div>
+              ${addonHtml}
+              ${unitMeta}
+
               <div class="mt-2 flex items-center gap-2">
                 <button type="button"
                         class="h-8 w-8 rounded-lg bg-[#f5f0e6] border border-[#3e2723]/10 text-[#3e2723] font-bold active:scale-95 transition"
@@ -427,6 +570,7 @@
                         data-qty-action="remove">${_("Remove")}</button>
               </div>
             </div>
+
             <div class="shrink-0 text-right">
               <div class="text-[11px] uppercase tracking-wider text-[#3e2723]/50">${_("TOTAL")}</div>
               <div class="font-semibold text-[#3e2723]">${money(line.line_total)}</div>
@@ -438,7 +582,6 @@
       if (container) container.insertAdjacentHTML("beforeend", row);
       if (mobile) mobile.insertAdjacentHTML("beforeend", row);
     });
-
     const subEl = document.getElementById("cartSubtotal");
     const delEl = document.getElementById("cartDelivery");
     const totEl = document.getElementById("cartTotal");
@@ -483,11 +626,11 @@
     renderCartFromSnapshot(data.cart);
   }
 
-  window.updateQty = async function (id, qty) {
+  window.updateQty = async function (cartKey, qty) {
     if (!URLS.cart_update) return;
 
     const fd = new FormData();
-    fd.append("item_id", id);
+    fd.append("cart_key", cartKey);
     fd.append("qty", qty);
 
     const res = await fetch(URLS.cart_update, {
@@ -498,12 +641,11 @@
 
     const data = await res.json().catch(() => null);
     if (data && data.ok && data.cart) {
-      renderCartFromSnapshot(data.cart); // ✅ no extra GET
+      renderCartFromSnapshot(data.cart);
     } else {
-      refreshCart();
+      await refreshCart();
     }
   };
-
   async function clearCart() {
     if (!URLS.cart_summary || !URLS.cart_update) return;
 
@@ -516,7 +658,7 @@
     const lines = data.cart.lines || [];
     for (const line of lines) {
       const fd = new FormData();
-      fd.append("item_id", line.id);
+      fd.append("cart_key", line.key);
       fd.append("qty", 0);
 
       await fetch(URLS.cart_update, {
@@ -525,9 +667,9 @@
         body: fd,
       });
     }
-    refreshCart();
-  }
 
+    await refreshCart();
+  }
   // =========================
   // ✅ Google Maps loader
   // =========================
@@ -1102,6 +1244,42 @@ if (mobileRemoveCouponBtn) {
 }
 
 
+  document.addEventListener("change", function (e) {
+    const input = e.target.closest("[data-addon-option]");
+    if (!input) return;
+
+    const groupEl = input.closest("[data-addon-group]");
+    if (!groupEl) return;
+
+    clearAddonErrors();
+
+    const selectionType = String(groupEl.dataset.selectionType || "");
+    const rawMax = groupEl.dataset.maxSelect;
+    const maxSelect = rawMax === "" || rawMax == null ? null : Number(rawMax);
+
+    if (selectionType !== "multiple" || maxSelect === null) return;
+
+    const checked = Array.from(
+      groupEl.querySelectorAll("[data-addon-option]:checked")
+    );
+
+    if (checked.length > maxSelect) {
+      input.checked = false;
+
+      const groupId = String(groupEl.dataset.groupId || "");
+      showAddonError(
+        groupId,
+        _("You can select up to ") + maxSelect + _(" option(s).")
+      );
+    }
+
+    const meta = document.getElementById("modalItemMeta");
+    if (meta) {
+      const itemId = meta.getAttribute("data-item-id");
+      if (itemId) syncModalQtyUI(itemId);
+    }
+  });
+
   // =========================
   // ✅ ONE delegated click handler
   // =========================
@@ -1112,14 +1290,15 @@ if (mobileRemoveCouponBtn) {
       const row = qtyBtn.closest("[data-cart-row]");
       if (!row) return;
 
-      const id = row.getAttribute("data-item-id");
+      const cartKey = row.getAttribute("data-cart-key");
+      const itemId = row.getAttribute("data-item-id");
       const action = qtyBtn.getAttribute("data-qty-action");
 
-      const current = getQtyFromLastCartSnapshot(id);
+      const current = getQtyFromLastCartSnapshot(itemId, cartKey);
 
-      if (action === "inc") return await window.updateQty(id, current + 1);
-      if (action === "dec") return await window.updateQty(id, Math.max(0, current - 1));
-      if (action === "remove") return await window.updateQty(id, 0);
+      if (action === "inc") return await window.updateQty(cartKey, current + 1);
+      if (action === "dec") return await window.updateQty(cartKey, Math.max(0, current - 1));
+      if (action === "remove") return await window.updateQty(cartKey, 0);
       return;
     }
 
@@ -1147,49 +1326,100 @@ if (mobileRemoveCouponBtn) {
       if (!meta) return;
 
       const itemId = meta.getAttribute("data-item-id");
-      const current = getQtyFromLastCartSnapshot(itemId);
+      const cartKey = getModalCartKey();
+      const current = getQtyFromLastCartSnapshot(itemId, cartKey);
 
       if (e.target.closest("#modalPlusBtn")) {
-        await window.updateQty(itemId, current + 1);
+        await window.updateQty(cartKey, current + 1);
         return;
       }
       if (e.target.closest("#modalMinusBtn")) {
-        await window.updateQty(itemId, Math.max(0, current - 1));
+        await window.updateQty(cartKey, Math.max(0, current - 1));
         return;
       }
       if (e.target.closest("#modalRemoveBtn")) {
-        await window.updateQty(itemId, 0);
+        await window.updateQty(cartKey, 0);
         return;
       }
     }
-
     // 3) Add delivery (+ button and modal Add button)
     const addBtn = e.target.closest("[data-add-delivery]");
     if (addBtn) {
       if (!URLS.cart_add) return;
 
       const id = addBtn.getAttribute("data-add-delivery");
+      const isModalAdd = addBtn.id === "modalAddBtn";
+      const hasAddons = String(addBtn.getAttribute("data-has-addons") || "0") === "1";
+      const itemUrl = addBtn.getAttribute("data-item-url") || "";
+
+      // Card quick-add: if item has addons, open modal instead of direct add
+      if (!isModalAdd && hasAddons && itemUrl) {
+        openItemModal();
+        if (itemModalBody) itemModalBody.innerHTML = _("Loading...");
+
+        const res = await fetch(itemUrl, { headers: xhrHeaders() });
+        if (itemModalBody) itemModalBody.innerHTML = await res.text();
+
+        clearAddonErrors();
+
+        const meta = document.getElementById("modalItemMeta");
+        if (meta) syncModalQtyUI(meta.getAttribute("data-item-id"));
+        return;
+      }
+
+      if (isModalAdd) {
+        const valid = validateModalAddonSelection();
+        if (!valid) return;
+      }
+
+      const selectedOptions = isModalAdd ? getSelectedAddonOptions() : [];
+
       const fd = new FormData();
       fd.append("item_id", id);
       fd.append("qty", 1);
 
-      await fetch(URLS.cart_add, {
+      selectedOptions.forEach((opt) => {
+        fd.append("selected_options", opt.optionId);
+      });
+
+      const res = await fetch(URLS.cart_add, {
         method: "POST",
         headers: xhrHeaders({ "X-CSRFToken": csrfToken() }),
         body: fd,
       });
 
-      await refreshCart();
+      const data = await res.json().catch(() => null);
 
-      // ✅ Only auto-open the drawer the first time on mobile
+      if (data && !data.ok) {
+        if (Array.isArray(data.addon_errors)) {
+          clearAddonErrors();
+          data.addon_errors.forEach((err) => {
+            if (err && err.group_id) {
+              showAddonError(
+                String(err.group_id),
+                err.message || _("Invalid selection.")
+              );
+            }
+          });
+        } else if (data.error) {
+          alert(data.error);
+        }
+        return;
+      }
+
+      if (data && data.ok && data.cart) {
+        renderCartFromSnapshot(data.cart);
+      } else {
+        await refreshCart();
+      }
+
       if (window.innerWidth < 1024 && !hasAutoOpenedOnce()) {
         openDrawer();
         markAutoOpenedOnce();
       }
 
-            return;
-    } // ✅ CLOSE addBtn block
-
+      return;
+    }
 
     // 4) Preview item modal
     const preview = e.target.closest("[data-item-url]");
@@ -1203,11 +1433,12 @@ if (mobileRemoveCouponBtn) {
       const res = await fetch(url, { headers: xhrHeaders() });
       if (itemModalBody) itemModalBody.innerHTML = await res.text();
 
+      clearAddonErrors();
+
       const meta = document.getElementById("modalItemMeta");
       if (meta) syncModalQtyUI(meta.getAttribute("data-item-id"));
       return;
     }
-
     // 5) Top promo coupon buttons
     const topCouponBtn = e.target.closest("[data-top-coupon]");
     if (topCouponBtn) {
