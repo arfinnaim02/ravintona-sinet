@@ -118,6 +118,7 @@ urlpatterns = [
 
     path("admin/loyalty/", views.loyalty_settings, name="loyalty_settings"),
     path("admin/delivery-pricing/", views.delivery_pricing_settings, name="delivery_pricing_settings"),
+    path("telegram/webhook/", views.telegram_webhook, name="telegram_webhook"),
 
     path(
     "account/orders/<int:order_id>/received/",
