@@ -101,6 +101,108 @@
     <!-- Divider -->
     <div class="mt-6 h-px bg-[#3e2723]/10"></div>
 
+          {% if addon_groups %}
+      <div class="mt-5 space-y-4">
+        <div class="text-[11px] uppercase tracking-[0.25em] text-[#3e2723]/55">
+          Customize your item
+        </div>
+
+        {% for group in addon_groups %}
+          <div class="rounded-2xl border border-[#3e2723]/10 bg-white/70 p-4"
+               data-addon-group
+               data-group-id="{{ group.group_id }}"
+               data-selection-type="{{ group.selection_type }}"
+               data-required="{% if group.is_required %}1{% else %}0{% endif %}"
+               data-min-select="{{ group.min_select }}"
+               data-max-select="{% if group.max_select is not None %}{{ group.max_select }}{% else %}{% endif %}">
+            
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div class="text-sm font-semibold text-[#3e2723]">
+                  {{ group.group_name }}
+                </div>
+                <div class="mt-1 text-[11px] text-[#3e2723]/55">
+                  {{ group.selection_type_display }}
+                  {% if group.is_required %}
+                    • Required
+                  {% else %}
+                    • Optional
+                  {% endif %}
+                  {% if group.selection_type == "multiple" %}
+                    • Min {{ group.min_select }}
+                    {% if group.max_select is not None %}
+                      • Max {{ group.max_select }}
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </div>
+
+              {% if group.is_required %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200">
+                  Required
+                </span>
+              {% endif %}
+            </div>
+
+            <div class="mt-4 space-y-2">
+              {% for opt in group.options %}
+                <label class="flex items-start justify-between gap-3 rounded-xl border border-[#3e2723]/10 bg-white px-4 py-3 hover:bg-[#f9f6f0] transition cursor-pointer">
+                  <div class="flex items-start gap-3 min-w-0">
+                    <div class="pt-0.5">
+                      {% if group.selection_type == "single" %}
+                        <input type="radio"
+                               name="addon_group_{{ group.group_id }}"
+                               value="{{ opt.id }}"
+                               data-addon-option
+                               data-addon-group-id="{{ group.group_id }}"
+                               data-addon-group-name="{{ group.group_name|escape }}"
+                               data-addon-option-name="{{ opt.name|escape }}"
+                               data-addon-price="{{ opt.price }}"
+                               class="h-4 w-4 border-[#3e2723]/20 text-[#bfa76f] focus:ring-[#bfa76f]">
+                      {% else %}
+                        <input type="checkbox"
+                               name="addon_group_{{ group.group_id }}"
+                               value="{{ opt.id }}"
+                               data-addon-option
+                               data-addon-group-id="{{ group.group_id }}"
+                               data-addon-group-name="{{ group.group_name|escape }}"
+                               data-addon-option-name="{{ opt.name|escape }}"
+                               data-addon-price="{{ opt.price }}"
+                               class="h-4 w-4 rounded border-[#3e2723]/20 text-[#bfa76f] focus:ring-[#bfa76f]">
+                      {% endif %}
+                    </div>
+
+                    <div class="min-w-0">
+                      <div class="text-sm font-medium text-[#3e2723]">
+                        {{ opt.name }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="shrink-0 text-sm font-semibold text-[#3e2723]">
+                    {% if opt.price > 0 %}
+                      + € {{ opt.price }}
+                    {% else %}
+                      € 0.00
+                    {% endif %}
+                  </div>
+                </label>
+              {% empty %}
+                <div class="text-sm text-[#3e2723]/60">
+                  No active options available.
+                </div>
+              {% endfor %}
+            </div>
+
+            <div class="hidden mt-3 text-xs font-medium text-red-700"
+                 data-addon-error
+                 data-addon-error-for="{{ group.group_id }}">
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
     <!-- Actions -->
       <div class="mt-5 space-y-3">
 
@@ -165,8 +267,10 @@
       <!-- Helps JS know current item -->
       <div id="modalItemMeta"
           data-item-id="{{ item.id }}"
+          data-item-name="{{ item.name|escape }}"
+          data-item-price="{% if item.discount_price %}{{ item.discount_price }}{% else %}{{ item.price }}{% endif %}"
+          data-has-addons="{% if addon_groups %}1{% else %}0{% endif %}"
           class="hidden"></div>
-
 
     <!-- Tip -->
     <div class="mt-4 text-[11px] text-[#3e2723]/55 leading-relaxed">
