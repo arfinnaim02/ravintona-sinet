@@ -30,6 +30,20 @@ class Migration(migrations.Migration):
                 'ordering': ['order', 'name'],
             },
         ),
+        
+        
+                migrations.CreateModel(
+            name='DeliveryPricing',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('is_active', models.BooleanField(default=True)),
+                ('base_km', models.DecimalField(decimal_places=2, default=Decimal('2.00'), max_digits=6)),
+                ('base_fee', models.DecimalField(decimal_places=2, default=Decimal('1.99'), max_digits=6)),
+                ('per_km_fee', models.DecimalField(decimal_places=2, default=Decimal('0.99'), max_digits=6)),
+                ('max_fee', models.DecimalField(decimal_places=2, default=Decimal('8.99'), max_digits=6)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+            ],
+        ),
 
         migrations.AddField(
             model_name='deliveryorderitem',
