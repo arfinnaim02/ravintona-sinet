@@ -372,7 +372,9 @@
                                     {% for addon in line.addons %}
                                       <div class="text-[11px] text-beige/70 leading-relaxed">
                                         + {{ addon.group_name }}: {{ addon.option_name }}
-                                        {% if addon.price %}
+                                        {% if addon.is_free %}
+                                          <span class="text-green-300">(Free)</span>
+                                        {% elif addon.price %}
                                           <span class="text-beige/55">(€ {{ addon.price|floatformat:2 }})</span>
                                         {% endif %}
                                       </div>
@@ -852,7 +854,7 @@
       const addonsHtml = (line.addons || []).map(addon => `
         <div class="text-[11px] text-beige/70 leading-relaxed">
           + ${addon.group_name}: ${addon.option_name}
-          ${Number(addon.price || 0) > 0 ? `<span class="text-beige/55">(€ ${Number(addon.price || 0).toFixed(2)})</span>` : ""}
+          ${addon.is_free ? `<span class="text-green-300">(Free)</span>` : (Number(addon.price || 0) > 0 ? `<span class="text-beige/55">(€ ${Number(addon.price || 0).toFixed(2)})</span>` : ``)}
         </div>
       `).join("");
 
