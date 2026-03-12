@@ -61,7 +61,20 @@
         <div class="mt-6 space-y-5">
           <div class="p-4 rounded-xl bg-white/60 border border-dark/15">
             <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Menu Item</label>
+
+            <input
+              type="text"
+              id="menuItemSearch"
+              placeholder="Search menu item by name or category..."
+              class="w-full px-4 py-3 mb-3 rounded-xl border border-dark/15 bg-white/90 outline-none focus:border-gold"
+              autocomplete="off"
+            >
+
             {{ form.menu_item }}
+
+            <div class="mt-2 text-[11px] text-dark/55">
+              Type to quickly find a menu item from the dropdown.
+            </div>
           </div>
 
           <div class="p-4 rounded-xl bg-white/60 border border-dark/15">
@@ -127,4 +140,71 @@
     </a>
   </div>
 </form>
+
+<script>
+(function () {
+  const searchInput = document.getElementById("menuItemSearch");
+  const select = document.getElementById("id_menu_item");
+
+  if (!searchInput || !select) return;
+
+  const originalOptions = Array.from(select.options).map((opt) => ({
+    value: opt.value,
+    text: opt.text,
+    selected: opt.selected,
+    disabled: opt.disabled,
+  }));
+
+  function rebuildOptions(filtered, keepValue) {
+    select.innerHTML = "";
+
+    filtered.forEach((optData) => {
+      const opt = document.createElement("option");
+      opt.value = optData.value;
+      opt.textContent = optData.text;
+      opt.disabled = !!optData.disabled;
+
+      if (String(optData.value) === String(keepValue)) {
+        opt.selected = true;
+      }
+
+      select.appendChild(opt);
+    });
+
+    if (
+      keepValue &&
+      !Array.from(select.options).some((o) => String(o.value) === String(keepValue))
+    ) {
+      const fallback = originalOptions.find((o) => String(o.value) === String(keepValue));
+      if (fallback) {
+        const opt = document.createElement("option");
+        opt.value = fallback.value;
+        opt.textContent = fallback.text;
+        opt.selected = true;
+        select.appendChild(opt);
+      }
+    }
+  }
+
+  function filterOptions() {
+    const q = (searchInput.value || "").trim().toLowerCase();
+    const currentValue = select.value;
+
+    if (!q) {
+      rebuildOptions(originalOptions, currentValue);
+      return;
+    }
+
+    const filtered = originalOptions.filter((opt) => {
+      if (!opt.value) return true; // keep empty placeholder
+      return opt.text.toLowerCase().includes(q);
+    });
+
+    rebuildOptions(filtered, currentValue);
+  }
+
+  searchInput.addEventListener("input", filterOptions);
+})();
+</script>
+
 {% endblock %}
