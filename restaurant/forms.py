@@ -133,6 +133,7 @@ class AddonGroupForm(forms.ModelForm):
             "is_required",
             "min_select",
             "max_select",
+            "free_choices_count",
             "order",
         ]
 
@@ -161,11 +162,14 @@ class AddonGroupForm(forms.ModelForm):
             "class": base,
             "placeholder": "1",
         })
+        self.fields["free_choices_count"].widget.attrs.update({
+            "class": base,
+            "placeholder": "0",
+        })
         self.fields["order"].widget.attrs.update({
             "class": base,
             "placeholder": "0",
         })
-
         self.fields["is_active"].widget.attrs.update({"class": "h-4 w-4"})
         self.fields["is_required"].widget.attrs.update({"class": "h-4 w-4"})
 
@@ -195,9 +199,12 @@ class AddonGroupForm(forms.ModelForm):
         is_required = cleaned.get("is_required")
         min_select = cleaned.get("min_select")
         max_select = cleaned.get("max_select")
+        free_choices_count = cleaned.get("free_choices_count")
 
         if min_select is None:
             min_select = 0
+        if free_choices_count is None:
+            free_choices_count = 0
 
         if selection_type == AddonGroup.SELECTION_SINGLE:
             if max_select in (None, 0):
@@ -210,12 +217,18 @@ class AddonGroupForm(forms.ModelForm):
             if min_select > 1:
                 self.add_error("min_select", "Single choice group cannot require more than 1 selection.")
 
+            if free_choices_count > 1:
+                self.add_error("free_choices_count", "Single choice group can have at most 1 free choice.")
+
         if is_required and min_select < 1:
             cleaned["min_select"] = 1
             min_select = 1
 
         if max_select is not None and max_select < min_select:
             self.add_error("max_select", "Max select cannot be smaller than min select.")
+
+        if max_select is not None and free_choices_count > max_select:
+            self.add_error("free_choices_count", "Free choices count cannot be greater than max select.")
 
         return cleaned
 
