@@ -259,6 +259,7 @@ def menu_item_detail(request: HttpRequest, pk: int) -> HttpResponse:
                 "is_required": link.effective_is_required,
                 "min_select": link.effective_min_select,
                 "max_select": link.effective_max_select,
+                "free_choices_count": int(getattr(group, "free_choices_count", 0) or 0),
                 "order": link.order,
                 "options": options,
             }
@@ -1518,18 +1519,80 @@ def _validate_selected_addons_for_item(item: MenuItem, raw_option_ids) -> tuple[
     return normalized_valid_ids, valid_selected_options, errors
 
 
-def _serialize_selected_addons(selected_options: list[AddonOption]) -> list[dict]:
+def _serialize_selected_addons(selected_addons: list[dict]) -> list[dict]:
     return [
         {
-            "option_id": opt.id,
-            "group_id": opt.group_id,
-            "group_name": opt.group.name,
-            "option_name": opt.name,
-            "price": float(opt.price),
+            "option_id": row["option"].id,
+            "group_id": row["option"].group_id,
+            "group_name": row["option"].group.name,
+            "option_name": row["option"].name,
+            "price": float(row["charged_price"]),
+            "base_price": float(row["base_price"]),
+            "is_free": bool(row["is_free"]),
         }
-        for opt in selected_options
+        for row in selected_addons
     ]
 
+
+def _build_priced_selected_addons_for_item(item: MenuItem, selected_option_ids: list[int]) -> list[dict]:
+    """
+    Returns selected addons with effective charged price after applying
+    the group's free_choices_count rule.
+
+    Output rows:
+    {
+        "option": AddonOption,
+        "base_price": Decimal,
+        "charged_price": Decimal,
+        "is_free": bool,
+    }
+    """
+    if not selected_option_ids:
+        return []
+
+    selected_options = list(
+        AddonOption.objects.select_related("group")
+        .filter(id__in=selected_option_ids, is_active=True, group__is_active=True)
+        .order_by("group__order", "group__name", "order", "id")
+    )
+    selected_map = {opt.id: opt for opt in selected_options}
+
+    priced_rows: list[dict] = []
+
+    addon_links = list(_get_item_addon_links(item))
+    allowed_group_ids = {link.addon_group_id for link in addon_links}
+
+    group_selected: dict[int, list[AddonOption]] = {}
+    for oid in selected_option_ids:
+        opt = selected_map.get(oid)
+        if not opt:
+            continue
+        if opt.group_id not in allowed_group_ids:
+            continue
+        group_selected.setdefault(opt.group_id, []).append(opt)
+
+    link_map = {link.addon_group_id: link for link in addon_links}
+
+    for group_id, opts in group_selected.items():
+        link = link_map.get(group_id)
+        group = link.addon_group if link else None
+        free_count = int(getattr(group, "free_choices_count", 0) or 0)
+
+        for index, opt in enumerate(opts):
+            base_price = Decimal(str(opt.price or 0))
+            is_free = index < free_count
+            charged_price = Decimal("0.00") if is_free else base_price
+
+            priced_rows.append(
+                {
+                    "option": opt,
+                    "base_price": base_price,
+                    "charged_price": charged_price,
+                    "is_free": is_free,
+                }
+            )
+
+    return priced_rows
 
 def _cart_parse_lines(request: HttpRequest) -> list[dict]:
     """
@@ -1593,15 +1656,15 @@ def _cart_parse_lines(request: HttpRequest) -> list[dict]:
         if not item:
             continue
 
-        selected_options = []
-        addons_total = Decimal("0.00")
+        priced_selected_addons = _build_priced_selected_addons_for_item(
+            item,
+            row["selected_option_ids"],
+        )
 
-        for oid in row["selected_option_ids"]:
-            opt = options_map.get(oid)
-            if not opt:
-                continue
-            selected_options.append(opt)
-            addons_total += Decimal(str(opt.price or 0))
+        addons_total = sum(
+            (addon["charged_price"] for addon in priced_selected_addons),
+            Decimal("0.00"),
+        )
 
         base_price = Decimal(str(item.price or 0))
         unit_price = base_price + addons_total
@@ -1618,7 +1681,7 @@ def _cart_parse_lines(request: HttpRequest) -> list[dict]:
                 "addons_total": round(float(addons_total), 2),
                 "unit_price": round(float(unit_price), 2),
                 "line_total": round(float(line_total), 2),
-                "addons": _serialize_selected_addons(selected_options),
+                "addons": _serialize_selected_addons(priced_selected_addons),
             }
         )
 
