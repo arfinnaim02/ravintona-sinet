@@ -1,7 +1,8 @@
 {% load static %}
 
 {% with ctx=ctx|default:"menu" %}
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+<div class="flex flex-col">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
 
   <!-- Image -->
   <div class="relative">
@@ -213,9 +214,9 @@
         {% endfor %}
       </div>
     {% endif %}
-
+  </div>
     <!-- Actions -->
-    <div class="sticky bottom-0 mt-5 pt-3 bg-gradient-to-t from-white via-white to-white/95 border-t border-[#3e2723]/10 space-y-3 z-10">
+    <div class="sticky bottom-0 mt-6 pt-4 bg-white border-t border-[#3e2723]/10 space-y-3 z-20">
 
       <!-- Qty controls (hidden until item is in cart) -->
       <div id="modalQtyControls"
@@ -283,9 +284,9 @@
 
       <!-- Tip -->
       <div class="text-[11px] text-[#3e2723]/55 leading-relaxed pb-1">
-        Tip: Tap <b>Add to Cart</b>, then use the cart on the right (desktop) or bottom bar (mobile) to finish checkout.
       </div>
 
     </div>
+</div>
 </div>
 {% endwith %}
