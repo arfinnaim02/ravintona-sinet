@@ -134,6 +134,10 @@ class AddonGroup(models.Model):
     min_select = models.PositiveIntegerField(default=0)
     max_select = models.PositiveIntegerField(null=True, blank=True)
 
+    # pricing rule:
+    # first N selected options in this group are free, remaining options are charged
+    free_choices_count = models.PositiveIntegerField(default=0)
+
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -151,6 +155,8 @@ class AddonGroup(models.Model):
                 raise ValidationError({"max_select": "Single choice group must have max_select = 1."})
             if self.min_select > 1:
                 raise ValidationError({"min_select": "Single choice group cannot require more than 1 selection."})
+            if self.free_choices_count > 1:
+                raise ValidationError({"free_choices_count": "Single choice group can have at most 1 free choice."})
 
         if self.max_select is not None and self.max_select < self.min_select:
             raise ValidationError({"max_select": "max_select cannot be smaller than min_select."})
@@ -158,6 +164,8 @@ class AddonGroup(models.Model):
         if self.is_required and self.min_select < 1:
             self.min_select = 1
 
+        if self.max_select is not None and self.free_choices_count > self.max_select:
+            raise ValidationError({"free_choices_count": "Free choices count cannot be greater than max select."})
 
 class AddonOption(models.Model):
     """
