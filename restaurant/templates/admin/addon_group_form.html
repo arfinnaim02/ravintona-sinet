@@ -100,7 +100,7 @@
             <label class="text-sm font-semibold text-dark">Required</label>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="p-4 rounded-xl bg-white/60 border border-dark/15">
               <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Min Select</label>
               {{ form.min_select }}
@@ -109,6 +109,14 @@
             <div class="p-4 rounded-xl bg-white/60 border border-dark/15">
               <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Max Select</label>
               {{ form.max_select }}
+            </div>
+
+            <div class="p-4 rounded-xl bg-white/60 border border-dark/15">
+              <label class="block text-xs uppercase tracking-wider text-dark/60 mb-2">Free Choices</label>
+              {{ form.free_choices_count }}
+              <div class="mt-2 text-[11px] text-dark/55">
+                First selected options in this group will be free. Extra selections will be charged normally.
+              </div>
             </div>
           </div>
         </div>
@@ -122,6 +130,7 @@
           <p><b>Single Choice</b> is best for sauce, crust, or size.</p>
           <p><b>Multiple Choice</b> is best for extra toppings or extras.</p>
           <p>Use <b>Required</b> when the customer must choose before adding to cart.</p>
+          <p><b>Free Choices</b> lets you make the first selected options free, for example first 4 pizza toppings free.</p>
           <p>Set display order to control how groups appear in the item modal.</p>
         </div>
       </div>
