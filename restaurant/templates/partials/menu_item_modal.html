@@ -118,28 +118,32 @@
                data-max-select="{% if group.max_select is not None %}{{ group.max_select }}{% else %}{% endif %}"
                data-free-choices-count="{{ group.free_choices_count|default:0 }}">
             
-            <div class="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <div class="mt-1 text-[11px] text-[#3e2723]/55">
-                  {{ group.selection_type_display }}
-                  {% if group.selection_type == "multiple" %}
-                    • Min {{ group.min_select }}
-                    {% if group.max_select is not None %}
-                      • Max {{ group.max_select }}
-                    {% endif %}
-                  {% endif %}
-                  {% if group.free_choices_count %}
-                    • First {{ group.free_choices_count }} free
-                  {% endif %}
-                </div>
-              </div>
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div class="text-sm font-bold text-[#3e2723]">
+                    {{ group.group_name }}
+                  </div>
 
-              {% if group.is_required %}
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200">
-                  Required
-                </span>
-              {% endif %}
-            </div>
+                  <div class="mt-1 text-[11px] text-[#3e2723]/55">
+                    {{ group.selection_type_display }}
+                    {% if group.selection_type == "multiple" %}
+                      • Min {{ group.min_select }}
+                      {% if group.max_select is not None %}
+                        • Max {{ group.max_select }}
+                      {% endif %}
+                    {% endif %}
+                    {% if group.free_choices_count %}
+                      • First {{ group.free_choices_count }} free
+                    {% endif %}
+                  </div>
+                </div>
+
+                {% if group.is_required %}
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200">
+                    Required
+                  </span>
+                {% endif %}
+              </div>
             {% if group.free_choices_count %}
               <div class="mt-4 mb-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3">
                 <div class="flex items-center gap-2">
