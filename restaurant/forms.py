@@ -297,8 +297,14 @@ class MenuItemAddonGroupForm(forms.ModelForm):
         )
         self.fields["addon_group"].queryset = AddonGroup.objects.filter(is_active=True).order_by("order", "name")
 
-        self.fields["menu_item"].widget.attrs.update({"class": base})
-        self.fields["addon_group"].widget.attrs.update({"class": base})
+        self.fields["menu_item"].widget.attrs.update({
+            "class": base,
+            "data-searchable-select": "menu-item",
+            "size": "1",
+        })
+        self.fields["addon_group"].widget.attrs.update({
+            "class": base,
+        })
         self.fields["order"].widget.attrs.update({
             "class": base,
             "placeholder": "0",
