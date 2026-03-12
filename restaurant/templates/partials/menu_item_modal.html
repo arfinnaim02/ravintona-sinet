@@ -108,7 +108,7 @@
         </div>
 
         {% for group in addon_groups %}
-          <div class="rounded-2xl border border-[#3e2723]/10 bg-white/70 p-4"
+          <div class="rounded-2xl border {% if group.free_choices_count %}border-green-200 bg-green-50/40{% else %}border-[#3e2723]/10 bg-white/70{% endif %} p-4"
                data-addon-group
                data-group-id="{{ group.group_id }}"
                data-selection-type="{{ group.selection_type }}"
@@ -119,16 +119,8 @@
             
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <div class="text-sm font-semibold text-[#3e2723]">
-                  {{ group.group_name }}
-                </div>
                 <div class="mt-1 text-[11px] text-[#3e2723]/55">
                   {{ group.selection_type_display }}
-                  {% if group.is_required %}
-                    • Required
-                  {% else %}
-                    • Optional
-                  {% endif %}
                   {% if group.selection_type == "multiple" %}
                     • Min {{ group.min_select }}
                     {% if group.max_select is not None %}
@@ -147,6 +139,21 @@
                 </span>
               {% endif %}
             </div>
+            {% if group.free_choices_count %}
+              <div class="mt-4 mb-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-600 text-white text-xs font-bold">
+                    ✓
+                  </span>
+                  <div class="text-sm font-semibold text-green-800">
+                    First {{ group.free_choices_count }} choices are free
+                  </div>
+                </div>
+                <div class="mt-1 text-[12px] text-green-700/90">
+                  Pick your free favorites first. Extra selections after that will be charged.
+                </div>
+              </div>
+            {% endif %}
 
             <div class="mt-4 space-y-2">
               {% for opt in group.options %}
