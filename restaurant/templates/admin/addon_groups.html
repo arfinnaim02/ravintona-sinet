@@ -62,6 +62,7 @@
           <th class="px-5 py-4 font-semibold text-dark">Type</th>
           <th class="px-5 py-4 font-semibold text-dark">Required</th>
           <th class="px-5 py-4 font-semibold text-dark">Rules</th>
+          <th class="px-5 py-4 font-semibold text-dark">Free Choices</th>
           <th class="px-5 py-4 font-semibold text-dark">Options</th>
           <th class="px-5 py-4 font-semibold text-dark">Status</th>
           <th class="px-5 py-4 font-semibold text-dark text-right">Actions</th>
@@ -95,6 +96,14 @@
               Min: {{ g.min_select }}<br>
               Max:
               {% if g.max_select %}{{ g.max_select }}{% else %}—{% endif %}
+            </td>
+
+            <td class="px-5 py-4 align-top text-dark/80">
+              {% if g.free_choices_count %}
+                First {{ g.free_choices_count }} free
+              {% else %}
+                —
+              {% endif %}
             </td>
 
             <td class="px-5 py-4 align-top text-dark/80">
@@ -132,7 +141,7 @@
           </tr>
         {% empty %}
           <tr>
-            <td colspan="7" class="px-5 py-10 text-center text-dark/60">
+            <td colspan="8" class="px-5 py-10 text-center text-dark/60">
               No addon groups found.
             </td>
           </tr>
