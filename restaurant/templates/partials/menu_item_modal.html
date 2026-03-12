@@ -114,7 +114,8 @@
                data-selection-type="{{ group.selection_type }}"
                data-required="{% if group.is_required %}1{% else %}0{% endif %}"
                data-min-select="{{ group.min_select }}"
-               data-max-select="{% if group.max_select is not None %}{{ group.max_select }}{% else %}{% endif %}">
+               data-max-select="{% if group.max_select is not None %}{{ group.max_select }}{% else %}{% endif %}"
+               data-free-choices-count="{{ group.free_choices_count|default:0 }}">
             
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -133,6 +134,9 @@
                     {% if group.max_select is not None %}
                       • Max {{ group.max_select }}
                     {% endif %}
+                  {% endif %}
+                  {% if group.free_choices_count %}
+                    • First {{ group.free_choices_count }} free
                   {% endif %}
                 </div>
               </div>
