@@ -14,7 +14,7 @@
               {% trans "Confirm delivery location" %}
             </div>
             <div class="text-sm text-[#3e2723]/70 mt-1">
-              {% trans "Search your address or drag the pin to your entrance." %}
+              {% trans "Search your address or move the map to your location." %}
             </div>
           </div>
 
@@ -57,11 +57,18 @@
             data-rest-lat="{{ rest_lat|floatformat:6 }}"
             data-rest-lng="{{ rest_lng|floatformat:6 }}"
             class="w-full h-[280px] sm:h-[360px]"></div>
+            <!-- CENTER FIXED PIN -->
+            <div class="pointer-events-none absolute inset-0 flex items-center justify-center z-10">
+              <div class="flex flex-col items-center">
+                <div class="w-6 h-6 bg-red-600 rounded-full shadow-md border-2 border-white"></div>
+                <div class="w-1 h-4 bg-red-600 -mt-1"></div>
+              </div>
+            </div>
 
 
             <div class="absolute top-3 left-3 z-[10]">
               <div class="px-3 py-2 rounded-xl bg-white/90 border border-[#3e2723]/10 text-xs text-[#3e2723] shadow-sm backdrop-blur">
-                <div class="font-semibold">{% trans "Drag pin to entrance" %}</div>
+                <div class="font-semibold">{% trans "Move map to your entrance" %}</div>
                 <div class="mt-0.5 text-[#3e2723]/60">
                   {% trans "Accuracy:" %} <span id="dlAccText" class="font-semibold">—</span>
                 </div>
