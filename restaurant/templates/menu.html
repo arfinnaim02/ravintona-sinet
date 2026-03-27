@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="bg-[#f5f0e6] min-h-screen">
+<section class="bg-[#f5f0e6] min-h-screen overflow-x-hidden">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
 
     <!-- ===== Top Promo Banner (CLEAN PREMIUM BOARD + PNG ICONS + MOBILE PERFECT) ===== -->
@@ -197,10 +197,10 @@
       </div>
     </div>
 
-    <div id="top" class="grid lg:grid-cols-12 gap-8 mt-6 scroll-mt-[140px]">
+    <div id="top" class="grid lg:grid-cols-12 gap-8 mt-6 scroll-mt-[140px] min-w-0">
 
       <!-- ===== Left: Items (ALL items grouped by category) ===== -->
-      <div class="lg:col-span-8">
+      <div class="lg:col-span-8 min-w-0">
         <div class="flex items-end justify-between mb-4">
           <div>
             <div class="text-xs uppercase tracking-[0.35em] text-[#3e2723]/60">{% trans "Menu" %}</div>
@@ -213,8 +213,8 @@
         </div>
 
         <!-- ===== Menu Search ===== -->
-<div class="mb-6">
-  <div class="relative" id="menuSearchWrap">
+<div class="mb-6 min-w-0 max-w-full">
+  <div class="relative min-w-0 max-w-full" id="menuSearchWrap">
     <input
       type="text"
       id="menuSearchInput"
