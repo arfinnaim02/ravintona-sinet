@@ -57,13 +57,36 @@
             data-rest-lat="{{ rest_lat|floatformat:6 }}"
             data-rest-lng="{{ rest_lng|floatformat:6 }}"
             class="w-full h-[280px] sm:h-[360px]"></div>
-            <!-- CENTER FIXED PIN -->
-            <div class="pointer-events-none absolute inset-0 flex items-center justify-center z-10">
-              <div class="flex flex-col items-center">
-                <div class="w-6 h-6 bg-red-600 rounded-full shadow-md border-2 border-white"></div>
-                <div class="w-1 h-4 bg-red-600 -mt-1"></div>
-              </div>
+          <!-- CENTER FIXED PIN -->
+          <div class="pointer-events-none absolute inset-0 flex items-center justify-center z-10">
+            <div id="dlCenterPin" class="relative -translate-y-5 drop-shadow-[0_10px_18px_rgba(0,0,0,0.28)] transition-transform duration-200 ease-out">
+              <svg
+                class="h-12 w-12 sm:h-14 sm:w-14"
+                viewBox="0 0 64 64"
+                fill="none"
+                aria-hidden="true">
+                <!-- pin body -->
+                <path
+                  d="M32 60C32 60 52 42.8 52 25C52 13.9543 43.0457 5 32 5C20.9543 5 12 13.9543 12 25C12 42.8 32 60 32 60Z"
+                  fill="#D64545"/>
+                
+                <!-- glossy highlight -->
+                <path
+                  d="M32 10C23.7157 10 17 16.7157 17 25C17 28.2624 17.9025 31.5421 19.3476 34.6752C16.6494 31.6789 15 27.7141 15 23.5C15 14.3873 22.3873 7 31.5 7C37.0449 7 41.9507 9.73592 44.9458 13.9313C42.2016 11.4664 37.9574 10 32 10Z"
+                  fill="white"
+                  fill-opacity="0.22"/>
+                
+                <!-- white inner circle -->
+                <circle cx="32" cy="25" r="9.5" fill="white"/>
+                
+                <!-- center dot -->
+                <circle cx="32" cy="25" r="4.5" fill="#D64545"/>
+              </svg>
+
+              <!-- soft ground shadow -->
+              <div class="absolute left-1/2 top-[44px] sm:top-[50px] h-2.5 w-7 -translate-x-1/2 rounded-full bg-black/20 blur-[2px]"></div>
             </div>
+          </div>
 
 
             <div class="absolute top-3 left-3 z-[10]">
