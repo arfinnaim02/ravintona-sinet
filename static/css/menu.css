@@ -72,3 +72,13 @@
 #clearSearchBtn {
   backdrop-filter: blur(6px);
 }
+html, body {
+  overflow-x: hidden;
+}
+
+#top,
+#menuSearchWrap,
+.menu-search-item {
+  min-width: 0;
+  max-width: 100%;
+}
