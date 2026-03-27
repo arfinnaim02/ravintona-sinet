@@ -177,9 +177,9 @@
   if (sections.length) {
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries
-          .filter((en) => en.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+      const visible = entries
+        .filter((en) => en.isIntersecting && !en.target.classList.contains("hidden"))
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
 
         if (visible.length) {
           const slug = visible[0].target.getAttribute("data-cat-section");
@@ -1516,7 +1516,320 @@ if (mobileRemoveCouponBtn) {
   if (clearBtnMobile) clearBtnMobile.addEventListener("click", clearCart);
 
   // =========================
+  // Menu search
+  // =========================
+  // =========================
+  // Menu search + suggestions
+  // =========================
+  // =========================
+  // Menu search + suggestions
+  // =========================
+  const menuSearchWrap = document.getElementById("menuSearchWrap");
+  const menuSearchInput = document.getElementById("menuSearchInput");
+  const menuSearchEmpty = document.getElementById("menuSearchEmpty");
+  const menuSearchSuggestions = document.getElementById("menuSearchSuggestions");
+  const searchableItems = Array.from(document.querySelectorAll("[data-search-item]"));
+  const searchableCategoryBlocks = Array.from(document.querySelectorAll("[data-search-category-block]"));
+
+  function escapeHtml(str) {
+    return String(str || "").replace(/[&<>"']/g, function (m) {
+      return ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[m];
+    });
+  }
+
+  function highlightMatch(text, term) {
+    const safeText = escapeHtml(text || "");
+    const cleanTerm = String(term || "").trim();
+    if (!cleanTerm) return safeText;
+
+    const escapedTerm = cleanTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`(${escapedTerm})`, "ig");
+    return safeText.replace(regex, '<mark class="menu-search-highlight">$1</mark>');
+  }
+
+  function levenshtein(a, b) {
+    a = String(a || "").toLowerCase();
+    b = String(b || "").toLowerCase();
+
+    const matrix = Array.from({ length: b.length + 1 }, (_, i) => [i]);
+    for (let j = 0; j <= a.length; j++) {
+      matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= b.length; i++) {
+      for (let j = 1; j <= a.length; j++) {
+        if (b.charAt(i - 1) === a.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+
+    return matrix[b.length][a.length];
+  }
+
+  function fuzzyIncludes(term, text) {
+    const cleanTerm = String(term || "").trim().toLowerCase();
+    const cleanText = String(text || "").trim().toLowerCase();
+
+    if (!cleanTerm || !cleanText) return false;
+    if (cleanText.includes(cleanTerm)) return true;
+
+    const words = cleanText.split(/\s+/).filter(Boolean);
+
+    return words.some((word) => {
+      if (word.includes(cleanTerm)) return true;
+
+      const distance = levenshtein(cleanTerm, word);
+
+      if (cleanTerm.length <= 4) return distance <= 1;
+      if (cleanTerm.length <= 7) return distance <= 2;
+      return distance <= 2;
+    });
+  }
+
+  function getSearchMatches(term) {
+    const normalized = (term || "").trim().toLowerCase();
+    if (!normalized) return [];
+
+    return searchableItems
+      .map((el) => {
+        const name = el.dataset.searchName || "";
+        const category = el.dataset.searchCategory || "";
+        const desc = el.dataset.searchDesc || "";
+
+        const exactScore =
+          (name.includes(normalized) ? 100 : 0) +
+          (category.includes(normalized) ? 50 : 0) +
+          (desc.includes(normalized) ? 20 : 0);
+
+        const fuzzyScore =
+          (fuzzyIncludes(normalized, name) ? 40 : 0) +
+          (fuzzyIncludes(normalized, category) ? 15 : 0) +
+          (fuzzyIncludes(normalized, desc) ? 8 : 0);
+
+        const score = exactScore + fuzzyScore;
+
+        return { el, score };
+      })
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map((item) => item.el);
+  }
+
+  function runMenuSearch(forceTerm) {
+    if (!menuSearchInput) return;
+
+    const term = typeof forceTerm === "string"
+      ? forceTerm.trim().toLowerCase()
+      : menuSearchInput.value.trim().toLowerCase();
+
+    const matches = getSearchMatches(term);
+    const matchIds = new Set(matches.map((el) => el.dataset.searchId));
+    let visibleCount = 0;
+
+    searchableItems.forEach((el) => {
+      const itemId = el.dataset.searchId || "";
+      const matched = !term || matchIds.has(itemId);
+
+      el.classList.toggle("hidden", !matched);
+
+      if (matched) visibleCount += 1;
+    });
+
+    searchableCategoryBlocks.forEach((block) => {
+      const hasVisibleItems = !!block.querySelector("[data-search-item]:not(.hidden)");
+      block.classList.toggle("hidden", !hasVisibleItems);
+    });
+
+    if (menuSearchEmpty) {
+      menuSearchEmpty.classList.toggle("hidden", visibleCount > 0 || !term);
+    }
+  }
+
+  function hideSuggestions() {
+    if (!menuSearchSuggestions) return;
+    menuSearchSuggestions.classList.add("hidden");
+    menuSearchSuggestions.innerHTML = "";
+  }
+
+  function renderSuggestions(matches, term) {
+    if (!menuSearchSuggestions) return;
+
+    const normalized = (term || "").trim().toLowerCase();
+    if (!normalized || !matches.length) {
+      hideSuggestions();
+      return;
+    }
+
+    const topMatches = matches.slice(0, 4);
+
+    menuSearchSuggestions.innerHTML = topMatches.map((el) => {
+      const title = el.dataset.searchTitle || "";
+      const categoryTitle = el.dataset.searchCategoryTitle || "";
+      const itemId = el.dataset.searchId || "";
+      const image = el.dataset.searchImage || "";
+
+      const thumbHtml = image
+        ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(title)}" class="h-12 w-12 rounded-xl object-cover border border-[#3e2723]/10 shrink-0">`
+        : `<div class="h-12 w-12 rounded-xl bg-[#f5f0e6] border border-[#3e2723]/10 shrink-0 flex items-center justify-center text-[#3e2723]/35 text-xs font-semibold">IMG</div>`;
+
+      return `
+        <button
+          type="button"
+          class="menu-search-suggestion w-full text-left px-4 py-3 hover:bg-[#f5f0e6] transition border-b border-[#3e2723]/8 last:border-b-0"
+          data-suggestion-id="${itemId}">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              ${thumbHtml}
+              <div class="min-w-0">
+                <div class="text-sm font-semibold text-[#3e2723] truncate">${highlightMatch(title, normalized)}</div>
+                <div class="text-xs text-[#3e2723]/60 truncate">${highlightMatch(categoryTitle, normalized)}</div>
+              </div>
+            </div>
+            <div class="text-[#bfa76f] text-sm shrink-0">↗</div>
+          </div>
+        </button>
+      `;
+    }).join("");
+
+    menuSearchSuggestions.classList.remove("hidden");
+  }
+
+  function scrollToSearchItem(itemId) {
+    const target = document.querySelector(`[data-search-item][data-search-id="${itemId}"]`);
+    if (!target) return;
+
+    target.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    target.classList.add("ring-2", "ring-[#bfa76f]/60", "rounded-2xl");
+    setTimeout(() => {
+      target.classList.remove("ring-2", "ring-[#bfa76f]/60", "rounded-2xl");
+    }, 1800);
+  }
+
+const clearSearchBtn = document.getElementById("clearSearchBtn");
+const searchIcon = document.getElementById("searchIcon");
+
+if (menuSearchInput) {
+
+  function toggleClearBtn() {
+    const hasValue = !!menuSearchInput.value.trim();
+
+    if (clearSearchBtn) {
+      clearSearchBtn.classList.toggle("hidden", !hasValue);
+    }
+
+    if (searchIcon) {
+      searchIcon.classList.toggle("hidden", hasValue);
+    }
+  }
+
+  menuSearchInput.addEventListener("input", () => {
+    const term = menuSearchInput.value.trim();
+    const matches = getSearchMatches(term);
+
+    runMenuSearch(term);
+    renderSuggestions(matches, term);
+    toggleClearBtn();
+  });
+
+  menuSearchInput.addEventListener("focus", () => {
+    const term = menuSearchInput.value.trim();
+    const matches = getSearchMatches(term);
+
+    renderSuggestions(matches, term);
+    toggleClearBtn();
+  });
+
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener("click", () => {
+      menuSearchInput.value = "";
+      runMenuSearch("");
+      hideSuggestions();
+      toggleClearBtn();
+      menuSearchInput.focus();
+    });
+  }
+}
+
+  if (menuSearchSuggestions) {
+    menuSearchSuggestions.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-suggestion-id]");
+      if (!btn) return;
+
+      const itemId = btn.getAttribute("data-suggestion-id");
+      const itemEl = document.querySelector(`[data-search-item][data-search-id="${itemId}"]`);
+      if (!itemEl) return;
+
+      const title = itemEl.dataset.searchTitle || "";
+      if (menuSearchInput) menuSearchInput.value = title;
+
+      runMenuSearch(title);
+      hideSuggestions();
+      scrollToSearchItem(itemId);
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    if (!menuSearchWrap) return;
+    if (!menuSearchWrap.contains(e.target)) {
+      hideSuggestions();
+    }
+  });
+  // =========================
+  // Go to top button
+  // =========================
+  const goToTopBtn = document.getElementById("goToTopBtn");
+
+  function toggleGoToTopBtn() {
+    if (!goToTopBtn) return;
+    const show = window.scrollY > 500;
+    if (show) {
+  goToTopBtn.classList.remove("hidden");
+  goToTopBtn.classList.add("opacity-100", "translate-y-0");
+  goToTopBtn.classList.remove("opacity-0", "translate-y-4");
+} else {
+  goToTopBtn.classList.add("opacity-0", "translate-y-4");
+  goToTopBtn.classList.remove("opacity-100", "translate-y-0");
+
+  setTimeout(() => {
+    if (goToTopBtn.classList.contains("opacity-0")) {
+      goToTopBtn.classList.add("hidden");
+    }
+  }, 200);
+}
+  }
+
+  if (goToTopBtn) {
+    goToTopBtn.addEventListener("click", () => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    });
+
+    window.addEventListener("scroll", toggleGoToTopBtn, { passive: true });
+    toggleGoToTopBtn();
+  }
+
+  // =========================
   // Init
   // =========================
   refreshCart();
+  runMenuSearch();
 })();
