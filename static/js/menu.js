@@ -783,6 +783,7 @@
     const addrSearch = document.getElementById("dlAddrSearch");
     const gpsStatus = document.getElementById("dlGpsStatus");
     const accText = document.getElementById("dlAccText");
+    const centerPinEl = document.getElementById("dlCenterPin");
 
     const addrLabel = document.getElementById("dlAddrLabel");
     const latEl = document.getElementById("dlLat");
@@ -822,7 +823,7 @@
           msg ||
           (enabled
             ? _("Location looks good. Confirm to continue.")
-            : _("Select an address or drag the pin, then confirm."));
+            : _("Select an address or move the map, then confirm."));
       }
     }
 
@@ -831,10 +832,12 @@
       if (lngEl) lngEl.value = Number(lng).toFixed(6);
     }
 
-    function setLabel(txt) {
-      if (addrLabel) addrLabel.textContent = txt || "—";
-      if (labelEl) labelEl.value = txt || "";
-    }
+function setLabel(txt) {
+  const value = txt || "";
+  if (addrLabel) addrLabel.textContent = value || "—";
+  if (labelEl) labelEl.value = value;
+  if (addrSearch) addrSearch.value = value;
+}
 
     async function calc(lat, lng) {
       try {
@@ -872,7 +875,7 @@
           setConfirmEnabled(true, _("Location looks good. Confirm to continue."));
         } else {
           if (rangeWarn) rangeWarn.classList.remove("hidden");
-          setConfirmEnabled(false, _("Outside delivery range. Move the pin closer."));
+          setConfirmEnabled(false, _("Outside delivery range. Move the map closer."));
         }
       } catch (e) {
         // abort ok
@@ -900,14 +903,37 @@
     });
     window.__gm_map = map;
 
-    map.addListener("idle", () => {
+    let isMapInteracting = false;
+
+function setPinMovingState(moving) {
+  if (!centerPinEl) return;
+  centerPinEl.classList.toggle("is-moving", !!moving);
+}
+
+map.addListener("dragstart", () => {
+  isMapInteracting = true;
+  setPinMovingState(true);
+  setStatus(_("Adjusting location…"), "text-[#bfa76f]");
+});
+
+map.addListener("zoom_changed", () => {
+  setPinMovingState(true);
+});
+
+map.addListener("idle", () => {
   const center = map.getCenter();
   if (!center) return;
 
   const lat = center.lat();
   const lng = center.lng();
 
-  setStatus(_("Map moved"), "text-[#bfa76f]");
+  setPinMovingState(false);
+
+  if (isMapInteracting) {
+    setStatus(_("Location locked"), "text-green-600");
+    isMapInteracting = false;
+  }
+
   setPoint(lat, lng, null, false);
 });
 
@@ -1019,7 +1045,7 @@ useMyLocationBtn.addEventListener("click", () => {
       window.location.href = checkoutUrl;
     });
 
-    setConfirmEnabled(false, _("Select an address or drag the pin, then confirm."));
+    setConfirmEnabled(false, _("Select an address or move the map, then confirm."));
     setStatus(_("Idle"), "text-[#3e2723]/70");
     setHidden(REST_LAT, REST_LNG);
     reverseGeocode(REST_LAT, REST_LNG);
