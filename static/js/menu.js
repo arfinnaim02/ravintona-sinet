@@ -141,6 +141,14 @@
     try { localStorage.setItem(AUTO_OPEN_KEY, "1"); } catch (e) {}
   }
 
+  const LOCATION_PROMPT_KEY = "delivery_location_prompted_once";
+  function hasPromptedLocationOnce() {
+    try { return sessionStorage.getItem(LOCATION_PROMPT_KEY) === "1"; } catch (e) { return false; }
+  }
+  function markPromptedLocationOnce() {
+    try { sessionStorage.setItem(LOCATION_PROMPT_KEY, "1"); } catch (e) {}
+  }
+
   // =========================
   // Category rail arrows
   // =========================
@@ -892,15 +900,21 @@
     });
     window.__gm_map = map;
 
-    const marker = new google.maps.Marker({
-      position: { lat: REST_LAT, lng: REST_LNG },
-      map,
-      draggable: true,
-    });
-    window.__gm_marker = marker;
+    map.addListener("idle", () => {
+  const center = map.getCenter();
+  if (!center) return;
+
+  const lat = center.lat();
+  const lng = center.lng();
+
+  setStatus(_("Map moved"), "text-[#bfa76f]");
+  setPoint(lat, lng, null, false);
+});
+
+    // ❌ remove draggable marker completely
+    window.__gm_marker = null;
 
     function setPoint(lat, lng, accMeters, center) {
-      marker.setPosition({ lat, lng });
       if (center) map.setCenter({ lat, lng });
 
       setHidden(lat, lng);
@@ -912,13 +926,7 @@
       calc(lat, lng);
     }
 
-    marker.addListener("dragstart", () => setStatus(_("Pin adjust"), "text-[#bfa76f]"));
-    marker.addListener("dragend", () => {
-      const p = marker.getPosition();
-      if (!p) return;
-      setStatus(_("Pin set"), "text-[#bfa76f]");
-      setPoint(p.lat(), p.lng(), null, false);
-    });
+
 
     if (addrSearch) {
       const ac = new google.maps.places.Autocomplete(addrSearch, {
@@ -941,30 +949,49 @@
       });
     }
 
-    useMyLocationBtn.addEventListener("click", () => {
-      if (!navigator.geolocation) {
-        alert(_("Geolocation not supported"));
-        return;
-      }
+    function requestUserLocation(showDeniedAlert = false) {
+  if (!navigator.geolocation) {
+    setStatus(_("Geolocation not supported"), "text-red-600");
+    if (showDeniedAlert) {
+      alert(_("Geolocation is not supported on this device. Please search your address instead."));
+    }
+    return;
+  }
 
-      setStatus(_("Locating…"), "text-[#bfa76f]");
+  setStatus(_("Locating…"), "text-[#bfa76f]");
 
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-          const acc = pos.coords.accuracy;
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const acc = pos.coords.accuracy;
 
-          setStatus(_("Location detected"), "text-green-600");
-          setPoint(lat, lng, acc, true);
-        },
-        () => {
-          setStatus(_("Permission denied"), "text-red-600");
+      setStatus(_("Location detected"), "text-green-600");
+      setPoint(lat, lng, acc, true);
+    },
+    (err) => {
+      setStatus(_("Permission denied"), "text-red-600");
+
+      // 1 = PERMISSION_DENIED
+      // 2 = POSITION_UNAVAILABLE
+      // 3 = TIMEOUT
+      if (showDeniedAlert) {
+        if (err && err.code === 1) {
           alert(_("Location permission denied. Please search your address instead."));
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-      );
-    });
+        } else if (err && err.code === 3) {
+          alert(_("Location request timed out. Please try again or search your address manually."));
+        } else {
+          alert(_("Unable to detect your location. Please search your address instead."));
+        }
+      }
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+  );
+}
+
+useMyLocationBtn.addEventListener("click", () => {
+  requestUserLocation(true);
+});
 
     confirmBtn.addEventListener("click", async () => {
       if (!hasValid) return;
@@ -999,6 +1026,15 @@
     calc(REST_LAT, REST_LNG);
 
     setTimeout(() => google.maps.event.trigger(map, "resize"), 120);
+
+    // Auto-request user location once per browser tab/session
+    if (!hasPromptedLocationOnce()) {
+      markPromptedLocationOnce();
+
+      setTimeout(() => {
+        requestUserLocation(false);
+      }, 350);
+    }
   };
 
   async function loadLocationPartial() {
