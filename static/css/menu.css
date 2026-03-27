@@ -82,3 +82,19 @@ html, body {
   min-width: 0;
   max-width: 100%;
 }
+
+@keyframes dlPinBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  30% {
+    transform: translateY(-6px) scale(1.02);
+  }
+  60% {
+    transform: translateY(-2px) scale(0.99);
+  }
+}
+
+#dlCenterPin.is-moving {
+  animation: dlPinBounce 0.55s ease-out infinite;
+}
