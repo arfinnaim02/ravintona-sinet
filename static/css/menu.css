@@ -19,3 +19,56 @@
   border-color:#3e2723 !important;
   box-shadow: 0 6px 14px rgba(0,0,0,0.08);
 }
+
+/* ===== Go To Top Floating Animation ===== */
+#goToTopBtn {
+  animation: floatBtn 3s ease-in-out infinite;
+}
+
+@keyframes floatBtn {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Glow effect */
+#goToTopBtn:hover {
+  box-shadow: 0 18px 40px rgba(191, 167, 111, 0.45);
+}
+
+/* ===== Menu Search Suggestions ===== */
+#menuSearchSuggestions {
+  backdrop-filter: blur(10px);
+}
+
+.menu-search-suggestion {
+  display: block;
+}
+
+.menu-search-suggestion:hover .text-sm.font-semibold {
+  color: #2a1a14;
+}
+
+/* ===== Menu Search Suggestions ===== */
+#menuSearchSuggestions {
+  backdrop-filter: blur(10px);
+}
+
+.menu-search-suggestion {
+  display: block;
+}
+
+.menu-search-suggestion:hover .text-sm.font-semibold {
+  color: #2a1a14;
+}
+
+.menu-search-highlight {
+  background: linear-gradient(180deg, rgba(191, 167, 111, 0.15) 0%, rgba(191, 167, 111, 0.45) 100%);
+  color: #2a1a14;
+  padding: 0 4px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+#clearSearchBtn {
+  backdrop-filter: blur(6px);
+}
