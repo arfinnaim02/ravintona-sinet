@@ -209,17 +209,57 @@
             </h1>
           </div>
 
-          <div class="hidden sm:block text-xs text-[#3e2723]/55">
-            {% trans "Tap an item to preview • Use" %} <span class="font-semibold">+</span> {% trans "to add" %}
-          </div>
+          
         </div>
+
+        <!-- ===== Menu Search ===== -->
+<div class="mb-6">
+  <div class="relative" id="menuSearchWrap">
+    <input
+      type="text"
+      id="menuSearchInput"
+      autocomplete="off"
+      placeholder="{% trans 'Search food, pizza, kebab, burger...' %}"
+      class="w-full rounded-2xl border border-[#3e2723]/15 bg-white px-4 py-3 pr-12 text-sm text-[#3e2723]
+             outline-none shadow-sm focus:border-[#bfa76f] focus:ring-2 focus:ring-[#bfa76f]/20"
+    >
+    <!-- Search icon -->
+    <span id="searchIcon"
+          class="absolute right-4 top-1/2 -translate-y-1/2 text-[#3e2723]/45 text-lg pointer-events-none">
+      🔍
+    </span>
+
+    <!-- Clear button -->
+    <button type="button"
+            id="clearSearchBtn"
+            class="hidden absolute right-4 top-1/2 -translate-y-1/2
+                  h-7 w-7 rounded-full bg-[#f5f0e6] border border-[#3e2723]/15
+                  text-[#3e2723]/60 text-sm flex items-center justify-center
+                  hover:bg-[#e8ded3] active:scale-95 transition">
+      ✕
+    </button>
+
+    <!-- Suggestions dropdown -->
+    <div id="menuSearchSuggestions"
+         class="hidden absolute left-0 right-0 top-[calc(100%+10px)] z-[75]
+                overflow-hidden rounded-2xl border border-[#3e2723]/10 bg-white
+                shadow-[0_18px_40px_rgba(0,0,0,0.12)]">
+    </div>
+  </div>
+
+  <div id="menuSearchEmpty"
+       class="hidden mt-3 bg-white/70 border border-[#3e2723]/10 rounded-2xl p-4 text-sm text-[#3e2723]/70">
+    {% trans "No matching items found." %}
+  </div>
+</div>
 
         {% regroup items by category as grouped_items %}
 
         {% for group in grouped_items %}
           <div id="cat-{{ group.grouper.slug }}"
-               data-cat-section="{{ group.grouper.slug }}"
-               class="cat-section scroll-mt-[140px]">
+          data-cat-section="{{ group.grouper.slug }}"
+          data-search-category-block
+          class="cat-section scroll-mt-[140px]">
 
             <div class="flex items-center justify-between mt-8 mb-3">
               <h2 class="text-lg sm:text-xl font-semibold text-[#3e2723]">
@@ -230,8 +270,19 @@
 
             <div class="grid sm:grid-cols-2 gap-4 sm:gap-5">
               {% for item in group.list %}
-                {% include "partials/_menu_card.html" with item=item %}
-              {% endfor %}
+            <div
+            class="menu-search-item"
+            data-search-item
+            data-search-id="{{ item.id }}"
+            data-search-name="{{ item.name|lower }}"
+            data-search-title="{{ item.name }}"
+            data-search-category="{{ group.grouper.name|lower }}"
+            data-search-category-title="{{ group.grouper.name }}"
+            data-search-desc="{% if item.description %}{{ item.description|lower }}{% endif %}"
+            data-search-image="{% if item.image %}{{ item.image.url }}{% endif %}">
+            {% include "partials/_menu_card.html" with item=item %}
+          </div>
+            {% endfor %}
             </div>
           </div>
         {% empty %}
@@ -555,6 +606,28 @@
       data-gmaps-key="{{ GOOGLE_MAPS_API_KEY|default:'' }}">
     </div>
 
+<!-- ===== Go To Top Button ===== -->
+<button
+  type="button"
+  id="goToTopBtn"
+  aria-label="{% trans 'Go to top' %}"
+  class="fixed bottom-24 lg:bottom-6 right-4 sm:right-6 z-[85] hidden
+         h-12 w-12 rounded-full text-xl font-bold
+         text-white backdrop-blur-md
+         border border-white/20
+         shadow-[0_12px_30px_rgba(0,0,0,0.25)]
+         transition-all duration-300 ease-out
+         hover:scale-110 active:scale-95">
+
+  <span class="relative z-10">↑</span>
+
+  <!-- glossy gradient layer -->
+  <span class="absolute inset-0 rounded-full bg-gradient-to-br from-[#3e2723] via-[#5a3c2f] to-[#bfa76f]"></span>
+
+  <!-- shine overlay -->
+  <span class="absolute inset-0 rounded-full bg-white/10 opacity-0 hover:opacity-100 transition"></span>
+
+</button>
 
   <div class="lg:hidden h-24"></div>
 </section>
