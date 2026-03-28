@@ -67,6 +67,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "restaurant.context_processors.restaurant_settings",
+                "restaurant.context_processors.active_site_popup",
 
             ],
         },
