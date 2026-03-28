@@ -491,7 +491,7 @@
   const backdrop = document.getElementById("entryPopupBackdrop");
   if (!popup) return;
 
-  const popupKey = "site_popup_seen_{{ active_site_popup.id }}";
+  const popupKey = "site_popup_seen_{{ active_site_popup.id }}_{{ active_site_popup.updated_at|date:'U' }}";
 
   function openPopup() {
     popup.classList.remove("hidden");
