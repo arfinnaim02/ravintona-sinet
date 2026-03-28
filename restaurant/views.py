@@ -57,6 +57,7 @@ from .forms import (
     AddonGroupForm,
     AddonOptionForm,
     MenuItemAddonGroupForm,
+    SitePopupForm,
 )
 from .models import (
     Category,
@@ -73,6 +74,7 @@ from .models import (
     AddonOption,
     MenuItemAddonGroup,
     TelegramLog,
+    SitePopup,
 )
 from django.db.models import Avg, Count
 from django.core.paginator import Paginator
@@ -2850,6 +2852,74 @@ def delivery_coupon_delete(request: HttpRequest, pk: int) -> HttpResponse:
 
     return render(request, "admin/delivery_coupon_delete.html", {"obj": obj})
 
+
+@login_required
+def site_popups_list(request: HttpRequest) -> HttpResponse:
+    popups = SitePopup.objects.all().order_by("order", "-updated_at", "-id")
+    return render(request, "admin/site_popups.html", {"popups": popups})
+
+
+@login_required
+def site_popup_add(request: HttpRequest) -> HttpResponse:
+    if request.method == "POST":
+        form = SitePopupForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Site popup added.")
+            return redirect("restaurant:site_popups_list")
+    else:
+        form = SitePopupForm()
+
+    return render(
+        request,
+        "admin/site_popup_form.html",
+        {
+            "form": form,
+            "mode": "add",
+        },
+    )
+
+
+@login_required
+def site_popup_edit(request: HttpRequest, pk: int) -> HttpResponse:
+    popup = get_object_or_404(SitePopup, pk=pk)
+
+    if request.method == "POST":
+        form = SitePopupForm(request.POST, request.FILES, instance=popup)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Site popup updated.")
+            return redirect("restaurant:site_popups_list")
+    else:
+        form = SitePopupForm(instance=popup)
+
+    return render(
+        request,
+        "admin/site_popup_form.html",
+        {
+            "form": form,
+            "mode": "edit",
+            "popup": popup,
+        },
+    )
+
+
+@login_required
+def site_popup_delete(request: HttpRequest, pk: int) -> HttpResponse:
+    popup = get_object_or_404(SitePopup, pk=pk)
+
+    if request.method == "POST":
+        popup.delete()
+        messages.success(request, "Site popup deleted.")
+        return redirect("restaurant:site_popups_list")
+
+    return render(
+        request,
+        "admin/site_popup_delete.html",
+        {
+            "popup": popup,
+        },
+    )
 
 @login_required
 def hero_banners_list(request: HttpRequest) -> HttpResponse:
