@@ -12,7 +12,7 @@ Tags/allergens are stored as comma-separated strings in DB but displayed as chec
 from __future__ import annotations
 
 from typing import Any
-from .models import HeroBanner
+from .models import HeroBanner, SitePopup
 
 from django import forms
 from django.conf import settings
@@ -27,6 +27,7 @@ from .models import (
     AddonGroup,
     AddonOption,
     MenuItemAddonGroup,
+    SitePopup,
 )
 
 from django.utils import timezone
@@ -696,7 +697,34 @@ class HeroBannerForm(forms.ModelForm):
         self.fields["order"].widget.attrs.update({"class": base})
         self.fields["is_active"].widget.attrs.update({"class": "h-4 w-4"})
 
+class SitePopupForm(forms.ModelForm):
+    class Meta:
+        model = SitePopup
+        fields = ["title", "image", "redirect_url", "is_active", "open_in_new_tab", "order"]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        base = (
+            "w-full px-4 py-3 bg-white/50 border border-dark/20 "
+            "focus:border-gold focus:outline-none rounded-sm"
+        )
+
+        self.fields["title"].widget.attrs.update({
+            "class": base,
+            "placeholder": "Popup title (optional)",
+        })
+        self.fields["redirect_url"].widget.attrs.update({
+            "class": base,
+            "placeholder": "https://example.com",
+        })
+        self.fields["order"].widget.attrs.update({
+            "class": base,
+            "placeholder": "0",
+        })
+        self.fields["image"].widget.attrs.update({"class": "block w-full text-sm"})
+        self.fields["is_active"].widget.attrs.update({"class": "h-4 w-4"})
+        self.fields["open_in_new_tab"].widget.attrs.update({"class": "h-4 w-4"})
 
 
 class ReviewForm(forms.ModelForm):
