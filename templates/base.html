@@ -491,9 +491,40 @@
   const backdrop = document.getElementById("entryPopupBackdrop");
   if (!popup) return;
 
+  const POPUP_COOLDOWN_MS = 60 * 1000; // 1 minute
+  const POPUP_LAST_SHOWN_KEY = "entry_popup_last_shown_at";
+
+  function normalizePath(path) {
+    const clean = String(path || "").trim();
+    if (!clean) return "/";
+    return clean.endsWith("/") ? clean : clean + "/";
+  }
+
+  function isHomePage() {
+    const currentPath = normalizePath(window.location.pathname);
+    return currentPath === "/" || currentPath === "/en/" || currentPath === "/fi/";
+  }
+
+  function canShowPopupNow() {
+    try {
+      const lastShown = parseInt(localStorage.getItem(POPUP_LAST_SHOWN_KEY) || "0", 10);
+      if (!lastShown) return true;
+      return (Date.now() - lastShown) > POPUP_COOLDOWN_MS;
+    } catch (e) {
+      return true;
+    }
+  }
+
+  function markPopupShownNow() {
+    try {
+      localStorage.setItem(POPUP_LAST_SHOWN_KEY, String(Date.now()));
+    } catch (e) {}
+  }
+
   function openPopup() {
     popup.classList.remove("hidden");
     document.body.style.overflow = "hidden";
+    markPopupShownNow();
   }
 
   function closePopup() {
@@ -501,7 +532,7 @@
     document.body.style.overflow = "";
   }
 
-  if (window.location.pathname === "{% url 'restaurant:home' %}") {
+  if (isHomePage() && canShowPopupNow()) {
     setTimeout(openPopup, 250);
   }
 
