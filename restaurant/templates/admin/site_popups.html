@@ -1,0 +1,76 @@
+{% extends "admin/base.html" %}
+{% block title %}Site Popups{% endblock %}
+
+{% block content %}
+<section class="bg-[#f5f0e6] min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-10">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-3xl font-semibold text-[#3e2723]">Site Popups</h1>
+        <p class="text-sm text-[#3e2723]/70 mt-2">Manage entry popup banners</p>
+      </div>
+
+      <a href="{% url 'restaurant:site_popup_add' %}"
+         class="inline-flex items-center justify-center px-5 py-2.5 rounded-2xl bg-[#3e2723] text-white font-semibold shadow-sm hover:brightness-110 transition">
+        Add Popup
+      </a>
+    </div>
+
+    {% if popups %}
+      <div class="space-y-4">
+        {% for p in popups %}
+          <div class="rounded-3xl bg-white border border-[#3e2723]/10 shadow-sm p-5">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div class="flex items-center gap-4 min-w-0">
+                <img src="{{ p.image.url }}" alt="{{ p.title }}" class="w-24 h-24 rounded-2xl object-cover border border-[#3e2723]/10">
+
+                <div class="min-w-0">
+                  <div class="font-semibold text-[#3e2723] text-lg">
+                    {{ p.title|default:"Untitled popup" }}
+                  </div>
+
+                  <div class="mt-1 text-sm text-[#3e2723]/65 break-all">
+                    {% if p.redirect_url %}{{ p.redirect_url }}{% else %}No redirect link{% endif %}
+                  </div>
+
+                  <div class="mt-2 flex flex-wrap gap-2">
+                    {% if p.is_active %}
+                      <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                        Active
+                      </span>
+                    {% else %}
+                      <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
+                        Inactive
+                      </span>
+                    {% endif %}
+
+                    <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-[#f5f0e6] text-[#3e2723]">
+                      Order: {{ p.order }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <a href="{% url 'restaurant:site_popup_edit' p.id %}"
+                   class="px-4 py-2 rounded-xl border border-[#3e2723]/10 bg-white text-[#3e2723] hover:bg-[#f5f0e6] transition">
+                  Edit
+                </a>
+
+                <a href="{% url 'restaurant:site_popup_delete' p.id %}"
+                   class="px-4 py-2 rounded-xl border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition">
+                  Delete
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="rounded-3xl bg-white border border-[#3e2723]/10 shadow-sm p-6 text-[#3e2723]/70">
+        No popup created yet.
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
