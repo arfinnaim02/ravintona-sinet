@@ -449,5 +449,76 @@
     <!-- ✅ Mobile menu JS moved into static file (same behavior) -->
     <script src="{% static 'js/mobile-menu.js' %}" defer></script>
 
-  </body>
+  {% if active_site_popup and active_site_popup.image %}
+<div id="entryPopup" class="fixed inset-0 z-[9999] hidden">
+  <div id="entryPopupBackdrop" class="absolute inset-0 bg-black/70"></div>
+
+  <div class="relative min-h-screen flex items-center justify-center p-4">
+    <div class="relative w-full max-w-md sm:max-w-lg">
+      <button
+        type="button"
+        id="entryPopupClose"
+        class="absolute -top-3 -right-3 z-20 h-10 w-10 rounded-full bg-white text-[#3e2723]
+               border border-[#3e2723]/10 shadow-lg text-xl font-bold hover:scale-105 transition"
+        aria-label="Close popup">
+        &times;
+      </button>
+
+      {% if active_site_popup.redirect_url %}
+        <a
+          href="{{ active_site_popup.redirect_url }}"
+          {% if active_site_popup.open_in_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}
+          class="block">
+          <img
+            src="{{ active_site_popup.image.url }}"
+            alt="{{ active_site_popup.title|default:'Site popup' }}"
+            class="w-full rounded-3xl shadow-2xl border border-white/10">
+        </a>
+      {% else %}
+        <img
+          src="{{ active_site_popup.image.url }}"
+          alt="{{ active_site_popup.title|default:'Site popup' }}"
+          class="w-full rounded-3xl shadow-2xl border border-white/10">
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const popup = document.getElementById("entryPopup");
+  const closeBtn = document.getElementById("entryPopupClose");
+  const backdrop = document.getElementById("entryPopupBackdrop");
+  if (!popup) return;
+
+  const popupKey = "site_popup_seen_{{ active_site_popup.id }}";
+
+  function openPopup() {
+    popup.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closePopup() {
+    popup.classList.add("hidden");
+    document.body.style.overflow = "";
+    try {
+      sessionStorage.setItem(popupKey, "1");
+    } catch (e) {}
+  }
+
+  let alreadySeen = false;
+  try {
+    alreadySeen = sessionStorage.getItem(popupKey) === "1";
+  } catch (e) {}
+
+  if (!alreadySeen) {
+    setTimeout(openPopup, 250);
+  }
+
+  if (closeBtn) closeBtn.addEventListener("click", closePopup);
+  if (backdrop) backdrop.addEventListener("click", closePopup);
+})();
+</script>
+{% endif %}
+</body>
 </html>
