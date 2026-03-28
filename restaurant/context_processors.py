@@ -44,3 +44,18 @@ def restaurant_settings(request):
         # Global Review Data (cached)
         **cached,
     }
+
+
+from .models import SitePopup
+
+
+def active_site_popup(request):
+    popup = (
+        SitePopup.objects
+        .filter(is_active=True)
+        .order_by("order", "-updated_at", "-id")
+        .first()
+    )
+    return {
+        "active_site_popup": popup
+    }
