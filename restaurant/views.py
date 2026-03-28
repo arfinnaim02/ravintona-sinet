@@ -76,6 +76,7 @@ from .models import (
 )
 from django.db.models import Avg, Count
 from django.core.paginator import Paginator
+from django.core.mail import send_mail
 
 from .telegram_utils import (
     answer_callback_query,
@@ -1139,6 +1140,64 @@ def _allowed_delivery_status_targets(current_status: str) -> set[str]:
 
 def _telegram_status_change_is_valid(current_status: str, target_status: str) -> bool:
     return target_status in _allowed_delivery_status_targets(current_status)
+
+
+def send_delivery_status_email(order: DeliveryOrder) -> None:
+    """
+    Send status update email to the customer.
+    Safe helper: never breaks existing order flow.
+    """
+    try:
+        if not order:
+            return
+
+        recipient = ""
+        if getattr(order, "user", None) and getattr(order.user, "email", ""):
+            recipient = order.user.email.strip()
+
+        if not recipient:
+            return
+
+        status_label = order.get_status_display()
+        estimated_time = ""
+
+        if order.status == DeliveryOrder.STATUS_ACCEPTED:
+            estimated_time = "Estimated time: 45–60 minutes."
+        elif order.status == DeliveryOrder.STATUS_PREPARING:
+            estimated_time = "Estimated time: 30–45 minutes."
+        elif order.status == DeliveryOrder.STATUS_OUT_FOR_DELIVERY:
+            estimated_time = "Estimated time: 10–20 minutes."
+        elif order.status == DeliveryOrder.STATUS_DELIVERED:
+            estimated_time = "Your food has been delivered."
+        elif order.status == DeliveryOrder.STATUS_CANCELLED:
+            estimated_time = "Your order has been cancelled."
+        else:
+            estimated_time = "We will keep you updated."
+
+        subject = f"Order #{order.id} status updated – {status_label}"
+
+        message = (
+            f"Hello {order.customer_name},\n\n"
+            f"Your order #{order.id} status has been updated.\n\n"
+            f"New status: {status_label}\n"
+            f"{estimated_time}\n\n"
+            f"Delivery address: {order.address_label}\n"
+            f"Order total: € {order.total:.2f}\n\n"
+            f"Thank you for ordering from {settings.RESTAURANT_NAME}."
+        )
+
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[recipient],
+            fail_silently=True,
+        )
+
+    except Exception:
+        pass
+
+
 # -------------------------
 # Delivery (location + calc + order + checkout)
 # -------------------------
@@ -2574,7 +2633,12 @@ def delivery_orders_bulk_update(request: HttpRequest) -> HttpResponse:
         messages.error(request, "No orders selected.")
         return redirect("restaurant:delivery_orders_list")
 
+    orders_to_update = list(DeliveryOrder.objects.filter(id__in=ids_int))
     updated = DeliveryOrder.objects.filter(id__in=ids_int).update(status=new_status)
+
+    for order in orders_to_update:
+        order.status = new_status
+        send_delivery_status_email(order)
 
     # ✅ Loyalty: if bulk set to delivered, ensure coupons for affected users
     if new_status == DeliveryOrder.STATUS_DELIVERED:
@@ -2621,6 +2685,7 @@ def customer_mark_order_received(request: HttpRequest, order_id: int) -> HttpRes
 
     o.status = DeliveryOrder.STATUS_DELIVERED
     o.save(update_fields=["status"])
+    send_delivery_status_email(o)
 
     # loyalty coupon logic stays consistent
     _ensure_loyalty_coupon_for_user(request.user)
@@ -2695,6 +2760,7 @@ def delivery_order_update_status(request: HttpRequest, pk: int) -> HttpResponse:
         if new_status in valid:
             o.status = new_status
             o.save(update_fields=["status"])
+            send_delivery_status_email(o)
             messages.success(request, "Order status updated.")
 
             # ✅ Loyalty: when order becomes delivered, grant coupon if eligible
@@ -3122,6 +3188,7 @@ def telegram_webhook(request: HttpRequest) -> JsonResponse:
             "telegram_last_status_sent",
         ]
     )
+    send_delivery_status_email(order)
 
     if target_status == DeliveryOrder.STATUS_DELIVERED and order.user:
         try:
@@ -3167,3 +3234,31 @@ def telegram_webhook(request: HttpRequest) -> JsonResponse:
         pass
 
     return JsonResponse({"ok": True})
+
+
+
+@login_required
+@require_GET
+def customer_orders_status_api(request: HttpRequest) -> JsonResponse:
+    orders = (
+        DeliveryOrder.objects
+        .filter(user=request.user)
+        .order_by("-created_at")
+        .values("id", "status")
+    )
+
+    status_map = dict(DeliveryOrder.STATUS_CHOICES)
+
+    payload = [
+        {
+            "id": row["id"],
+            "status": row["status"],
+            "status_display": status_map.get(row["status"], row["status"]),
+        }
+        for row in orders
+    ]
+
+    return JsonResponse({
+        "ok": True,
+        "orders": payload,
+    })
