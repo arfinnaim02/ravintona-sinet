@@ -491,8 +491,6 @@
   const backdrop = document.getElementById("entryPopupBackdrop");
   if (!popup) return;
 
-  const popupKey = "site_popup_seen_{{ active_site_popup.id }}_{{ active_site_popup.updated_at|date:'U' }}";
-
   function openPopup() {
     popup.classList.remove("hidden");
     document.body.style.overflow = "hidden";
@@ -501,17 +499,9 @@
   function closePopup() {
     popup.classList.add("hidden");
     document.body.style.overflow = "";
-    try {
-      sessionStorage.setItem(popupKey, "1");
-    } catch (e) {}
   }
 
-  let alreadySeen = false;
-  try {
-    alreadySeen = sessionStorage.getItem(popupKey) === "1";
-  } catch (e) {}
-
-  if (!alreadySeen) {
+  if (window.location.pathname === "{% url 'restaurant:home' %}") {
     setTimeout(openPopup, 250);
   }
 
