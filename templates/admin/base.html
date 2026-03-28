@@ -237,6 +237,10 @@
     Item Addon Mapping
   </a>
 
+  <a href="{% url 'restaurant:site_popups_list' %}"
+    class="side-link {% if '/admin/site-popups' in request.path %}side-link-active{% endif %}">
+    Site Popups
+  </a>
   <div class="mt-5 hairline mx-3"></div>
 
   {% if request.user.is_authenticated %}
