@@ -449,7 +449,7 @@
     <!-- ✅ Mobile menu JS moved into static file (same behavior) -->
     <script src="{% static 'js/mobile-menu.js' %}" defer></script>
 
-  {% if active_site_popup and active_site_popup.image %}
+{% if request.path == '/' or request.path == '/en/' or request.path == '/fi/' %}
 <div id="entryPopup" class="fixed inset-0 z-[9999] hidden">
   <div id="entryPopupBackdrop" class="absolute inset-0 bg-black/70"></div>
 
@@ -464,81 +464,51 @@
         &times;
       </button>
 
-      {% if active_site_popup.redirect_url %}
-        <a
-          href="{{ active_site_popup.redirect_url }}"
-          {% if active_site_popup.open_in_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}
-          class="block">
+      {% if active_site_popup and active_site_popup.image %}
+        {% if active_site_popup.redirect_url %}
+          <a
+            href="{{ active_site_popup.redirect_url }}"
+            {% if active_site_popup.open_in_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}
+            class="block">
+            <img
+              src="{{ active_site_popup.image.url }}"
+              alt="{{ active_site_popup.title|default:'Site popup' }}"
+              class="w-full rounded-3xl shadow-2xl border border-white/10">
+          </a>
+        {% else %}
           <img
             src="{{ active_site_popup.image.url }}"
             alt="{{ active_site_popup.title|default:'Site popup' }}"
             class="w-full rounded-3xl shadow-2xl border border-white/10">
-        </a>
+        {% endif %}
       {% else %}
-        <img
-          src="{{ active_site_popup.image.url }}"
-          alt="{{ active_site_popup.title|default:'Site popup' }}"
-          class="w-full rounded-3xl shadow-2xl border border-white/10">
+        <div class="w-full rounded-3xl bg-white p-8 text-center shadow-2xl border border-white/10">
+          <div class="text-lg font-semibold text-[#3e2723]">Popup is rendering</div>
+          <div class="mt-2 text-sm text-[#3e2723]/70">But no active popup image is coming from context.</div>
+        </div>
       {% endif %}
     </div>
   </div>
 </div>
-
 <script>
-(function () {
+document.addEventListener("DOMContentLoaded", function () {
   const popup = document.getElementById("entryPopup");
   const closeBtn = document.getElementById("entryPopupClose");
   const backdrop = document.getElementById("entryPopupBackdrop");
+
   if (!popup) return;
 
-  const POPUP_COOLDOWN_MS = 60 * 1000; // 1 minute
-  const POPUP_LAST_SHOWN_KEY = "entry_popup_last_shown_at";
-
-  function normalizePath(path) {
-    const clean = String(path || "").trim();
-    if (!clean) return "/";
-    return clean.endsWith("/") ? clean : clean + "/";
-  }
-
-  function isHomePage() {
-    const currentPath = normalizePath(window.location.pathname);
-    return currentPath === "/" || currentPath === "/en/" || currentPath === "/fi/";
-  }
-
-  function canShowPopupNow() {
-    try {
-      const lastShown = parseInt(localStorage.getItem(POPUP_LAST_SHOWN_KEY) || "0", 10);
-      if (!lastShown) return true;
-      return (Date.now() - lastShown) > POPUP_COOLDOWN_MS;
-    } catch (e) {
-      return true;
-    }
-  }
-
-  function markPopupShownNow() {
-    try {
-      localStorage.setItem(POPUP_LAST_SHOWN_KEY, String(Date.now()));
-    } catch (e) {}
-  }
-
-  function openPopup() {
-    popup.classList.remove("hidden");
-    document.body.style.overflow = "hidden";
-    markPopupShownNow();
-  }
+  popup.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
 
   function closePopup() {
     popup.classList.add("hidden");
     document.body.style.overflow = "";
   }
 
-  if (isHomePage() && canShowPopupNow()) {
-    setTimeout(openPopup, 250);
-  }
-
   if (closeBtn) closeBtn.addEventListener("click", closePopup);
   if (backdrop) backdrop.addEventListener("click", closePopup);
-})();
+});
 </script>
 {% endif %}
 </body>
