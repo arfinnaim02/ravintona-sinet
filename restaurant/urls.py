@@ -130,4 +130,10 @@ urlpatterns = [
     views.customer_orders_status_api,
     name="customer_orders_status_api",
 ),
+    
+        # Site popups
+    path("admin/site-popups/", views.site_popups_list, name="site_popups_list"),
+    path("admin/site-popups/add/", views.site_popup_add, name="site_popup_add"),
+    path("admin/site-popups/<int:pk>/edit/", views.site_popup_edit, name="site_popup_edit"),
+    path("admin/site-popups/<int:pk>/delete/", views.site_popup_delete, name="site_popup_delete"),
 ]
