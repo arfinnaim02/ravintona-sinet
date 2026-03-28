@@ -125,4 +125,9 @@ urlpatterns = [
     views.customer_mark_order_received,
     name="customer_mark_order_received",
 ),
+    path(
+    "my-orders/status-api/",
+    views.customer_orders_status_api,
+    name="customer_orders_status_api",
+),
 ]
