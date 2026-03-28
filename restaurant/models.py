@@ -667,6 +667,28 @@ class DeliveryCoupon(models.Model):
             subtotal = Decimal("0")
         return subtotal >= Decimal(str(self.min_subtotal or 0))
 
+
+# -------------------------
+# Site popup
+# -------------------------
+
+class SitePopup(models.Model):
+    title = models.CharField(max_length=120, blank=True)
+    image = models.ImageField(upload_to="site_popups/")
+    redirect_url = models.URLField(blank=True)
+    is_active = models.BooleanField(default=True)
+    open_in_new_tab = models.BooleanField(default=False)
+    order = models.PositiveIntegerField(default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["order", "-updated_at", "-id"]
+
+    def __str__(self) -> str:
+        return self.title or f"Popup #{self.pk}"
+
 # -------------------------
 # Hero Banner (Homepage Slideshow)
 # -------------------------
