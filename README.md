@@ -65,4 +65,8 @@ It focuses on scalable backend logic, database management, and automation using 
 | ![](screenshots/home.png) | ![](screenshots/bot.png) |
 
 ---
+## 👨‍💻 Author
 
+Nazmul Arafin Naim  
+🌐 https://www.arfinnaim.tech/  
+🔗 https://www.linkedin.com/in/arfinnaim04  
