@@ -56,17 +56,13 @@ It focuses on scalable backend logic, database management, and automation using 
 
 ## 📸 Screenshots
 
-### 🏠 Homepage
-![Homepage](screenshots/home.png)
+| 🧑‍💼 Admin Panel | 🛒 Order System |
+|----------------|----------------|
+| ![](screenshots/admin.png) | ![](screenshots/order.png) |
 
-### ⚙️ Admin Panel
-![Admin](screenshots/admin.png)
-
-### 🛒 Order Management
-![Order](screenshots/order.png)
-
-### 🤖 Telegram Bot
-![Bot](screenshots/bot.png)
+| 🏠 Homepage | 🤖 Telegram Bot |
+|------------|----------------|
+| ![](screenshots/home.png) | ![](screenshots/bot.png) |
 
 ---
 
