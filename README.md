@@ -1,31 +1,42 @@
 # Ravintola Sinet
 
-A Django-based restaurant management system built to handle restaurant operations through a backend-driven workflow. The project includes order and menu management, PostgreSQL database integration, VPS deployment, and Telegram bot automation for operational updates.
+A backend-driven restaurant management system built with Django to handle real-world restaurant operations.  
+The system includes order and menu management, PostgreSQL database integration, VPS deployment, and Telegram bot automation for operational workflows.
 
-## Features
+---
 
-- Order management
-- Menu management
-- Admin panel and backend operations
-- PostgreSQL database integration
-- Telegram bot integration for workflow automation
-- Production deployment on VPS
-- Git-based deployment workflow
+## 🚀 Features
 
-## Tech Stack
+- Order and menu management system  
+- Backend admin operations and workflow handling  
+- PostgreSQL database integration  
+- Telegram bot integration for automation and real-time updates  
+- Production deployment on VPS  
+- Git-based deployment and update workflow  
 
-- Python
-- Django
-- PostgreSQL
-- Telegram Bot API
-- HTML, CSS, JavaScript
-- VPS / Linux
-- Git
+---
 
-## Project Highlights
+## 🛠️ Tech Stack
 
-- Built and maintained backend functionalities for restaurant operations
-- Deployed and managed the application in a live VPS environment
-- Integrated Telegram bot for backend automation and real-time operational updates
-- Handled debugging, migrations, and production-level issue fixing
+- Python, Django  
+- PostgreSQL  
+- Telegram Bot API  
+- HTML, CSS, JavaScript  
+- Linux (VPS), Git  
 
+---
+
+## 🔥 Highlights
+
+- Developed and maintained backend logic for restaurant operations  
+- Deployed and managed a live production system on VPS  
+- Integrated Telegram bot for backend automation and notifications  
+- Handled real-world debugging, migrations, and performance issues  
+
+---
+
+## 👨‍💻 Author
+
+Nazmul Arafin Naim  
+🌐 https://www.arfinnaim.tech/  
+🔗 https://www.linkedin.com/in/arfinnaim04  
